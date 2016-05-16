@@ -27,7 +27,7 @@ void setup()
   Serial.println("          (deg)     (deg)      Age                      Age  (m)    --- from GPS ----  ---- to London  ----  RX    RX        Fail");
   Serial.println("-------------------------------------------------------------------------------------------------------------------------------------");
 
-  ss.begin(4800);
+  ss.begin(9600);
 }
 
 void loop()
