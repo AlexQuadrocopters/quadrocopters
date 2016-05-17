@@ -26,8 +26,19 @@ GPS модуль GY-GPS6MV2 (NEO-6M-0-001)
 #include <modbusDevice.h>               // Назначение устройств MODBUS 
 #include <modbusRegBank.h>              // Регистры протокола MODBUS 
 #include <modbusSlave.h>                // Назначение функции(ведомый)устройств  MODBUS
-
+#include <SoftwareSerial.h>             // Библиотека серийного порта
+#include <TinyGPS.h>                    // Библиотека GPS
 #include <MsTimer2.h>                   // Библиотеки таймера
+
+TinyGPS gps;                            // Настройка GPS
+SoftwareSerial ss(5, 4);                // Подключение GPS к сериал
+
+static void smartdelay(unsigned long ms);
+static void print_float(float val, float invalid, int len, int prec);
+static void print_int(unsigned long val, unsigned long invalid, int len);
+static void print_date(TinyGPS &gps);
+static void print_str(const char *str, int len);
+
 
 
 #define  Pin8   8                       // Назначение  
@@ -49,6 +60,76 @@ void flash_time()                      // Программа обработчик прерывания
 	//digitalWrite(ledPin, LOW);       // включаем светодиод
 }
 
+//+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
+static void smartdelay(unsigned long ms)
+{
+  unsigned long start = millis();
+  do 
+  {
+    while (ss.available())
+      gps.encode(ss.read());
+  } while (millis() - start < ms);
+}
+static void print_float(float val, float invalid, int len, int prec)
+{
+  if (val == invalid)
+  {
+    while (len-- > 1)
+      Serial.print('*');
+    Serial.print(' ');
+  }
+  else
+  {
+    Serial.print(val, prec);
+    int vi = abs((int)val);
+    int flen = prec + (val < 0.0 ? 2 : 1); // . and -
+    flen += vi >= 1000 ? 4 : vi >= 100 ? 3 : vi >= 10 ? 2 : 1;
+    for (int i=flen; i<len; ++i)
+      Serial.print(' ');
+  }
+  smartdelay(0);
+}
+static void print_int(unsigned long val, unsigned long invalid, int len)
+{
+  char sz[32];
+  if (val == invalid)
+    strcpy(sz, "*******");
+  else
+    sprintf(sz, "%ld", val);
+  sz[len] = 0;
+  for (int i=strlen(sz); i<len; ++i)
+    sz[i] = ' ';
+  if (len > 0) 
+    sz[len-1] = ' ';
+  Serial.print(sz);
+  smartdelay(0);
+}
+static void print_date(TinyGPS &gps)
+{
+  int year;
+  byte month, day, hour, minute, second, hundredths;
+  unsigned long age;
+  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
+  if (age == TinyGPS::GPS_INVALID_AGE)
+    Serial.print("********** ******** ");
+  else
+  {
+    char sz[32];
+    sprintf(sz, "%02d/%02d/%02d %02d:%02d:%02d ",
+        month, day, year, hour, minute, second);
+    Serial.print(sz);
+  }
+  print_int(age, TinyGPS::GPS_INVALID_AGE, 5);
+  smartdelay(0);
+}
+static void print_str(const char *str, int len)
+{
+  int slen = strlen(str);
+  for (int i=0; i<len; ++i)
+    Serial.print(i<slen ? str[i] : ' ');
+  smartdelay(0);
+}
+//------------------------------------------------------------------------------
 
 
 void set_port()
@@ -65,8 +146,6 @@ void set_port()
 
 	regBank.set(40010,analogRead(PinA0));      // Получить состояние А0      
 }
-
-
 void setup_regModbus()                         // Назначение регистров для передачи информации по MODBUS 
 {
     regBank.setId(1);                          // Slave ID 1  Устройство   MODBUS №1
@@ -101,6 +180,9 @@ void setup(void)
 	setup_regModbus();
 	slave._device = &regBank;  
 	slave.setSerial(0,9600);                   // Подключение к протоколу MODBUS компьютера Serial
+
+	ss.begin(9600);                            // Настройка скорости обмена с GPS
+
 
 	pinMode(Pin8, INPUT);                      // Назначение  
 	digitalWrite(Pin8, HIGH);                  //  
