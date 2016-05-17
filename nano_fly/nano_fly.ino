@@ -178,7 +178,7 @@ void setup(void)
 {
   //  Serial.begin(9600);
 	setup_regModbus();
-	slave._device = &regBank;  
+	slave._device = &regBank;                  // Подключение регистров к MODBUS 
 	slave.setSerial(0,9600);                   // Подключение к протоколу MODBUS компьютера Serial
 
 	ss.begin(9600);                            // Настройка скорости обмена с GPS

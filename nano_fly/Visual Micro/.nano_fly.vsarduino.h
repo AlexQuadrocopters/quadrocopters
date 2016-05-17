@@ -14,10 +14,8 @@
 #define __AVR_ATmega328P__
 #define F_CPU 16000000L
 #define ARDUINO 165
-#define ARDUINO_AVR_YUN
+#define ARDUINO_AVR_NANO
 #define ARDUINO_ARCH_AVR
-#define USB_VID 0x2341
-#define USB_PID 0x8041
 #define __cplusplus
 #define __inline__
 #define __asm__(x)
