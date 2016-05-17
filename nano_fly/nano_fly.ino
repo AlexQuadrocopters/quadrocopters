@@ -21,7 +21,6 @@ GPS модуль GY-GPS6MV2 (NEO-6M-0-001)
 
 */
 
-
 #include <modbus.h>                     // Библиотеки протокола MODBUS 
 #include <modbusDevice.h>               // Назначение устройств MODBUS 
 #include <modbusRegBank.h>              // Регистры протокола MODBUS 
@@ -39,11 +38,9 @@ static void print_int(unsigned long val, unsigned long invalid, int len);
 static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
-
-
 #define  Pin8   8                       // Назначение  
 #define  Pin13  13                      // Светодиод подсоединен к цифровому выводу 13 
-#define  PinA0  A0                      // Назначение  
+#define  GazA0  A0                      // Назначение вывода для подключения датчика газа MQ 
 
 
 //+++++++++++++++++++ MODBUS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -144,7 +141,7 @@ void set_port()
        regBank.set(40008,0);  
 	}
 
-	regBank.set(40010,analogRead(PinA0));      // Получить состояние А0      
+	regBank.set(40010,analogRead(GazA0));      // Получить состояние А0      
 }
 void setup_regModbus()                         // Назначение регистров для передачи информации по MODBUS 
 {
