@@ -85,12 +85,7 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portModeRegister(P)
 
 void flash_time();
-void measure_temp_in();
-void measure_temp_out();
-void measure_temp_sun();
-void measure_temp_tube();
 void set_port();
-void measure_light();
 void setup_regModbus();
 void setup(void);
 void loop(void);
