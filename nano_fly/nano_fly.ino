@@ -30,7 +30,14 @@ GPS модуль GY-GPS6MV2 (NEO-6M-0-001)
 #include <MsTimer2.h>                   // Библиотеки таймера
 
 TinyGPS gps;                            // Настройка GPS
-SoftwareSerial ss(5, 4);                // Подключение GPS к сериал
+
+static const int RXPin = 5, TXPin = 4;
+static const uint32_t GPSBaud = 9600;   // Скорость обмена с модулем GPS
+
+
+
+SoftwareSerial ss(RXPin, TXPin);        // Подключение GPS к сериал
+//SoftwareSerial ss(5, 4);              // Подключение GPS к сериал
 
 static void smartdelay(unsigned long ms);
 static void print_float(float val, float invalid, int len, int prec);
@@ -178,16 +185,14 @@ void setup(void)
 	slave._device = &regBank;                  // Подключение регистров к MODBUS 
 	slave.setSerial(0,9600);                   // Подключение к протоколу MODBUS компьютера Serial
 
-	ss.begin(9600);                            // Настройка скорости обмена с GPS
-
+	ss.begin(GPSBaud);                         // Настройка скорости обмена с GPS
 
 	pinMode(Pin8, INPUT);                      // Назначение  
 	digitalWrite(Pin8, HIGH);                  //  
 
 	pinMode(Pin13, OUTPUT);                    // устанавливаем режим работы вывода, как "выход"
 	digitalWrite(Pin13, LOW);                  //  
-
-
+ 
 	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
 	MsTimer2::start();                         // Включить таймер прерывания
 }
