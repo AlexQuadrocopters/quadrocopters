@@ -191,7 +191,7 @@ void setup(void)
 	digitalWrite(Pin13, LOW);                  //  
 
 
-	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывани
+	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
 	MsTimer2::start();                         // Включить таймер прерывания
 }
 
