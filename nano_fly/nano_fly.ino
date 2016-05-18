@@ -11,12 +11,20 @@ GPS модуль GY-GPS6MV2 (NEO-6M-0-001)
       D4             RX
 	  D5             TX
 ---------------------------------------
+Модуль NRF24L01 Подключение
++++++++++++++++++++++++++++++++++++++++
 
 
- 
 
-
-
+        Arduino Nano     NRF24L01
+  	        GND           1 GND
+          VCC +3,3V       2 VCC +3,3V
+			 D8           3 CE
+			 D7			  4 SCN
+		SCK  D13		  5 SCK
+		MOSI D11 		  6 MOSI
+		MISO D12		  7 MISO
+						  8 IRQ
 
 
 */
@@ -45,10 +53,20 @@ static void print_int(unsigned long val, unsigned long invalid, int len);
 static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
-#define  Pin8   8                       // Назначение  
-#define  Pin13  13                      // Светодиод подсоединен к цифровому выводу 13 
-#define  GazA0  A0                      // Назначение вывода для подключения датчика газа MQ 
 
+
+
+#define  Pin6        6                  // Назначение  
+#define  Pin7        7                  // Назначение  
+#define  Pin8        8                  // Назначение 
+#define  Pin9        9                  // Назначение 
+#define  Pin10       10                 // Назначение 
+#define  RF_MOSI     11                 // Подключение RF модуля
+#define  RF_MISO     12                 // Подключение RF модуля
+#define  RF_SCK      13                 // Подключение RF модуля
+#define  GazA0       A0                 // Назначение вывода для подключения датчика газа MQ 
+#define  PowerGeiger 6                  // Назначение вывода для управления питанием счетчика Гейгера
+#define  InGeiger    2                  // Назначение ввода подключения счетчика Гейгера 
 
 //+++++++++++++++++++ MODBUS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -134,6 +152,16 @@ static void print_str(const char *str, int len)
   smartdelay(0);
 }
 //------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
 
 
 void set_port()
