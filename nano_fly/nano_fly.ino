@@ -36,6 +36,14 @@ GPS модуль GY-GPS6MV2 (NEO-6M-0-001)
 #include <SoftwareSerial.h>             // Библиотека серийного порта
 #include <TinyGPS.h>                    // Библиотека GPS
 #include <MsTimer2.h>                   // Библиотеки таймера
+#include <SPI.h>
+#include <Mirf.h>
+#include <MirfHardwareSpiDriver.h>
+#include <nRF24L01.h>
+
+
+
+
 
 TinyGPS gps;                            // Настройка GPS
 
@@ -53,17 +61,22 @@ static void print_int(unsigned long val, unsigned long invalid, int len);
 static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
+//+++++++++++++++++ Настройки nRF24L01 ++++++++++++++++++++++++++
+// Адрес модуля
+#define ADDR "serv1"
+// Размер полезной нагрузки
+#define PAYLOAD sizeof(unsigned long)
+// Светодиод для индикации - 9 пин
+#define StatusLed 9
+// Переменная для приёма и передачи данных
+unsigned long data = 0;
+unsigned long command = 0;
 
+//---------------------------------------------------------------
 
-
-#define  Pin6        6                  // Назначение  
-#define  Pin7        7                  // Назначение  
-#define  Pin8        8                  // Назначение 
-#define  Pin9        9                  // Назначение 
+//#define  Pin9        9                  // Назначение 
 #define  Pin10       10                 // Назначение 
-#define  RF_MOSI     11                 // Подключение RF модуля
-#define  RF_MISO     12                 // Подключение RF модуля
-#define  RF_SCK      13                 // Подключение RF модуля
+
 #define  GazA0       A0                 // Назначение вывода для подключения датчика газа MQ 
 #define  PowerGeiger 6                  // Назначение вывода для управления питанием счетчика Гейгера
 #define  InGeiger    2                  // Назначение ввода подключения счетчика Гейгера 
@@ -152,31 +165,85 @@ static void print_str(const char *str, int len)
   smartdelay(0);
 }
 //------------------------------------------------------------------------------
+void run_nRF24L01()
+{
+ // Обнуляем переменную с данными:
+  data = 0;
+  command = 0;
+  // Ждём данных
+  if (!Mirf.isSending() && Mirf.dataReady()) {
+    Serial.println("Got packet");
+    //Сообщаем коротким миганием светодиода о наличии данных
+    digitalWrite(StatusLed, HIGH);
+    delay(100);
+    digitalWrite(StatusLed, LOW);
+    // Принимаем пакет данные в виде массива байт в переменную data:
+    Mirf.getData((byte *) &command);
+    // Сообщаем длинным миганием светодиода о получении данных
+    digitalWrite(StatusLed, HIGH);
+    delay(500);
+    digitalWrite(StatusLed, LOW);
+    // Выводим полученные данные в монитор серийного порта
+    Serial.print("Get data: ");
+    Serial.println(command);
+  }
+  // Если переменная не нулевая, формируем ответ:
+  if (command != 0) {
+    switch (command) {
+      case 1:
+        // Команда 1 - отправить число милисекунд,
+        // прошедших с последней перезагрузки платы
+        Serial.println("Command 1. Send millis().");
+        data = 1234567890;
+	//	data = millis();
+        break;
+      case 2:
+        // команда 2 - отправить значение с пина AnalogPin0
+        Serial.println("Command 2. Send A0 reference.");
+        data = analogRead(A0);
+        break;
+      case 3:
+        // команда 3 - отправить значение с пина AnalogPin1
+        Serial.println("Command 3. Send A1 reference.");
+        data = analogRead(A1);
+        break;
+      default:
+        // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
+        // жалуемся в последовательный порт
+        Serial.println("Unknown command");
+       /* for (byte i = 0; i < 10; i++) {
+          digitalWrite(StatusLed, HIGH);
+          delay(100);
+          digitalWrite(StatusLed, LOW);
+        }*/
+        break;
+    }
+    // Отправляем ответ:
 
-
-
-
-
-
-
-
-
+    Mirf.setTADDR((byte *)"clie1");
+    //Отправляем ответ в виде массива байт:
+    Mirf.send((byte *)&data);
+  }
+  // Экспериментально вычисленная задержка.
+  // Позволяет избежать проблем с модулем.
+  delay(10);
+}
 
 
 
 void set_port()
 {
-	digitalWrite(Pin13, regBank.get(13+1));     // функция управления светодиодом
-	if(digitalRead(Pin8)== HIGH)
-	{
-	    regBank.set(40008,1);  
-	}
-	else
-	{
-       regBank.set(40008,0);  
-	}
+	//digitalWrite(Pin13, regBank.get(13+1));     // функция управления светодиодом
+	//if(digitalRead(Pin8)== HIGH)
+	//{
+	//    regBank.set(40008,1);  
+	//}
+	//else
+	//{
+ //      regBank.set(40008,0);  
+	//}
 
-	regBank.set(40010,analogRead(GazA0));      // Получить состояние А0      
+	//regBank.set(40010,analogRead(GazA0));      // Получить состояние А0      
 }
 void setup_regModbus()                         // Назначение регистров для передачи информации по MODBUS 
 {
@@ -208,18 +275,23 @@ void setup_regModbus()                         // Назначение регистров для перед
 
 void setup(void)
 {
-  //  Serial.begin(9600);
+	//  Serial.begin(9600);
 	setup_regModbus();
 	slave._device = &regBank;                  // Подключение регистров к MODBUS 
 	slave.setSerial(0,9600);                   // Подключение к протоколу MODBUS компьютера Serial
 
 	ss.begin(GPSBaud);                         // Настройка скорости обмена с GPS
 
-	pinMode(Pin8, INPUT);                      // Назначение  
-	digitalWrite(Pin8, HIGH);                  //  
+	Mirf.cePin = 8;
+	Mirf.csnPin = 7;
+	Mirf.spi = &MirfHardwareSpi;
+	MirfHardwareSpi;
+	Mirf.init();
 
-	pinMode(Pin13, OUTPUT);                    // устанавливаем режим работы вывода, как "выход"
-	digitalWrite(Pin13, LOW);                  //  
+	Mirf.setRADDR((byte*)ADDR);
+	Mirf.payload = sizeof(unsigned long);
+	Mirf.config();
+	Serial.println("Beginning ... ");
  
 	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
 	MsTimer2::start();                         // Включить таймер прерывания
@@ -228,6 +300,8 @@ void setup(void)
 void loop(void)
 {
 	set_port();                                // Передать информацию устройствам полученную по MODBUS
+
+	run_nRF24L01();
 	delay(100);
 
   /*
