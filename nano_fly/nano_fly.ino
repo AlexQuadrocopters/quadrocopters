@@ -29,10 +29,6 @@ GPS модуль GY-GPS6MV2 (NEO-6M-0-001)
 
 */
 
-#include <modbus.h>                     // Библиотеки протокола MODBUS  
-#include <modbusDevice.h>               // Назначение устройств MODBUS 
-#include <modbusRegBank.h>              // Регистры протокола MODBUS 
-#include <modbusSlave.h>                // Назначение функции(ведомый)устройств  MODBUS
 #include <SoftwareSerial.h>             // Библиотека серийного порта
 #include <TinyGPS.h>                    // Библиотека GPS
 #include <MsTimer2.h>                   // Библиотеки таймера
@@ -42,12 +38,11 @@ GPS модуль GY-GPS6MV2 (NEO-6M-0-001)
 #include <nRF24L01.h>
 
 
+//------ Настройки счетчика Гейгера ------------------
+
 // Conversion factor - CPM to uSV/h
 #define CONV_FACTOR 0.00812
-
-// Variables
-//int ledArray [] = {10,11,12,13,9};
-int geiger_input = 2;
+int geiger_input = 2;                         //Назначение ввода подключения счетчика Гейгера 
 long count = 0;
 long countPerMinute = 0;
 long timePrevious = 0;
@@ -56,15 +51,15 @@ long time = 0;
 long countPrevious = 0;
 float radiationValue = 0.0;
 
-
 //---------------------------------------------------
 
-TinyGPS gps;                            // Настройка GPS
+TinyGPS gps;                                  // Настройка GPS
 
 static const int RXPin = 5, TXPin = 4;
-static const uint32_t GPSBaud = 9600;   // Скорость обмена с модулем GPS
-SoftwareSerial ss(RXPin, TXPin);        // Подключение GPS к сериал
-//SoftwareSerial ss(5, 4);              // Подключение GPS к сериал
+static const uint32_t GPSBaud = 9600;         // Скорость обмена с модулем GPS
+
+SoftwareSerial ss(RXPin, TXPin);              // Подключение GPS к сериал
+//SoftwareSerial ss(5, 4);                    // Подключение GPS к сериал
 
 static void smartdelay(unsigned long ms);
 static void print_float(float val, float invalid, int len, int prec);
@@ -72,38 +67,27 @@ static void print_int(unsigned long val, unsigned long invalid, int len);
 static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
-//+++++++++++++++++ Настройки nRF24L01 Client ++++++++++++++++++++++++++
+//+++++++++++++++++ Настройки nRF24L01 ++++++++++++++++++++++++++
 
-#define ADDR "serv1"      // Адрес сервера
-// Размер полезной нагрузки
-#define PAYLOAD sizeof(unsigned long)
-// Светодиод для индикации - 9 пин
-#define StatusLed 6
-// Переменная для приёма и передачи данных
-unsigned long data = 0;
-unsigned long command = 0;
+#define ADDR "gelicopter"                          // Адрес модуля
+#define PAYLOAD sizeof(unsigned long)         // Размер полезной нагрузки
+#define StatusLed 9                           // Светодиод для индикации - 9 пин
+unsigned long data = 0;                       // Переменная для приёма и передачи данных
+unsigned long command = 0;                    //
 
 //---------------------------------------------------------------
 
-//#define  Pin9        9                  // Назначение 
-#define  Pin10       10                   // Назначение 
+#define  Pin10       10                       // Назначение 
+#define  GazA0       A0                       // Назначение вывода для подключения датчика газа MQ 
+#define  PowerGeiger 6                        // Назначение вывода для управления питанием счетчика Гейгера
 
-#define  GazA0       A0                 // Назначение вывода для подключения датчика газа MQ 
-#define  PowerGeiger 6                  // Назначение вывода для управления питанием счетчика Гейгера
-//#define  InGeiger    2                  // Назначение ввода подключения счетчика Гейгера 
+int ledState = LOW;                           // Переменная состояния светодиода
 
-//+++++++++++++++++++ MODBUS ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-modbusDevice regBank;                  // Определение регистров 
-modbusSlave slave;                     // Назначение функции(ведомый)устройств  MODBUS
-
-int ledState = LOW;                    // Переменная состояния светодиода
-
-void flash_time()                      // Программа обработчик прерывания 
+void flash_time()                             // Программа обработчик прерывания 
 { 
-	//digitalWrite(ledPin, HIGH);      // включаем светодиод
-	//slave.run();                       // Запрос протокола MODBUS 
-	//digitalWrite(ledPin, LOW);       // включаем светодиод
+	//digitalWrite(ledPin, HIGH);             // включаем светодиод
+	//slave.run();                            // Запрос протокола MODBUS 
+	//digitalWrite(ledPin, LOW);              // включаем светодиод
 }
 
 //+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -182,8 +166,7 @@ void run_nRF24L01()
   data = 0;
   command = 0;
   // Ждём данных
-  if (!Mirf.isSending() && Mirf.dataReady()) 
-  {
+  if (!Mirf.isSending() && Mirf.dataReady()) {
     Serial.println("Got packet");
     //Сообщаем коротким миганием светодиода о наличии данных
     digitalWrite(StatusLed, HIGH);
@@ -200,39 +183,40 @@ void run_nRF24L01()
     Serial.println(command);
   }
   // Если переменная не нулевая, формируем ответ:
-  if (command != 0) {
-    switch (command) {
+  if (command != 0) 
+  {
+    switch (command) 
+	{
       case 1:
         // Команда 1 - отправить число милисекунд,
         // прошедших с последней перезагрузки платы
         Serial.println("Command 1. Send millis().");
-        data = 1234567890;
-	//	data = millis();
+		data = millis();
         break;
       case 2:
-        // команда 2 - отправить значение с пина AnalogPin0
-        Serial.println("Command 2. Send A0 reference.");
-        data = analogRead(A0);
+        // команда 2 - отправить значение 
+        Serial.println("cpm = ");
+        data = countPerMinute;
         break;
       case 3:
-        // команда 3 - отправить значение с пина AnalogPin1
-        Serial.println("Command 3. Send A1 reference.");
-        data = analogRead(A1);
+        // команда 3 - отправить значение 
+        Serial.println("uSv/h = ");
+ 		data = radiationValue*10000 ;
         break;
       default:
-        // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
+        // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и 
         // жалуемся в последовательный порт
         Serial.println("Unknown command");
-       /* for (byte i = 0; i < 10; i++) {
+        for (byte i = 0; i < 10; i++) {
           digitalWrite(StatusLed, HIGH);
           delay(100);
           digitalWrite(StatusLed, LOW);
-        }*/
+        }
         break;
     }
     // Отправляем ответ:
 
-    Mirf.setTADDR((byte *)"clie1");
+    Mirf.setTADDR((byte *)"remote");
     //Отправляем ответ в виде массива байт:
     Mirf.send((byte *)&data);
   }
@@ -268,58 +252,12 @@ void countPulse()
 }
 
 
-void set_port()
-{
-	//digitalWrite(Pin13, regBank.get(13+1));     // функция управления светодиодом
-	//if(digitalRead(Pin8)== HIGH)
-	//{
-	//    regBank.set(40008,1);  
-	//}
-	//else
-	//{
- //      regBank.set(40008,0);  
-	//}
-
-	//regBank.set(40010,analogRead(GazA0));      // Получить состояние А0      
-}
-void setup_regModbus()                         // Назначение регистров для передачи информации по MODBUS 
-{
-    regBank.setId(1);                          // Slave ID 1  Устройство   MODBUS №1
-
-	regBank.add(1);                            //  
-	regBank.add(6);                            //  
-	regBank.add(7);                            //  
-	regBank.add(8);                            // Регистр управления светодиодом
-	regBank.add(9);                            //  
-	regBank.add(10);                           //  
-	regBank.add(11);                           //  
-	regBank.add(12);                           //  
-	regBank.add(13);                           //  
- 	regBank.add(14);                           // 
-	regBank.add(15);                           //  
-	regBank.add(40001);                        //   
-	regBank.add(40002);                        //   
-	regBank.add(40003);                        //   
-	regBank.add(40004);                        //  
-	regBank.add(40005);                        //   
-	regBank.add(40006);                        //   
-	regBank.add(40007);                        //   
-	regBank.add(40008);                        //   
-	regBank.add(40009);                        //  
-	regBank.add(40010);                        // Регистр состояния А0 
-}
-
-
 void setup(void)
 {
 	Serial.begin(9600);
 
 	pinMode(geiger_input, INPUT);
     digitalWrite(geiger_input,HIGH);
-
-    setup_regModbus();
-	slave._device = &regBank;                  // Подключение регистров к MODBUS 
-	slave.setSerial(0,9600);                   // Подключение к протоколу MODBUS компьютера Serial
 
 	ss.begin(GPSBaud);                         // Настройка скорости обмена с GPS
 
@@ -342,22 +280,7 @@ void setup(void)
 
 void loop(void)
 {
-	//set_port();                                // Передать информацию устройствам полученную по MODBUS
-
-	//run_nRF24L01();
 	delay(100);
 	run_geiger();
 	run_nRF24L01();
-
-  /*
-    if (ledState == LOW)
-	{
-      ledState = HIGH;
-    } 
-	else
-	{
-      ledState = LOW;
-    }
-
-    digitalWrite(Pin13, ledState);*/
 }

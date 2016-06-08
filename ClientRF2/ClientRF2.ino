@@ -4,7 +4,7 @@
 #include <nRF24L01.h>
 
 // Адрес модуля
-#define ADDR "clie1"
+#define ADDR "remote"   // Адрес модуля Адрес Client
 #define PAYLOAD sizeof(unsigned long)
 // Светодиод для индикации - 4 пин
 #define StatusLed 4
@@ -28,8 +28,8 @@ void setup() {
     digitalWrite(StatusLed, LOW);
   }
 
-  Mirf.csnPin = 9;
   Mirf.cePin = 10;
+  Mirf.csnPin = 9;
   Mirf.spi = &MirfHardwareSpi;
   Mirf.init();
 
@@ -42,16 +42,15 @@ void setup() {
 void loop() {
   timeout = false;
   // Устанавливаем адрес передачи
-  Mirf.setTADDR((byte *)&"serv1");
+  Mirf.setTADDR((byte *)&"gelicopter");
   // Запрашиваем число милисекунд,
   // прошедших с последней перезагрузки сервера:
-  
   Serial.println("Request millis()");
   command = 1;
   Mirf.send((byte *)&command);
   // Мигнули 1 раз - команда отправлена
   digitalWrite(StatusLed, HIGH);
-  delay(200);
+  delay(100);
   digitalWrite(StatusLed, LOW);
   // Запомнили время отправки:
   timestamp = millis();
@@ -60,7 +59,7 @@ void loop() {
 
   // Запрашиваем число милисекунд,
   // прошедших с последней перезагрузки сервера:
-  Serial.println("Request A0 reference");
+  Serial.print("cpm = ");
   command = 2;
   Mirf.send((byte *)&command);
   // Мигнули 1 раз - команда отправлена
@@ -72,24 +71,8 @@ void loop() {
   // Запускаем профедуру ожидания ответа
   waitanswer();
 
- // Запрашиваем число милисекунд,
-  // прошедших с последней перезагрузки сервера:
-  Serial.println("Request A1 reference");
+  Serial.print("uSv/h = ");
   command = 3;
-  Mirf.send((byte *)&command);
-  // Мигнули 1 раз - команда отправлена
-  digitalWrite(StatusLed, HIGH);
-  delay(200);
-  digitalWrite(StatusLed, LOW);
-  // Запомнили время отправки:
-  timestamp = millis();
-  // Запускаем профедуру ожидания ответа
-  waitanswer();
-/*
-  // Отправляем невалидную команду
-  // прошедших с последней перезагрузки сервера:
-  Serial.println("Invalid command");
-  command = 42;
   Mirf.send((byte *)&command);
   // Мигнули 1 раз - команда отправлена
   digitalWrite(StatusLed, HIGH);
@@ -99,9 +82,23 @@ void loop() {
   timestamp = millis();
   // Запускаем профедуру ожидания ответа
   waitanswer();
-  */
-  // Эксперимаентально вычисленная задержка.
-  // Позволяет избежать проблем с модулем.
+
+  //  // Отправляем невалидную команду
+  //  // прошедших с последней перезагрузки сервера:
+  //  Serial.println("Invalid command");
+  //
+  //  command=4;
+  //  Mirf.send((byte *)&command);
+  //  // Мигнули 1 раз - команда отправлена
+  //  digitalWrite(StatusLed, HIGH);
+  //  delay(100);
+  //  digitalWrite(StatusLed, LOW);
+  //  // Запомнили время отправки:
+  //  timestamp=millis();
+  //  // Запускаем профедуру ожидания ответа
+  //  waitanswer();
+  //  // Эксперимаентально вычисленная задержка.
+  //  // Позволяет избежать проблем с модулем.
   delay(10);
   Serial.println("-----------------------------------------");
   delay(1000);
@@ -117,20 +114,29 @@ void waitanswer() {
   while (millis() - timestamp < TIMEOUT && timeout) {
     if (!Mirf.isSending() && Mirf.dataReady()) {
       // Мигнули 2 раза - ответ получен
-//      for (byte i = 0; i < 2; i++) {
-//        digitalWrite(StatusLed, HIGH);
-//        delay(100);
-//        digitalWrite(StatusLed, LOW);
-//      }
-          delay(300);
+      for (byte i = 0; i < 2; i++) {
+        digitalWrite(StatusLed, HIGH);
+        delay(100);
+        digitalWrite(StatusLed, LOW);
+      }
       timeout = false;
 
       // Принимаем пакет данные в виде массива байт в переменную data:
       Mirf.getData((byte *)&data);
       // Выводим полученные данные в монитор серийного порта
-      Serial.println("Get data: ");
-    //  Serial.println(command);
-      Serial.println(data);
+      //  Serial.print("Get data: ");
+      if ( command == 3)
+      {
+        float data_f = data;
+        data_f=data_f/10000;
+        Serial.println(data_f ,4);
+       //  Serial.println(data);
+      }
+      else
+      {
+        Serial.println(data);
+      }
+
       data = 0;
     }
   }
