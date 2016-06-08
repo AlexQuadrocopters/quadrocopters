@@ -86,6 +86,8 @@ extern "C" void __cxa_pure_virtual() {;}
 
 void flash_time();
 void run_nRF24L01();
+void run_geiger();
+void countPulse();
 void set_port();
 void setup_regModbus();
 void setup(void);
