@@ -1,10 +1,18 @@
+/*
+Программа базы
+
+
+
+*/
+
+
 #include <SPI.h>
 #include <Mirf.h>
 #include <MirfHardwareSpiDriver.h>
 #include <nRF24L01.h>
 
 // Адрес модуля
-#define ADDR "remote"   // Адрес модуля Адрес Client
+#define ADDR "remote"   // Адрес модуля
 #define PAYLOAD sizeof(unsigned long)
 // Светодиод для индикации - 4 пин
 #define StatusLed 4
