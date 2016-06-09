@@ -84,7 +84,7 @@ static void print_str(const char *str, int len);
 
 //+++++++++++++++++ Настройки nRF24L01 ++++++++++++++++++++++++++
 
-#define ADDR "gelicopter"                          // Адрес модуля
+#define ADDR "fly10"                          // Адрес модуля
 #define PAYLOAD sizeof(unsigned long)         // Размер полезной нагрузки
 #define StatusLed 9                           // Светодиод для индикации - 9 пин
 unsigned long data = 0;                       // Переменная для приёма и передачи данных
@@ -232,7 +232,7 @@ void run_nRF24L01()
         break;
     }
     // Отправляем ответ:
-    Mirf.setTADDR((byte *)"remote");
+    Mirf.setTADDR((byte *)"remot");
     Mirf.send((byte *)&data);                         //Отправляем ответ в виде массива байт:
   }
   // Экспериментально вычисленная задержка.
