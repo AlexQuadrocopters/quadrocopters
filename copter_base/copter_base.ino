@@ -1,6 +1,9 @@
 /*
 Программа базы
 
+Подключение
+
+
 
 
 */
@@ -12,7 +15,7 @@
 #include <nRF24L01.h>
 
 // Адрес модуля
-#define ADDR "remote"   // Адрес модуля Базы
+#define ADDR "remot"   // Адрес модуля Базы
 #define PAYLOAD sizeof(unsigned long)
 // Светодиод для индикации - 4 пин
 #define StatusLed 13
@@ -50,7 +53,7 @@ void setup() {
 void loop() {
   timeout = false;
   // Устанавливаем адрес передачи
-  Mirf.setTADDR((byte *)&"gelicopter");
+  Mirf.setTADDR((byte *)&"fly10");
   // Запрашиваем число милисекунд,
   // прошедших с последней перезагрузки сервера:
   Serial.println("Request millis()");
