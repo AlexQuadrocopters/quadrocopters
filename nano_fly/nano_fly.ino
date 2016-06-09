@@ -8,9 +8,9 @@
   Подключение:
  Arduino Nano    GY-GPS6MV2
    VCC +5V          VCC
-	   GND            GND
+	 GND            GND
      D4             RX
-	   D5             TX
+	 D5             TX
   ---------------------------------------
   Модуль NRF24L01 Подключение
   +++++++++++++++++++++++++++++++++++++++
@@ -18,18 +18,18 @@
     GND           1 GND
   VCC +3,3V       2 VCC +3,3V
   	 D8           3 CE
-     D7			      4 SCN
-SCK  D13		      5 SCK
-MOSI D11 		      6 MOSI
-MISO D12		      7 MISO
+     D7		      4 SCN
+SCK  D13	      5 SCK
+MOSI D11 	      6 MOSI
+MISO D12	      7 MISO
   ------------------------------------------
   Счетчик Гейгера
   ++++++++++++++++++++++++++++++++++++++++++
 Arduino Nano     Счетчик Гейгера
     GND              GND
  VCC +5,0V        VCC +5,0V
-     D2       Выход коллектора транзистора
-		 D6       Управление питанием (реле)
+	D2       Выход коллектора транзистора
+	D6       Управление питанием (реле)
   ------------------------------------------------
   Датчик давления  BMP180(BMO085)   (измерение высоты)
   ++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -120,7 +120,7 @@ static void print_float(float val, float invalid, int len, int prec)
   if (val == invalid)
   {
     while (len-- > 1)
-      Serial.print('*');
+    Serial.print('*');
     Serial.print(' ');
   }
   else
@@ -130,7 +130,7 @@ static void print_float(float val, float invalid, int len, int prec)
     int flen = prec + (val < 0.0 ? 2 : 1); // . and -
     flen += vi >= 1000 ? 4 : vi >= 100 ? 3 : vi >= 10 ? 2 : 1;
     for (int i = flen; i < len; ++i)
-      Serial.print(' ');
+    Serial.print(' ');
   }
   smartdelay(0);
 }
@@ -223,7 +223,8 @@ void run_nRF24L01()
         // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
         // жалуемся в последовательный порт
         Serial.println("Unknown command");
-        for (byte i = 0; i < 10; i++) {
+        for (byte i = 0; i < 10; i++) 
+		{
           digitalWrite(StatusLed, HIGH);
           delay(100);
           digitalWrite(StatusLed, LOW);
@@ -231,10 +232,8 @@ void run_nRF24L01()
         break;
     }
     // Отправляем ответ:
-
     Mirf.setTADDR((byte *)"remote");
-    //Отправляем ответ в виде массива байт:
-    Mirf.send((byte *)&data);
+    Mirf.send((byte *)&data);                         //Отправляем ответ в виде массива байт:
   }
   // Экспериментально вычисленная задержка.
   // Позволяет избежать проблем с модулем.
@@ -261,9 +260,7 @@ void countPulse()
 {
   detachInterrupt(0);
   count++;
-  while (digitalRead(2) == 0)
-  {
-  }
+  while (digitalRead(2) == 0){}
   attachInterrupt(0, countPulse, FALLING);
 }
 
