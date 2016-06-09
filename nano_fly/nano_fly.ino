@@ -1,48 +1,63 @@
 /*
-Базовый модуль Arduino Nano
-Размещается на квадрокоптере.
-Установленное оборудование:
-+++++++++++++++++++++++++++++++++++++++
-GPS модуль GY-GPS6MV2 (NEO-6M-0-001)
-Подключение:
-    Arduino Nano    GY-GPS6MV2
-	VCC +5V          VCC
-	  GND            GND
-      D4             RX
-	  D5             TX
----------------------------------------
-Модуль NRF24L01 Подключение
-+++++++++++++++++++++++++++++++++++++++
+  Р‘Р°Р·РѕРІС‹Р№ РјРѕРґСѓР»СЊ Arduino Nano
+  Р Р°Р·РјРµС‰Р°РµС‚СЃСЏ РЅР° РєРІР°РґСЂРѕРєРѕРїС‚РµСЂРµ.
+  РЈСЃС‚Р°РЅРѕРІР»РµРЅРЅРѕРµ РѕР±РѕСЂСѓРґРѕРІР°РЅРёРµ:
+  +++++++++++++++++++++++++++++++++++++++
+  GPS РјРѕРґСѓР»СЊ GY-GPS6MV2 (NEO-6M-0-001)
+  ++++++++++++++++++++++++++++++++++++++
+  РџРѕРґРєР»СЋС‡РµРЅРёРµ:
+ Arduino Nano    GY-GPS6MV2
+   VCC +5V          VCC
+	   GND            GND
+     D4             RX
+	   D5             TX
+  ---------------------------------------
+  РњРѕРґСѓР»СЊ NRF24L01 РџРѕРґРєР»СЋС‡РµРЅРёРµ
+  +++++++++++++++++++++++++++++++++++++++
+ Arduino Nano     NRF24L01
+    GND           1 GND
+  VCC +3,3V       2 VCC +3,3V
+  	 D8           3 CE
+     D7			      4 SCN
+SCK  D13		      5 SCK
+MOSI D11 		      6 MOSI
+MISO D12		      7 MISO
+  ------------------------------------------
+  РЎС‡РµС‚С‡РёРє Р“РµР№РіРµСЂР°
+  ++++++++++++++++++++++++++++++++++++++++++
+Arduino Nano     РЎС‡РµС‚С‡РёРє Р“РµР№РіРµСЂР°
+    GND              GND
+ VCC +5,0V        VCC +5,0V
+     D2       Р’С‹С…РѕРґ РєРѕР»Р»РµРєС‚РѕСЂР° С‚СЂР°РЅР·РёСЃС‚РѕСЂР°
+		 D6       РЈРїСЂР°РІР»РµРЅРёРµ РїРёС‚Р°РЅРёРµРј (СЂРµР»Рµ)
+  ------------------------------------------------
+  Р”Р°С‚С‡РёРє РґР°РІР»РµРЅРёСЏ  BMP180(BMO085)   (РёР·РјРµСЂРµРЅРёРµ РІС‹СЃРѕС‚С‹)
+  ++++++++++++++++++++++++++++++++++++++++++++++++++++
+Arduino Nano      BMP180(BMO085) 
+    GND               GND  
+ VCC +5,0V        VCC +5,0V
+    A4               SDA
+    A5               SCL
 
-
-
-        Arduino Nano     NRF24L01
-  	        GND           1 GND
-          VCC +3,3V       2 VCC +3,3V
-			 D8           3 CE
-			 D7			  4 SCN
-		SCK  D13		  5 SCK
-		MOSI D11 		  6 MOSI
-		MISO D12		  7 MISO
-						  8 IRQ
+  ---------------------------------------------------
 
 
 */
 
-#include <SoftwareSerial.h>             // Библиотека серийного порта
-#include <TinyGPS.h>                    // Библиотека GPS
-#include <MsTimer2.h>                   // Библиотеки таймера
+#include <SoftwareSerial.h>             // Р‘РёР±Р»РёРѕС‚РµРєР° СЃРµСЂРёР№РЅРѕРіРѕ РїРѕСЂС‚Р°
+#include <TinyGPS.h>                    // Р‘РёР±Р»РёРѕС‚РµРєР° GPS
+#include <MsTimer2.h>                   // Р‘РёР±Р»РёРѕС‚РµРєРё С‚Р°Р№РјРµСЂР°
 #include <SPI.h>
 #include <Mirf.h>
 #include <MirfHardwareSpiDriver.h>
 #include <nRF24L01.h>
 
 
-//------ Настройки счетчика Гейгера ------------------
+//------ РќР°СЃС‚СЂРѕР№РєРё СЃС‡РµС‚С‡РёРєР° Р“РµР№РіРµСЂР° ------------------
 
 // Conversion factor - CPM to uSV/h
 #define CONV_FACTOR 0.00812
-int geiger_input = 2;                         //Назначение ввода подключения счетчика Гейгера 
+int geiger_input = 2;                         //РќР°Р·РЅР°С‡РµРЅРёРµ РІРІРѕРґР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ СЃС‡РµС‚С‡РёРєР° Р“РµР№РіРµСЂР°
 long count = 0;
 long countPerMinute = 0;
 long timePrevious = 0;
@@ -53,13 +68,13 @@ float radiationValue = 0.0;
 
 //---------------------------------------------------
 
-TinyGPS gps;                                  // Настройка GPS
+TinyGPS gps;                                  // РќР°СЃС‚СЂРѕР№РєР° GPS
 
 static const int RXPin = 5, TXPin = 4;
-static const uint32_t GPSBaud = 9600;         // Скорость обмена с модулем GPS
+static const uint32_t GPSBaud = 9600;         // РЎРєРѕСЂРѕСЃС‚СЊ РѕР±РјРµРЅР° СЃ РјРѕРґСѓР»РµРј GPS
 
-SoftwareSerial ss(RXPin, TXPin);              // Подключение GPS к сериал
-//SoftwareSerial ss(5, 4);                    // Подключение GPS к сериал
+SoftwareSerial ss(RXPin, TXPin);              // РџРѕРґРєР»СЋС‡РµРЅРёРµ GPS Рє СЃРµСЂРёР°Р»
+//SoftwareSerial ss(5, 4);                    // РџРѕРґРєР»СЋС‡РµРЅРёРµ GPS Рє СЃРµСЂРёР°Р»
 
 static void smartdelay(unsigned long ms);
 static void print_float(float val, float invalid, int len, int prec);
@@ -67,34 +82,34 @@ static void print_int(unsigned long val, unsigned long invalid, int len);
 static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
-//+++++++++++++++++ Настройки nRF24L01 ++++++++++++++++++++++++++
+//+++++++++++++++++ РќР°СЃС‚СЂРѕР№РєРё nRF24L01 ++++++++++++++++++++++++++
 
-#define ADDR "gelicopter"                          // Адрес модуля
-#define PAYLOAD sizeof(unsigned long)         // Размер полезной нагрузки
-#define StatusLed 9                           // Светодиод для индикации - 9 пин
-unsigned long data = 0;                       // Переменная для приёма и передачи данных
+#define ADDR "gelicopter"                          // РђРґСЂРµСЃ РјРѕРґСѓР»СЏ
+#define PAYLOAD sizeof(unsigned long)         // Р Р°Р·РјРµСЂ РїРѕР»РµР·РЅРѕР№ РЅР°РіСЂСѓР·РєРё
+#define StatusLed 9                           // РЎРІРµС‚РѕРґРёРѕРґ РґР»СЏ РёРЅРґРёРєР°С†РёРё - 9 РїРёРЅ
+unsigned long data = 0;                       // РџРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ РїСЂРёС‘РјР° Рё РїРµСЂРµРґР°С‡Рё РґР°РЅРЅС‹С…
 unsigned long command = 0;                    //
 
 //---------------------------------------------------------------
 
-#define  Pin10       10                       // Назначение 
-#define  GazA0       A0                       // Назначение вывода для подключения датчика газа MQ 
-#define  PowerGeiger 6                        // Назначение вывода для управления питанием счетчика Гейгера
+#define  Pin10       10                       // РќР°Р·РЅР°С‡РµРЅРёРµ 
+#define  GazA0       A0                       // РќР°Р·РЅР°С‡РµРЅРёРµ РІС‹РІРѕРґР° РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ РґР°С‚С‡РёРєР° РіР°Р·Р° MQ 
+#define  PowerGeiger 6                        // РќР°Р·РЅР°С‡РµРЅРёРµ РІС‹РІРѕРґР° РґР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ РїРёС‚Р°РЅРёРµРј СЃС‡РµС‚С‡РёРєР° Р“РµР№РіРµСЂР°
 
-int ledState = LOW;                           // Переменная состояния светодиода
+int ledState = LOW;                           // РџРµСЂРµРјРµРЅРЅР°СЏ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃРІРµС‚РѕРґРёРѕРґР°
 
-void flash_time()                             // Программа обработчик прерывания 
-{ 
-	//digitalWrite(ledPin, HIGH);             // включаем светодиод
-	//slave.run();                            // Запрос протокола MODBUS 
-	//digitalWrite(ledPin, LOW);              // включаем светодиод
+void flash_time()                             // РџСЂРѕРіСЂР°РјРјР° РѕР±СЂР°Р±РѕС‚С‡РёРє РїСЂРµСЂС‹РІР°РЅРёСЏ
+{
+  //digitalWrite(ledPin, HIGH);             // РІРєР»СЋС‡Р°РµРј СЃРІРµС‚РѕРґРёРѕРґ
+  //slave.run();                            // Р—Р°РїСЂРѕСЃ РїСЂРѕС‚РѕРєРѕР»Р° MODBUS
+  //digitalWrite(ledPin, LOW);              // РІРєР»СЋС‡Р°РµРј СЃРІРµС‚РѕРґРёРѕРґ
 }
 
-//+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++ Р Р°Р±РѕС‚Р° СЃ GPS +++++++++++++++++++++++++++++++++++++++++++++++++
 static void smartdelay(unsigned long ms)
 {
   unsigned long start = millis();
-  do 
+  do
   {
     while (ss.available())
       gps.encode(ss.read());
@@ -114,7 +129,7 @@ static void print_float(float val, float invalid, int len, int prec)
     int vi = abs((int)val);
     int flen = prec + (val < 0.0 ? 2 : 1); // . and -
     flen += vi >= 1000 ? 4 : vi >= 100 ? 3 : vi >= 10 ? 2 : 1;
-    for (int i=flen; i<len; ++i)
+    for (int i = flen; i < len; ++i)
       Serial.print(' ');
   }
   smartdelay(0);
@@ -127,10 +142,10 @@ static void print_int(unsigned long val, unsigned long invalid, int len)
   else
     sprintf(sz, "%ld", val);
   sz[len] = 0;
-  for (int i=strlen(sz); i<len; ++i)
+  for (int i = strlen(sz); i < len; ++i)
     sz[i] = ' ';
-  if (len > 0) 
-    sz[len-1] = ' ';
+  if (len > 0)
+    sz[len - 1] = ' ';
   Serial.print(sz);
   smartdelay(0);
 }
@@ -146,7 +161,7 @@ static void print_date(TinyGPS &gps)
   {
     char sz[32];
     sprintf(sz, "%02d/%02d/%02d %02d:%02d:%02d ",
-        month, day, year, hour, minute, second);
+            month, day, year, hour, minute, second);
     Serial.print(sz);
   }
   print_int(age, TinyGPS::GPS_INVALID_AGE, 5);
@@ -155,57 +170,58 @@ static void print_date(TinyGPS &gps)
 static void print_str(const char *str, int len)
 {
   int slen = strlen(str);
-  for (int i=0; i<len; ++i)
-    Serial.print(i<slen ? str[i] : ' ');
+  for (int i = 0; i < len; ++i)
+    Serial.print(i < slen ? str[i] : ' ');
   smartdelay(0);
 }
 //------------------------------------------------------------------------------
 void run_nRF24L01()
 {
- // Обнуляем переменную с данными:
+  // РћР±РЅСѓР»СЏРµРј РїРµСЂРµРјРµРЅРЅСѓСЋ СЃ РґР°РЅРЅС‹РјРё:
   data = 0;
   command = 0;
-  // Ждём данных
-  if (!Mirf.isSending() && Mirf.dataReady()) {
+  // Р–РґС‘Рј РґР°РЅРЅС‹С…
+  if (!Mirf.isSending() && Mirf.dataReady()) 
+  {
     Serial.println("Got packet");
-    //Сообщаем коротким миганием светодиода о наличии данных
+    //РЎРѕРѕР±С‰Р°РµРј РєРѕСЂРѕС‚РєРёРј РјРёРіР°РЅРёРµРј СЃРІРµС‚РѕРґРёРѕРґР° Рѕ РЅР°Р»РёС‡РёРё РґР°РЅРЅС‹С…
     digitalWrite(StatusLed, HIGH);
     delay(100);
     digitalWrite(StatusLed, LOW);
-    // Принимаем пакет данные в виде массива байт в переменную data:
+    // РџСЂРёРЅРёРјР°РµРј РїР°РєРµС‚ РґР°РЅРЅС‹Рµ РІ РІРёРґРµ РјР°СЃСЃРёРІР° Р±Р°Р№С‚ РІ РїРµСЂРµРјРµРЅРЅСѓСЋ data:
     Mirf.getData((byte *) &command);
-    // Сообщаем длинным миганием светодиода о получении данных
+    // РЎРѕРѕР±С‰Р°РµРј РґР»РёРЅРЅС‹Рј РјРёРіР°РЅРёРµРј СЃРІРµС‚РѕРґРёРѕРґР° Рѕ РїРѕР»СѓС‡РµРЅРёРё РґР°РЅРЅС‹С…
     digitalWrite(StatusLed, HIGH);
     delay(500);
     digitalWrite(StatusLed, LOW);
-    // Выводим полученные данные в монитор серийного порта
+    // Р’С‹РІРѕРґРёРј РїРѕР»СѓС‡РµРЅРЅС‹Рµ РґР°РЅРЅС‹Рµ РІ РјРѕРЅРёС‚РѕСЂ СЃРµСЂРёР№РЅРѕРіРѕ РїРѕСЂС‚Р°
     Serial.print("Get data: ");
     Serial.println(command);
   }
-  // Если переменная не нулевая, формируем ответ:
-  if (command != 0) 
+  // Р•СЃР»Рё РїРµСЂРµРјРµРЅРЅР°СЏ РЅРµ РЅСѓР»РµРІР°СЏ, С„РѕСЂРјРёСЂСѓРµРј РѕС‚РІРµС‚:
+  if (command != 0)
   {
-    switch (command) 
-	{
+    switch (command)
+    {
       case 1:
-        // Команда 1 - отправить число милисекунд,
-        // прошедших с последней перезагрузки платы
+        // РљРѕРјР°РЅРґР° 1 - РѕС‚РїСЂР°РІРёС‚СЊ С‡РёСЃР»Рѕ РјРёР»РёСЃРµРєСѓРЅРґ,
+        // РїСЂРѕС€РµРґС€РёС… СЃ РїРѕСЃР»РµРґРЅРµР№ РїРµСЂРµР·Р°РіСЂСѓР·РєРё РїР»Р°С‚С‹
         Serial.println("Command 1. Send millis().");
-		data = millis();
+        data = millis();
         break;
       case 2:
-        // команда 2 - отправить значение 
+        // РєРѕРјР°РЅРґР° 2 - РѕС‚РїСЂР°РІРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ
         Serial.println("cpm = ");
         data = countPerMinute;
         break;
       case 3:
-        // команда 3 - отправить значение 
+        // РєРѕРјР°РЅРґР° 3 - РѕС‚РїСЂР°РІРёС‚СЊ Р·РЅР°С‡РµРЅРёРµ
         Serial.println("uSv/h = ");
- 		data = radiationValue*10000 ;
+        data = radiationValue * 10000 ;
         break;
       default:
-        // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и 
-        // жалуемся в последовательный порт
+        // РќРµСЂР°СЃРїРѕР·РЅР°РЅРЅР°СЏ РєРѕРјР°РЅРґР°. РЎРµСЂРґРёС‚Рѕ РјРёРіР°РµРј СЃРІРµС‚РѕРґРёРѕРґРѕРј 10 СЂР°Р· Рё
+        // Р¶Р°Р»СѓРµРјСЃСЏ РІ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№ РїРѕСЂС‚
         Serial.println("Unknown command");
         for (byte i = 0; i < 10; i++) {
           digitalWrite(StatusLed, HIGH);
@@ -214,29 +230,29 @@ void run_nRF24L01()
         }
         break;
     }
-    // Отправляем ответ:
+    // РћС‚РїСЂР°РІР»СЏРµРј РѕС‚РІРµС‚:
 
     Mirf.setTADDR((byte *)"remote");
-    //Отправляем ответ в виде массива байт:
+    //РћС‚РїСЂР°РІР»СЏРµРј РѕС‚РІРµС‚ РІ РІРёРґРµ РјР°СЃСЃРёРІР° Р±Р°Р№С‚:
     Mirf.send((byte *)&data);
   }
-  // Экспериментально вычисленная задержка.
-  // Позволяет избежать проблем с модулем.
+  // Р­РєСЃРїРµСЂРёРјРµРЅС‚Р°Р»СЊРЅРѕ РІС‹С‡РёСЃР»РµРЅРЅР°СЏ Р·Р°РґРµСЂР¶РєР°.
+  // РџРѕР·РІРѕР»СЏРµС‚ РёР·Р±РµР¶Р°С‚СЊ РїСЂРѕР±Р»РµРј СЃ РјРѕРґСѓР»РµРј.
   delay(10);
 }
 
 void run_geiger()
 {
-  if (millis()-timePreviousMeassure > 10000)
+  if (millis() - timePreviousMeassure > 10000)
   {
-    countPerMinute = 6*count;
+    countPerMinute = 6 * count;
     radiationValue = countPerMinute * CONV_FACTOR;
     timePreviousMeassure = millis();
-    Serial.print("cpm = "); 
-    Serial.print(countPerMinute,DEC);
+    Serial.print("cpm = ");
+    Serial.print(countPerMinute, DEC);
     Serial.print(" - ");
     Serial.print("uSv/h = ");
-    Serial.println(radiationValue,4);      
+    Serial.println(radiationValue, 4);
     count = 0;
   }
 }
@@ -245,42 +261,42 @@ void countPulse()
 {
   detachInterrupt(0);
   count++;
-  while(digitalRead(2)==0)
+  while (digitalRead(2) == 0)
   {
   }
-  attachInterrupt(0,countPulse,FALLING);
+  attachInterrupt(0, countPulse, FALLING);
 }
 
 
 void setup(void)
 {
-	Serial.begin(9600);
+  Serial.begin(9600);
 
-	pinMode(geiger_input, INPUT);
-    digitalWrite(geiger_input,HIGH);
+  pinMode(geiger_input, INPUT);
+  digitalWrite(geiger_input, HIGH);
 
-	ss.begin(GPSBaud);                         // Настройка скорости обмена с GPS
+  ss.begin(GPSBaud);                         // РќР°СЃС‚СЂРѕР№РєР° СЃРєРѕСЂРѕСЃС‚Рё РѕР±РјРµРЅР° СЃ GPS
 
-	Mirf.cePin = 8;
-	Mirf.csnPin = 7;
-	Mirf.spi = &MirfHardwareSpi;
-	MirfHardwareSpi;
-	Mirf.init();
+  Mirf.cePin = 8;
+  Mirf.csnPin = 7;
+  Mirf.spi = &MirfHardwareSpi;
+  MirfHardwareSpi;
+  Mirf.init();
 
-	Mirf.setRADDR((byte*)ADDR);
-	Mirf.payload = sizeof(unsigned long);
-	Mirf.config();
-	Serial.println("Beginning ... ");
- 
-//	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
-//	MsTimer2::start();                         // Включить таймер прерывания
-	
-    attachInterrupt(0,countPulse,FALLING);
+  Mirf.setRADDR((byte*)ADDR);
+  Mirf.payload = sizeof(unsigned long);
+  Mirf.config();
+  Serial.println("Beginning ... ");
+
+  //	MsTimer2::set(500, flash_time);            // 500ms РїРµСЂРёРѕРґ С‚Р°Р№РјРµСЂР° РїСЂРµСЂС‹РІР°РЅРёСЏ
+  //	MsTimer2::start();                         // Р’РєР»СЋС‡РёС‚СЊ С‚Р°Р№РјРµСЂ РїСЂРµСЂС‹РІР°РЅРёСЏ
+
+  attachInterrupt(0, countPulse, FALLING);
 }
 
 void loop(void)
 {
-	delay(100);
-	run_geiger();
-	run_nRF24L01();
+  delay(100);
+  run_geiger();
+  run_nRF24L01();
 }
