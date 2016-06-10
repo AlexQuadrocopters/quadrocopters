@@ -110,7 +110,7 @@ public:
    */
   RF24(uint8_t _cepin, uint8_t _cspin);
   //#if defined (RF24_LINUX)
-  
+  uint8_t flush_tx(void);
     /**
   * Optional Raspberry Pi Constructor
   *
@@ -603,7 +603,7 @@ s   *
    *
    * @return Current value of status register
    */
-  uint8_t flush_tx(void);
+ // uint8_t flush_tx(void);
 
   /**
    * Test whether there was a carrier on the line for the

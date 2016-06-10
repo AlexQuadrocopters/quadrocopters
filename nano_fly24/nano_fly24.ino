@@ -48,10 +48,9 @@ Arduino Nano      BMP180(BMO085)
 #include <TinyGPS.h>                    // Библиотека GPS
 #include <MsTimer2.h>                   // Библиотеки таймера
 #include <SPI.h>
-#include <Mirf.h>
-#include <MirfHardwareSpiDriver.h>
-#include <nRF24L01.h>
-
+#include "nRF24L01.h"
+#include "RF24.h"
+#include "printf.h"
 
 //------ Настройки счетчика Гейгера ------------------
 
@@ -83,12 +82,10 @@ static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
 //+++++++++++++++++ Настройки nRF24L01 ++++++++++++++++++++++++++
-
-#define ADDR "fly10"                          // Адрес модуля
-#define PAYLOAD sizeof(unsigned long)         // Размер полезной нагрузки
-#define StatusLed 9                           // Светодиод для индикации - 9 пин
-unsigned long data = 0;                       // Переменная для приёма и передачи данных
-unsigned long command = 0;                    //
+RF24 radio(7,8);
+//RF24 radio(8,7);
+const uint64_t pipe = 0xE8E8F0F0E1LL;
+uint32_t message;  // Эта переменная для сбора обратного сообщения от приемника;
 
 //---------------------------------------------------------------
 
@@ -177,67 +174,21 @@ static void print_str(const char *str, int len)
 //------------------------------------------------------------------------------
 void run_nRF24L01()
 {
-  // Обнуляем переменную с данными:
-  data = 0;
-  command = 0;
-  // Ждём данных
-  if (!Mirf.isSending() && Mirf.dataReady()) 
-  {
-    Serial.println("Got packet");
-    //Сообщаем коротким миганием светодиода о наличии данных
-    digitalWrite(StatusLed, HIGH);
-    delay(100);
-    digitalWrite(StatusLed, LOW);
-    // Принимаем пакет данные в виде массива байт в переменную data:
-    Mirf.getData((byte *) &command);
-    // Сообщаем длинным миганием светодиода о получении данных
-    digitalWrite(StatusLed, HIGH);
-    delay(500);
-    digitalWrite(StatusLed, LOW);
-    // Выводим полученные данные в монитор серийного порта
-    Serial.print("Get data: ");
-    Serial.println(command);
-  }
-  // Если переменная не нулевая, формируем ответ:
-  if (command != 0)
-  {
-    switch (command)
-    {
-      case 1:
-        // Команда 1 - отправить число милисекунд,
-        // прошедших с последней перезагрузки платы
-        Serial.println("Command 1. Send millis().");
-        data = millis();
-        break;
-      case 2:
-        // команда 2 - отправить значение
-        Serial.println("cpm = ");
-        data = countPerMinute;
-        break;
-      case 3:
-        // команда 3 - отправить значение
-        Serial.println("uSv/h = ");
-        data = radiationValue * 10000 ;
-        break;
-      default:
-        // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
-        // жалуемся в последовательный порт
-        Serial.println("Unknown command");
-        for (byte i = 0; i < 10; i++) 
+    uint32_t message = 111;  //Вот какой потенциальной длины сообщение - uint32_t!
+	//туда можно затолкать значение температуры от датчика или еще что-то полезное.
+
+	radio.writeAckPayload( 1, &message, sizeof(message) ); // Грузим сообщение для автоотправки;
+	if ( radio.available() ) 
+	{ //Просто читаем и очищаем буфер - при подтверждении приема
+		int dataIn;                       //передатчику приемник протолкнет ему в обратку наше сообщение;
+		bool done = false;
+		while (!done) 
 		{
-          digitalWrite(StatusLed, HIGH);
-          delay(100);
-          digitalWrite(StatusLed, LOW);
-        }
-        break;
-    }
-    // Отправляем ответ:
-    Mirf.setTADDR((byte *)"remot");
-    Mirf.send((byte *)&data);                         //Отправляем ответ в виде массива байт:
-  }
-  // Экспериментально вычисленная задержка.
-  // Позволяет избежать проблем с модулем.
-  delay(10);
+			radio.read(&dataIn, sizeof(dataIn));    // Значение dataIn в данном случае
+			//done = radio.read(&dataIn, sizeof(dataIn));    // Значение dataIn в данном случае
+			//не важно. Но его можно использовать и как управляющую команду.
+		}
+	}
 }
 
 void run_geiger()
@@ -274,16 +225,23 @@ void setup(void)
 
   ss.begin(GPSBaud);                         // Настройка скорости обмена с GPS
 
-  Mirf.cePin = 8;
-  Mirf.csnPin = 7;
-  Mirf.spi = &MirfHardwareSpi;
-  MirfHardwareSpi;
-  Mirf.init();
 
-  Mirf.setRADDR((byte*)ADDR);
-  Mirf.payload = sizeof(unsigned long);
-  Mirf.config();
-  Serial.println("Beginning ... ");
+	radio.begin();                           // Старт работы;
+	radio.enableAckPayload();                // Разрешение отправки нетипового ответа передатчику;
+	radio.openReadingPipe(1,pipe);           // Открываем трубу и
+	radio.startListening();                  //начинаем слушать;
+
+
+  //Mirf.cePin = 8;
+  //Mirf.csnPin = 7;
+  //Mirf.spi = &MirfHardwareSpi;
+  //MirfHardwareSpi;
+  //Mirf.init();
+
+  //Mirf.setRADDR((byte*)ADDR);
+  //Mirf.payload = sizeof(unsigned long);
+  //Mirf.config();
+  //Serial.println("Beginning ... ");
 
   //	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
   //	MsTimer2::start();                         // Включить таймер прерывания
