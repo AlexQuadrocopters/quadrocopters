@@ -1,163 +1,161 @@
+
 /*
-Программа базы
-
-Подключение
-
-
-
-
+* Getting Started example sketch for nRF24L01+ radios
+* This is an example of how to send data from one node to another using data structures
+* Updated: Dec 2014 by TMRh20
 */
 
-
 #include <SPI.h>
-#include <Mirf.h>
-#include <MirfHardwareSpiDriver.h>
-#include <nRF24L01.h>
+#include "RF24.h"
 
-// Адрес модуля
-#define ADDR "remot"   // Адрес модуля Базы
-#define PAYLOAD sizeof(unsigned long)
-// Светодиод для индикации - 4 пин
-#define StatusLed 13
-// Переменная для приёма и передачи данных
-unsigned long data = 0;
-unsigned long command = 0;
-// Флаг для определения выхода по таймауту
-boolean timeout = false;
-// Таймаут ожидания ответа от сервера - 1 секунда
-#define TIMEOUT 1000
-// Переменная для запоминания времени отправки
-unsigned long timestamp = 0;
+byte addresses[][6] = {"1Node","2Node"};
+
+
+/****************** User Config ***************************/
+/***      Set this radio as radio number 0 or 1         ***/
+bool radioNumber = 1;
+
+/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
+RF24 radio(8,9);
+/**********************************************************/
+
+
+// Used to control whether this node is sending or receiving
+bool role = 0;
+
+/**
+* Create a data structure for transmitting and receiving data
+* This allows many variables to be easily sent and received in a single transmission
+* See http://www.cplusplus.com/doc/tutorial/structures/
+*/
+struct dataStruct{
+  unsigned long _micros;
+  float value;
+}myData;
 
 void setup() {
-  Serial.begin(9600);
-  // Мигнём светодиодом:
-  pinMode(StatusLed, OUTPUT);
-  for (byte i = 0; i < 3; i++) {
-    digitalWrite(StatusLed, HIGH);
-    delay(100);
-    digitalWrite(StatusLed, LOW);
+
+  Serial.begin(115200);
+  Serial.println(F("RF24/examples/GettingStarted_HandlingData"));
+  Serial.println(F("*** PRESS 'T' to begin transmitting to the other node"));
+  
+  radio.begin();
+
+  // Set the PA Level low to prevent power supply related issues since this is a
+ // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
+  radio.setPALevel(RF24_PA_LOW);
+  
+  // Open a writing and reading pipe on each radio, with opposite addresses
+  if(radioNumber){
+    radio.openWritingPipe(addresses[1]);
+    radio.openReadingPipe(1,addresses[0]);
+  }else{
+    radio.openWritingPipe(addresses[0]);
+    radio.openReadingPipe(1,addresses[1]);
   }
-
-  Mirf.cePin = 10;
-  Mirf.csnPin = 9;
-  Mirf.spi = &MirfHardwareSpi;
-  Mirf.init();
-
-  Mirf.setRADDR((byte*)ADDR);
-  Mirf.payload = sizeof(unsigned long);
-  Mirf.config();
-  Serial.println("Beginning ... ");
+  
+  myData.value = 1.22;
+  // Start the radio listening for data
+  radio.startListening();
 }
+
+
+
 
 void loop() {
-  timeout = false;
-  // Устанавливаем адрес передачи
-  Mirf.setTADDR((byte *)&"fly10");
-  // Запрашиваем число милисекунд,
-  // прошедших с последней перезагрузки сервера:
-  Serial.println("Request millis()");
-  command = 1;
-  Mirf.send((byte *)&command);
-  // Мигнули 1 раз - команда отправлена
-  digitalWrite(StatusLed, HIGH);
-  delay(100);
-  digitalWrite(StatusLed, LOW);
-  // Запомнили время отправки:
-  timestamp = millis();
-  // Запускаем профедуру ожидания ответа
-  waitanswer();
+  
+  
+/****************** Ping Out Role ***************************/  
+if (role == 1)  {
+    
+    radio.stopListening();                                    // First, stop listening so we can talk.
+    
+    
+    Serial.println(F("Now sending"));
 
-  // Запрашиваем число милисекунд,
-  // прошедших с последней перезагрузки сервера:
-  Serial.print("cpm = ");
-  command = 2;
-  Mirf.send((byte *)&command);
-  // Мигнули 1 раз - команда отправлена
-  digitalWrite(StatusLed, HIGH);
-  delay(100);
-  digitalWrite(StatusLed, LOW);
-  // Запомнили время отправки:
-  timestamp = millis();
-  // Запускаем профедуру ожидания ответа
-  waitanswer();
+    myData._micros = micros();
+     if (!radio.write( &myData, sizeof(myData) )){
+       Serial.println(F("failed"));
+     }
+        
+    radio.startListening();                                    // Now, continue listening
+    
+    unsigned long started_waiting_at = micros();               // Set up a timeout period, get the current microseconds
+    boolean timeout = false;                                   // Set up a variable to indicate if a response was received or not
+    
+    while ( ! radio.available() ){                             // While nothing is received
+      if (micros() - started_waiting_at > 200000 ){            // If waited longer than 200ms, indicate timeout and exit while loop
+          timeout = true;
+          break;
+      }      
+    }
+        
+    if ( timeout ){                                             // Describe the results
+        Serial.println(F("Failed, response timed out."));
+    }else{
+                                                                // Grab the response, compare, and send to debugging spew
+        radio.read( &myData, sizeof(myData) );
+        unsigned long time = micros();
+        
+        // Spew it
+        Serial.print(F("Sent "));
+        Serial.print(time);
+        Serial.print(F(", Got response "));
+        Serial.print(myData._micros);
+        Serial.print(F(", Round-trip delay "));
+        Serial.print(time-myData._micros);
+        Serial.print(F(" microseconds Value "));
+        Serial.println(myData.value);
+    }
 
-  Serial.print("uSv/h = ");
-  command = 3;
-  Mirf.send((byte *)&command);
-  // Мигнули 1 раз - команда отправлена
-  digitalWrite(StatusLed, HIGH);
-  delay(100);
-  digitalWrite(StatusLed, LOW);
-  // Запомнили время отправки:
-  timestamp = millis();
-  // Запускаем профедуру ожидания ответа
-  waitanswer();
+    // Try again 1s later
+    delay(1000);
+  }
 
-  //  // Отправляем невалидную команду
-  //  // прошедших с последней перезагрузки сервера:
-  //  Serial.println("Invalid command");
-  //
-  //  command=4;
-  //  Mirf.send((byte *)&command);
-  //  // Мигнули 1 раз - команда отправлена
-  //  digitalWrite(StatusLed, HIGH);
-  //  delay(100);
-  //  digitalWrite(StatusLed, LOW);
-  //  // Запомнили время отправки:
-  //  timestamp=millis();
-  //  // Запускаем профедуру ожидания ответа
-  //  waitanswer();
-  //  // Эксперимаентально вычисленная задержка.
-  //  // Позволяет избежать проблем с модулем.
-  delay(10);
-  Serial.println("-----------------------------------------");
-  delay(1000);
-}
 
-void waitanswer() {
-  // Немного плохого кода:
-  // Устанавливаем timeout в ИСТИНУ
-  // Если ответ будет получен, установим переменную в ЛОЖЬ
-  // Если ответа не будет - считаем ситуацию выходом по таймауту
-  timeout = true;
-  // Ждём ответ или таймута ожидания
-  while (millis() - timestamp < TIMEOUT && timeout) {
-    if (!Mirf.isSending() && Mirf.dataReady()) {
-      // Мигнули 2 раза - ответ получен
-      for (byte i = 0; i < 2; i++) {
-        digitalWrite(StatusLed, HIGH);
-        delay(100);
-        digitalWrite(StatusLed, LOW);
+
+/****************** Pong Back Role ***************************/
+
+  if ( role == 0 )
+  {
+    
+    if( radio.available()){
+                                                           // Variable for the received timestamp
+      while (radio.available()) {                          // While there is data ready
+        radio.read( &myData, sizeof(myData) );             // Get the payload
       }
-      timeout = false;
+     
+      radio.stopListening();                               // First, stop listening so we can talk  
+      myData.value += 0.01;                                // Increment the float value
+      radio.write( &myData, sizeof(myData) );              // Send the final one back.      
+      radio.startListening();                              // Now, resume listening so we catch the next packets.     
+      Serial.print(F("Sent response "));
+      Serial.print(myData._micros);  
+      Serial.print(F(" : "));
+      Serial.println(myData.value);
+   }
+ }
 
-      // Принимаем пакет данные в виде массива байт в переменную data:
-      Mirf.getData((byte *)&data);
-      // Выводим полученные данные в монитор серийного порта
-      //  Serial.print("Get data: ");
-      if ( command == 3)
-      {
-        float data_f = data;
-        data_f=data_f/10000;
-        Serial.println(data_f ,4);
-       //  Serial.println(data);
-      }
-      else
-      {
-        Serial.println(data);
-      }
 
-      data = 0;
+
+
+/****************** Change Roles via Serial Commands ***************************/
+
+  if ( Serial.available() )
+  {
+    char c = toupper(Serial.read());
+    if ( c == 'T' && role == 0 ){      
+      Serial.print(F("*** CHANGING TO TRANSMIT ROLE -- PRESS 'R' TO SWITCH BACK"));
+      role = 1;                  // Become the primary transmitter (ping out)
+    
+   }else
+    if ( c == 'R' && role == 1 ){
+      Serial.println(F("*** CHANGING TO RECEIVE ROLE -- PRESS 'T' TO SWITCH BACK"));      
+       role = 0;                // Become the primary receiver (pong back)
+       radio.startListening();
+       
     }
   }
-  if (timeout) {
-    // Мигнули 10 раз - ответа не пришло
-    for (byte i = 0; i < 10; i++) {
-      digitalWrite(StatusLed, HIGH);
-      delay(100);
-      digitalWrite(StatusLed, LOW);
-    }
-    Serial.println("Timeout");
-  }
-}
+
+
+} // Loop

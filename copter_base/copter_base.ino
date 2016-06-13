@@ -7,12 +7,28 @@
 
 
 */
-
+#include <UTouchCD.h>
+#include <UTouch.h>
+#include <UTFT.h>
+//#include <RTClib.h>
+#include "Wire.h"
+#include <OneWire.h>
 
 #include <SPI.h>
 #include <Mirf.h>
 #include <MirfHardwareSpiDriver.h>
 #include <nRF24L01.h>
+
+
+
+UTFT    myGLCD(ITDB32S,38,39,40,41);          // Дисплей 3,2"
+extern uint8_t SmallFont[]; 
+extern uint8_t SmallSymbolFont[];
+extern uint8_t BigFont[];
+UTouch      myTouch(6,5,4,3,2);
+
+
+
 
 // Адрес модуля
 #define ADDR "remot"   // Адрес модуля Базы
@@ -29,8 +45,23 @@ boolean timeout = false;
 // Переменная для запоминания времени отправки
 unsigned long timestamp = 0;
 
-void setup() {
+void setup() 
+{
   Serial.begin(9600);
+  	Wire.begin();
+	//if (!RTC.begin())
+	//	{
+	//		Serial.println("RTC failed");
+	//		while(1);
+	//	}; 
+	myGLCD.InitLCD();
+	myGLCD.clrScr();
+	myGLCD.setFont(BigFont);
+	myTouch.InitTouch();
+	myTouch.setPrecision(PREC_HI);
+	//myTouch.setPrecision(PREC_MEDIUM);
+
+
   // Мигнём светодиодом:
   pinMode(StatusLed, OUTPUT);
   for (byte i = 0; i < 3; i++) {
@@ -39,7 +70,7 @@ void setup() {
     digitalWrite(StatusLed, LOW);
   }
 
-  Mirf.cePin = 10;
+  Mirf.cePin = 8;
   Mirf.csnPin = 9;
   Mirf.spi = &MirfHardwareSpi;
   Mirf.init();
@@ -47,10 +78,13 @@ void setup() {
   Mirf.setRADDR((byte*)ADDR);
   Mirf.payload = sizeof(unsigned long);
   Mirf.config();
+  Serial.println("Setup Ok");
   Serial.println("Beginning ... ");
+  myGLCD.print("Monitor 2,4",25, 35); 
 }
 
-void loop() {
+void loop() 
+{
   timeout = false;
   // Устанавливаем адрес передачи
   Mirf.setTADDR((byte *)&"fly10");
@@ -141,11 +175,13 @@ void waitanswer() {
         float data_f = data;
         data_f=data_f/10000;
         Serial.println(data_f ,4);
+		myGLCD.printNumF(data_f,4, 25, 80);
        //  Serial.println(data);
       }
-      else
+       if ( command == 2)
       {
         Serial.println(data);
+		myGLCD.printNumI(data, 25, 60);
       }
 
       data = 0;

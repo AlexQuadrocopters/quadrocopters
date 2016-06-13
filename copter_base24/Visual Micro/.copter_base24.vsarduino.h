@@ -85,7 +85,6 @@ extern "C" void __cxa_pure_virtual() {;}
 
 //
 //
-void waitanswer();
 
 #include <copter_base24.ino>
 #endif
