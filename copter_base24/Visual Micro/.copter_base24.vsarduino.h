@@ -83,8 +83,77 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portInputRegister(P)
 #define portModeRegister(P)
 
+void dateTime(uint16_t* date, uint16_t* time);
+void draw_Glav_Menu();
+void swichMenu();
+void set_Menu();
+void all_alarm();
+void alarm_kn();
+void reset_klav();
+void txt_pass_no_all();
+void klav123();
+void drawButtons1();
+void updateStr(int val);
+void waitForIt(int x1, int y1, int x2, int y2);
+void InitializingSD();
+void DumpFileSD();
+void FilesSD();
+void setup_printDirectorySD();
+void printDirectory(File dir, int numTabs);
+void ReadWriteSD();
+void create_fileSD();
+void pass_test_start();
+void pass_test();
+void system_clear_start();
+void set_n_user_start();
+void set_n_telef();
+void set_pass_user_start();
+void set_pass_admin_start();
+void print_info();
+void print_up();
+void read_data_eeprom();
+void format_memory();
+int bcd2bin(int temp);
+void clock_read();
+void clock_print_serial();
+void i2c_eeprom_write_byte( int deviceaddress, unsigned int eeaddress, byte data );
+void i2c_eeprom_write_page( int deviceaddress, unsigned int eeaddresspage, byte* data, byte length );
+byte i2c_eeprom_read_byte( int deviceaddress, unsigned int eeaddress );
+void i2c_eeprom_read_buffer( int deviceaddress, unsigned int eeaddress, byte *buffer, int length );
+void i2c_test();
+void i2c_test1();
+void drawDisplay();
+void drawMark(int h);
+void drawSec(int s);
+void drawMin(int m);
+void drawHour(int h, int m);
+void printDate();
+void clearDate();
+void AnalogClock();
+void info_nomer_user();
+void time_flag_start();
+void test_str();
 //
 //
+void drawUpButton(int x, int y);
+void drawDownButton(int x, int y);
+void showDOW(byte dow);
+int bin_to_bcd(int temp);
+byte validateDate(byte d, byte m, word y);
+byte validateDateForMonth(byte d, byte m, word y);
+void setClock();
+char uCase(char c);
+void buttonWait(int x, int y);
+byte calcDOW(byte d, byte m, int y);
+void waitForTouchRelease();
 
 #include <copter_base24.ino>
+#include <cat.c>
+#include <icon1.c>
+#include <icon2.c>
+#include <radioactive1_L.c>
+#include <rwsn.c>
+#include <setTimeDate.ino>
+#include <tux.c>
+#include <utils.ino>
 #endif
