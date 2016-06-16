@@ -1,13 +1,15 @@
 /*
-lintex5_1.ino
+ copter_base24.ino
  VisualStudio
  Программа (Базовый вариант)
- Версия:      - 5.1
- Дата:        - 03.11.2014г.
- Организация: - ООО "Lintex"
+ Версия:      - 1.0
+ Дата:        - 16.06.2016г.
  Автор:       - Мосейчук А.В. 
  Реализовано:
- - Меню , Пароль, Часы, протокол XBee
+ - Меню , Пароль, Часы,
+
+
+
  */
 
 #include <avr/pgmspace.h>
@@ -20,10 +22,8 @@ lintex5_1.ino
 #include <SPI.h>
 #include <SD.h>
 #include <OneWire.h>
-//#include <WProgram.h>
 #include <RTClib.h>
 #include "I2Cdev.h"
-
 
 extern "C" { 
 #include "utility/twi.h"  // from Wire library, so we can do bus scanning
@@ -34,14 +34,10 @@ extern "C" {
 
 const int chipSelect = 53;            // 
 #define  alarmInPin    44             // 44
-//int deviceaddress =    0x57;          // 
 int deviceaddress =    0x50;  
 unsigned int eeaddress=0;
- 
 
 int sys_N = 1;             //
-
-
 
 uint8_t sec = 0;         //Initialization time
 uint8_t min = 0;
@@ -54,9 +50,9 @@ unsigned long timeF;
 int flag_time = 0;
 
 // MsTimer2::TimerInterrupt
+
 RTC_DS1307 RTC;  // define the Real Time Clock object
 
-//  OneWire  ds(43);       // on pin 10 (a 4.7K resistor is necessary)
 byte i;
 byte present = 0;
 byte type_s = 0;
@@ -81,15 +77,6 @@ Sd2Card card;
 SdVolume volume;
 SdFile root;
 File myFile;
-
-// Declare which fonts we will be using
-extern uint8_t SmallFont[];
-extern uint8_t BigFont[];
-extern uint8_t Dingbats1_XL[];
-extern uint8_t SmallSymbolFont[];
- 
-// объявления двух массив изображений
-extern unsigned int rvsn2[0x2710];
 
 int  stCurrentLen_pass = 0;              // Длина вводимой строки
 char pass_user[20];                      // Строка с паролем пользователя
@@ -148,6 +135,15 @@ UTFT_Buttons  myButtons(&myGLCD, &myTouch);
 boolean default_colors = true;
 uint8_t menu_redraw_required = 0;
 
+
+// Declare which fonts we will be using
+extern uint8_t SmallFont[];
+extern uint8_t BigFont[];
+extern uint8_t Dingbats1_XL[];
+extern uint8_t SmallSymbolFont[];
+ 
+// объявления двух массив изображений
+extern unsigned int rvsn2[0x2710];
 
 //-----------------------------------------------------------------------------------------------
 
@@ -3080,9 +3076,9 @@ void setup()
 	  };
 	 // set date time callback function
 	 SdFile::dateTimeCallback(dateTime); 
-	 //Запускает таймер и получает загружаемое значение таймера.
-	//  timerLoadValue=SetupTimer2(44100);
-	// timerLoadValue=SetupTimer2(10100);
+	 // Запускает таймер и получает загружаемое значение таймера.
+	 // timerLoadValue=SetupTimer2(44100);
+	 // timerLoadValue=SetupTimer2(10100);
 	  flag_time = 0;
 	  format_memory();
 	  myGLCD.setBackColor(0, 0, 255);

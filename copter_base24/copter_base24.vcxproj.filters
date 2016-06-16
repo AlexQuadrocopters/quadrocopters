@@ -16,10 +16,29 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="copter_base24.ino" />
+    <None Include="setTimeDate.ino" />
+    <None Include="utils.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Visual Micro\.copter_base24.vsarduino.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="icon2.c">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="radioactive1_L.c">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="rvsn2.c">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="rwsn.c">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="tux.c">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
