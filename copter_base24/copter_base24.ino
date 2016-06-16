@@ -310,12 +310,13 @@ void draw_Glav_Menu()
 void swichMenu() // Тексты меню в строках "txt....."
 	
 {
-	
+//	test_power(); 
 	 m2=1;                           // Устанивить первую странице меню
 	 while(1) 
 	   {
 		//   all_alarm();
 		// myGLCD.print("\xB0", RIGHT, 10); 	
+		 test_power(); 
 		 myButtons.setTextFont(BigFont);    // Установить Большой шрифт кнопок  
 
 			if (myTouch.dataAvailable() == true) // Проверить нажатие кнопок
@@ -342,7 +343,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 							  myGLCD.setColor(0, 255, 0);
 							  myGLCD.setBackColor(0, 0, 0);
 							  myGLCD.print("                      ", CENTER, 0); 
-							  test_power(); 
+							//  test_power(); 
 							  myGLCD.print(txt_info1, CENTER, 0);            // "Ввод данных"
 		
 						  }
@@ -359,7 +360,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 							  myGLCD.setColor(0, 255, 0);
 							  myGLCD.setBackColor(0, 0, 0);
 							  myGLCD.print("                      ", CENTER, 0); 
-							  test_power();
+							//  test_power();
 							  myGLCD.print(txt_info2, CENTER, 0);            // Информация
 						 }
 
@@ -2969,14 +2970,20 @@ void time_flag_start()
 void test_power()
 {
 	  myGLCD.setFont(SmallFont);
-	 int power = analogRead(A0);
+	  float power = analogRead(A0)*5/1024*2;
+	 // power=5.12;
+	  if (power>5.8) myGLCD.print("\xB0", 295, 20); 
+	  else if (power<=5.8&&power>5.6) myGLCD.print("\xB1", 295, 20); 
+	  else if (power<=5.6&&power>5.4) myGLCD.print("\xB2", 295, 20);
+	  else if (power<=5.4&&power>5.2) myGLCD.print("\xB3", 295, 20); 
 
-	 power = 850;
-	  if (power>900) myGLCD.print("\xB0", 305, 1); 
-	  else if (power<900&&power>800) myGLCD.print("\xB1", 305, 1); 
-	  else if (power<800&&power>700) myGLCD.print("\xB2", 305, 1);
-	  else if (power<700&&power>600) myGLCD.print("\xB3", 305, 1); 
-	  else if (power<600) myGLCD.print("\xB4", 305, 1);
+	  else if (power<=5.2) 
+	  {
+		  myGLCD.setColor(255, 0, 0);
+		  myGLCD.print("\xB4", 295, 20);
+	  }
+	  myGLCD.printNumF(power,1, 290, 35); 
+	  myGLCD.setColor(255, 255, 255);
  	  myGLCD.setFont(BigFont);
 }
 
