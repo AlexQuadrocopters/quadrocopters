@@ -109,6 +109,8 @@ void set_pass_user_start();
 void set_pass_admin_start();
 void print_info();
 void print_up();
+void radiotraffic();
+void waitanswer();
 void read_data_eeprom();
 void format_memory();
 int bcd2bin(int temp);
@@ -130,7 +132,6 @@ void clearDate();
 void AnalogClock();
 void info_nomer_user();
 void time_flag_start();
-void test_str();
 //
 //
 void drawUpButton(int x, int y);

@@ -23,6 +23,13 @@
 #include <RTClib.h>
 #include "I2Cdev.h"
 
+#include <Mirf.h>
+#include <MirfHardwareSpiDriver.h>
+#include <nRF24L01.h>
+
+
+
+
 extern "C" { 
 #include "utility/twi.h"  // from Wire library, so we can do bus scanning
 }
@@ -146,6 +153,32 @@ int lenStr = 0;                    // Длина строки ZegBee
  int kbutA, kbutB, kbutC, kbutD, kbutE, kbutF;
  int m2 = 1; // Переменная номера меню
 
+
+ 
+
+// Адрес радио модуля
+#define ADDR "remot"   // Адрес модуля Базы
+#define PAYLOAD sizeof(unsigned long)
+// Светодиод для индикации - 4 пин
+//#define StatusLed 13
+// Переменная для приёма и передачи данных
+unsigned long data = 0;
+unsigned long command = 0;
+// Флаг для определения выхода по таймауту
+boolean timeout = false;
+// Таймаут ожидания ответа от сервера - 1 секунда
+#define TIMEOUT 1000
+// Переменная для запоминания времени отправки
+unsigned long timestamp = 0;
+
+
+
+
+
+
+
+
+
  //------------------------------------------------------------------------------------------------------------------
  // Назначение переменных для хранения текстов
 
@@ -168,56 +201,56 @@ char  txt_menu4_4[]            = "\x89""apo\xA0\xAC a\x99\xA1\x9D\xA2.";        
 char  txt_menu5_1[]            = "CKAH.PA""\x82\x86""O""\x93\x8B\x86""PA";          // СКАН.РАДИОЭФИРА
 char  txt_menu5_2[]            = "B""\x91\x80""OP KAHA""\x88""A";                   // ВЫБОР КАНАЛА
 char  txt_menu5_3[]            = "B""\x91\x80""OP MO""\x8F""HOCT""\x86";            // ВЫБОР МОЩНОСТИ
-char  txt_menu5_4[]            = "********";                                        // 
+char  txt_menu5_4[]            = "PE""\x84\x86""M ""\x89""APO""\x88\x95";           // РЕЖИМ ПАРОЛЯ
 char  txt9[6]                  = "B\x97o\x99";                                      // Ввод
 char  txt10[8]                 = "O""\xA4\xA1""e""\xA2""a";                         // "Отмена"
 char  txt12[]                  = "B\x97""e\x99\x9D\xA4""e \xA3""apo\xA0\xAC!";      // "Введите пароль"
 char  txt_pass_ok[]            = "\xA3""apo\xA0\xAC OK!";                           // Пароль ОК!
 char  txt_pass_no[]            = "\xA3""apo\xA0\xAC NO!";                           // Пароль NO!
-char  txt_botton_clear[]       = "C\x96poc";                                        // Сброс
-char  txt_botton_otmena[]      = "O""\xA4\xA1""e""\xA2""a";                         // Отмена
-char  txt_system_clear1[]      = "B\xA2\x9D\xA1""a\xA2\x9D""e!";                    //Внимание !  
-char  txt_system_clear2[]      = "Bc\xAF \xA1\xA2\xA5op\xA1""a""\xA6\xA1\xAF \x96y\x99""e\xA4";  // Вся информация будет 
-char  txt_system_clear3[]      = "\x8A\x82""A""\x88""EHA!";                              // УДАЛЕНА 
-char  txt_n_user[]             = "B\x97""e\x99\x9D\xA4""e N \xA3o\xA0\xAC\x9C.";         // Введите № польз.
-char  txt_rep_user[]           = "\x89o\x97\xA4op\x9D\xA4""e"" N \xA3o\xA0\xAC\x9C.  ";  // Повторите № польз.
-char  txt_set_pass_user[]      = "Ho\x97\xAB\x9E \xA3""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";  // "Новый пароль польз."
-char  txt_set_pass_admin[]     = "Ho\x97\xAB\x9E \xA3""apo\xA0\xAC  a\x99\xA1\x9D\xA2."; // Новый пароль админ.
-char  txt_rep_pass_user[]      = "\x89o\x97\xA4op \xA3""apo\xA0\xAC \xA3o\xA0\xAC\x9C."; // "Повтор пароль польз."
-char  txt_err_pass_user[]      = "O\xA8\x9D\x96ka \x97\x97o\x99""a" ;                    // Ошибка ввода
-char  txt_rep_pass_admin[]     = "\x89o\x97\xA4op \xA3""apo\xA0\xAC a\x99\xA1\x9D\xA2."; // "Повтор пароль админ"
+char  txt_botton_clear[]       = "C\x96poc";                                                         // Сброс
+char  txt_botton_otmena[]      = "O""\xA4\xA1""e""\xA2""a";                                          // Отмена
+char  txt_system_clear1[]      = "B\xA2\x9D\xA1""a\xA2\x9D""e!";                                     //Внимание !  
+char  txt_system_clear2[]      = "Bc\xAF \xA1\xA2\xA5op\xA1""a""\xA6\xA1\xAF \x96y\x99""e\xA4";      // Вся информация будет 
+char  txt_system_clear3[]      = "\x8A\x82""A""\x88""EHA!";                                          // УДАЛЕНА 
+char  txt_n_user[]             = "B\x97""e\x99\x9D\xA4""e N \xA3o\xA0\xAC\x9C.";                     // Введите № польз.
+char  txt_rep_user[]           = "\x89o\x97\xA4op\x9D\xA4""e"" N \xA3o\xA0\xAC\x9C.  ";              // Повторите № польз.
+char  txt_set_pass_user[]      = "Ho\x97\xAB\x9E \xA3""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";              // "Новый пароль польз."
+char  txt_set_pass_admin[]     = "Ho\x97\xAB\x9E \xA3""apo\xA0\xAC  a\x99\xA1\x9D\xA2.";             // Новый пароль админ.
+char  txt_rep_pass_user[]      = "\x89o\x97\xA4op \xA3""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";             // "Повтор пароль польз."
+char  txt_err_pass_user[]      = "O\xA8\x9D\x96ka \x97\x97o\x99""a" ;                                // Ошибка ввода
+char  txt_rep_pass_admin[]     = "\x89o\x97\xA4op \xA3""apo\xA0\xAC a\x99\xA1\x9D\xA2.";             // "Повтор пароль админ"
 char  txt_count1[]             = "B\xA2\x9D\xA1""a\xA2\x9D""e!";                                     // Внимание !
 char  txt_count2[]             = "B\x97""e\x99\x9D\xA4""e \xA3o\x9F""a""\x9C""a""\xA2\x9D\xAF";      // Введите показания
 char  txt_count3[]             = "He \x96o\xA0\xAC\xA8""e 10 \xA6\x9D\xA5p !";                       // Не больше 10 цифр !
 char  txt_count4[]             = "\x89o\x97\xA4op\x9D\xA4""e"" \xA3o\x9F""a""\x9C""a""\xA2\x9D\xAF"; // "Повторите показания"
-char  txt_info1[]              = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF";                             // Информация
-char  txt_info2[]              = "B""\x97""o""\x99"" ""\x99""a""\xA2\xA2\xAB""x";                   //"Ввод данных"
-char  txt_info4[]              = "\x8A""c\xA4""a\xA2o\x97\x9F\x9D c\x9D""c\xA4""e\xA1\xAB";         // 
-char  txt_info3[]              = "Hac\xA4po\x9E\x9F""a c\x9D""c\xA4""e\xA1\xAB";                    // Настройка системы
+char  txt_info1[]              = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF";                              // Информация
+char  txt_info2[]              = "B""\x97""o""\x99"" ""\x99""a""\xA2\xA2\xAB""x";                    //"Ввод данных"
+char  txt_info4[]              = "\x8A""c\xA4""a\xA2o\x97\x9F\x9D c\x9D""c\xA4""e\xA1\xAB";          // 
+char  txt_info3[]              = "Hac\xA4po\x9E\x9F""a c\x9D""c\xA4""e\xA1\xAB";                     // Настройка системы
 char  txt_info5[]              = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF RADIO";                        // 
-char  txt_mount1[]             = "\x95\xA2\x97""ap\xAC";                                            // Январь
-char  txt_mount2[]             = "\x8B""e\x97""pa\xA0\xAC";  // Февраль
-char  txt_mount3[]             = "Map\xA4";  // Март
-char  txt_mount4[]             = "A\xA3pe\xA0\xAC";  // Апрель
-char  txt_mount5[]             = "Ma\x9E";  // Май
-char  txt_mount6[]             = "\x86\xAE\xA2\xAC";  // Июнь
-char  txt_mount7[]             = "\x86\xAE\xA0\xAC";  // Июль
-char  txt_mount8[]             = "A\x97\x98yc\xA4";  // Август
-char  txt_mount9[]             = "Ce\xA2\xA4\xAF\x96p\xAC";  // Сентябрь
-char  txt_mount10[]            = "O\x9F\xA4\xAF\x96p\xAC"; // Октябрь
-char  txt_mount11[]            = "Ho\xAF\x96p\xAC"; // Ноябрь
-char  txt_mount12[]            = "\x82""e\x9F""a\x96p\xAC"; // Декабрь
+char  txt_mount1[]             = "\x95\xA2\x97""ap\xAC";                                             // Январь
+char  txt_mount2[]             = "\x8B""e\x97""pa\xA0\xAC";                                          // Февраль
+char  txt_mount3[]             = "Map\xA4";                                                          // Март
+char  txt_mount4[]             = "A\xA3pe\xA0\xAC";                                                  // Апрель
+char  txt_mount5[]             = "Ma\x9E";                                                           // Май
+char  txt_mount6[]             = "\x86\xAE\xA2\xAC";                                                 // Июнь
+char  txt_mount7[]             = "\x86\xAE\xA0\xAC";                                                 // Июль
+char  txt_mount8[]             = "A\x97\x98yc\xA4";                                                  // Август
+char  txt_mount9[]             = "Ce\xA2\xA4\xAF\x96p\xAC";                                          // Сентябрь
+char  txt_mount10[]            = "O\x9F\xA4\xAF\x96p\xAC";                                           // Октябрь
+char  txt_mount11[]            = "Ho\xAF\x96p\xAC";                                                  // Ноябрь
+char  txt_mount12[]            = "\x82""e\x9F""a\x96p\xAC";                                          // Декабрь
 char  txt_radiacia[]           = " ***** "; // 
 char  txt_gaz[]                = " ***** "; // 
 char  txt_pressure[]           = " ***** "; //
 char  txt_elevation[]          = " ***** "; // 
 char  txt_altitude[]           = " ***** "; //
-char  txt_data[]               = "\x82""a\xA4""a";// Data
-char  txt_pred[]               = "\x89pe\x99.";// Пред.
-char  txt_tek[]                = "Te\x9F.";// Тек.
-char  txt_summa[]              = "Pe\x9C.";// Рез.
-char  txt_return[]             = "\x85""a\x97""ep\xA8\xA2\xA4\xAC \xA3poc\xA1o\xA4p";// Завершить просмотр
-char  txt_info_count[]         = "\x86H\x8BO C\x8D""ET\x8D\x86KOB";//
+char  txt_data[]               = "\x82""a\xA4""a";                                                   // Data
+char  txt_pred[]               = "\x89pe\x99.";                                                      // Пред.
+char  txt_tek[]                = "Te\x9F.";                                                          // Тек.
+char  txt_summa[]              = "Pe\x9C.";                                                          // Рез.
+char  txt_return[]             = "\x85""a\x97""ep\xA8\xA2\xA4\xAC \xA3poc\xA1o\xA4p";                // Завершить просмотр
+char  txt_info_count[]         = "\x86H\x8BO C\x8D""ET\x8D\x86KOB";                                  //
 char  txt_info_n_user[]        = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF \xA3o\xA0\xAC\x9C.";// Информация польз.
 char  txt_info_n_user1[]       = "Ho\xA1""ep ""\xA3o\xA0\xAC\x9Co\x97""a""\xA4""e""\xA0\xAF";// Номер пользователя
 char  txt_info_n_telef[]       = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
@@ -1920,7 +1953,6 @@ void set_pass_user_start()
 
 
 }
-
 void set_pass_admin_start()
 {
 		myGLCD.setFont(BigFont);
@@ -2166,6 +2198,124 @@ void print_up() // Печать верхней строчки над меню
 						  break;
 				   }
 }
+
+void radiotraffic()
+{
+  timeout = false;
+  // Устанавливаем адрес передачи
+  Mirf.setTADDR((byte *)&"fly10");
+  // Запрашиваем число милисекунд,
+  // прошедших с последней перезагрузки сервера:
+  Serial.println("Request millis()");
+  command = 1;
+  Mirf.send((byte *)&command);
+  // Мигнули 1 раз - команда отправлена
+ // digitalWrite(StatusLed, HIGH);
+  delay(100);
+//  digitalWrite(StatusLed, LOW);
+  // Запомнили время отправки:
+  timestamp = millis();
+  // Запускаем профедуру ожидания ответа
+  waitanswer();
+
+  // Запрашиваем число милисекунд,
+  // прошедших с последней перезагрузки сервера:
+  Serial.print("cpm = ");
+  command = 2;
+  Mirf.send((byte *)&command);
+  // Мигнули 1 раз - команда отправлена
+ // digitalWrite(StatusLed, HIGH);
+  delay(100);
+ // digitalWrite(StatusLed, LOW);
+  // Запомнили время отправки:
+  timestamp = millis();
+  // Запускаем профедуру ожидания ответа
+  waitanswer();
+
+  Serial.print("uSv/h = ");
+  command = 3;
+  Mirf.send((byte *)&command);
+  // Мигнули 1 раз - команда отправлена
+ // digitalWrite(StatusLed, HIGH);
+  delay(100);
+ // digitalWrite(StatusLed, LOW);
+  // Запомнили время отправки:
+  timestamp = millis();
+  // Запускаем профедуру ожидания ответа
+  waitanswer();
+
+  //  // Отправляем невалидную команду
+  //  // прошедших с последней перезагрузки сервера:
+  //  Serial.println("Invalid command");
+  //
+  //  command=4;
+  //  Mirf.send((byte *)&command);
+  //  // Мигнули 1 раз - команда отправлена
+  //  digitalWrite(StatusLed, HIGH);
+  //  delay(100);
+  //  digitalWrite(StatusLed, LOW);
+  //  // Запомнили время отправки:
+  //  timestamp=millis();
+  //  // Запускаем профедуру ожидания ответа
+  //  waitanswer();
+  //  // Эксперимаентально вычисленная задержка.
+  //  // Позволяет избежать проблем с модулем.
+  delay(10);
+  Serial.println("-----------------------------------------");
+  delay(1000);
+}
+
+void waitanswer()
+{
+  // Немного плохого кода:
+  // Устанавливаем timeout в ИСТИНУ
+  // Если ответ будет получен, установим переменную в ЛОЖЬ
+  // Если ответа не будет - считаем ситуацию выходом по таймауту
+  timeout = true;
+  // Ждём ответ или таймута ожидания
+  while (millis() - timestamp < TIMEOUT && timeout) {
+    if (!Mirf.isSending() && Mirf.dataReady()) {
+      // Мигнули 2 раза - ответ получен
+      for (byte i = 0; i < 2; i++) {
+       // digitalWrite(StatusLed, HIGH);
+        delay(100);
+       // digitalWrite(StatusLed, LOW);
+      }
+      timeout = false;
+
+      // Принимаем пакет данные в виде массива байт в переменную data:
+      Mirf.getData((byte *)&data);
+      // Выводим полученные данные в монитор серийного порта
+      //  Serial.print("Get data: ");
+      if ( command == 3)
+      {
+        float data_f = data;
+        data_f=data_f/10000;
+        Serial.println(data_f ,4);
+		myGLCD.printNumF(data_f,4, 25, 80);
+       //  Serial.println(data);
+      }
+       if ( command == 2)
+      {
+        Serial.println(data);
+		myGLCD.printNumI(data, 25, 60);
+      }
+
+      data = 0;
+    }
+  }
+  if (timeout) 
+  {
+    // Мигнули 10 раз - ответа не пришло
+    for (byte i = 0; i < 10; i++) {
+     // digitalWrite(StatusLed, HIGH);
+      delay(100);
+     // digitalWrite(StatusLed, LOW);
+    }
+    Serial.println("Timeout");
+  }
+}
+
 
 void read_data_eeprom()// Чтение состояния счетчиков из памяти
 {
@@ -2430,7 +2580,6 @@ void i2c_test()
 	 Serial.println();
 	 */
 }
-
 void i2c_test1()
 {
 	/*
@@ -2513,7 +2662,6 @@ void drawDisplay()
   myGLCD.setBackColor(0, 0, 0);
 
 }
- 
 void drawMark(int h)
 {
   float x1, y1, x2, y2;
@@ -2528,7 +2676,6 @@ void drawMark(int h)
   
   myGLCD.drawLine(x1+clockCenterX, y1+clockCenterY, x2+clockCenterX, y2+clockCenterY);
 }
-
 void drawSec(int s)
 {
   float x1, y1, x2, y2;
@@ -2558,7 +2705,6 @@ void drawSec(int s)
   
   myGLCD.drawLine(x1+clockCenterX, y1+clockCenterY, x2+clockCenterX, y2+clockCenterY);
 }
-
 void drawMin(int m)
 {
   float x1, y1, x2, y2, x3, y3, x4, y4;
@@ -2602,7 +2748,6 @@ void drawMin(int m)
   myGLCD.drawLine(x2+clockCenterX, y2+clockCenterY, x4+clockCenterX, y4+clockCenterY);
   myGLCD.drawLine(x4+clockCenterX, y4+clockCenterY, x1+clockCenterX, y1+clockCenterY);
 }
-
 void drawHour(int h, int m)
 {
   float x1, y1, x2, y2, x3, y3, x4, y4;
@@ -2651,7 +2796,6 @@ void drawHour(int h, int m)
   myGLCD.drawLine(x2+clockCenterX, y2+clockCenterY, x4+clockCenterX, y4+clockCenterY);
   myGLCD.drawLine(x4+clockCenterX, y4+clockCenterY, x1+clockCenterX, y1+clockCenterY);
 }
-
 void printDate()
 {
 
@@ -2669,13 +2813,11 @@ void printDate()
   myGLCD.print(str_mon[mon-1], 256, 48);
   myGLCD.printNumI(year, 248, 65);
 }
-
 void clearDate()
 {
   myGLCD.setColor(255, 255, 255);
   myGLCD.fillRect(248, 8, 312, 81);
 }
-
 void AnalogClock()
 
 {
@@ -2816,36 +2958,11 @@ void info_nomer_user()
 				}
 		  }			
 }
-
- 
- void time_flag_start()
+void time_flag_start()
  {
 	 timeF = millis();
 	 if (timeF>60000) flag_time = 1;
  }
-
-
- void test_str()
- {
-	 /*
-	 // Тест преобразования строки в число
-  char numbers[] = "2001 60c0c0 -1101110100110100100000 0x6fffff";
-  char * pEnd;
-  long int li1 = strtol(numbers, &pEnd, 10), // преобразовать первую часть строки в значение 10-й СС
-		   li2 = strtol(pEnd,    &pEnd, 16), // преобразовать часть строки в значение 16-й СС
-		   li3 = strtol(pEnd,    &pEnd,  2), // преобразовать часть строки в значение 2-й СС
-		   li4 = strtol(pEnd,     NULL,  0); // преобразовать оставшуюся часть строки в распознав значение автоматически
- 
-		   Serial.println(li1,DEC);
-		   Serial.println(li2,DEC);
-		   Serial.println(li3,DEC);
-		   Serial.println(li4,DEC);
-		   */
- } 
-
- 
- //	sprintf(str3, "%s%s", str1, str2);  // Сложение 2 строк
-
 void setup() 
 {
 	  Serial.begin(9600);
@@ -2888,6 +3005,18 @@ void setup()
 		  Serial.println("initialization failed ReadWrite!");
 		}
       Serial.println("initialization done.");
+	  // Настройка радиоканала
+	  Mirf.cePin = 8;
+	  Mirf.csnPin = 9;
+	  Mirf.spi = &MirfHardwareSpi;
+	  Mirf.init();
+
+	  Mirf.setRADDR((byte*)ADDR);
+	  Mirf.payload = sizeof(unsigned long);
+	  Mirf.config();
+
+
+
 //	  ReadWriteSD();
   	  myGLCD.clrScr();
 
