@@ -135,25 +135,7 @@ void time_flag_start();
 void test_str();
 //
 //
-void drawUpButton(int x, int y);
-void drawDownButton(int x, int y);
-void showDOW(byte dow);
-int bin_to_bcd(int temp);
-byte validateDate(byte d, byte m, word y);
-byte validateDateForMonth(byte d, byte m, word y);
-void setClock();
-char uCase(char c);
-void buttonWait(int x, int y);
-byte calcDOW(byte d, byte m, int y);
-void waitForTouchRelease();
 
 #include <copter_base24.ino>
-#include <cat.c>
-#include <icon1.c>
-#include <icon2.c>
-#include <radioactive1_L.c>
-#include <rwsn.c>
-#include <setTimeDate.ino>
-#include <tux.c>
-#include <utils.ino>
+#include <rvsn2.c>
 #endif

@@ -87,7 +87,9 @@ extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
 extern uint8_t Dingbats1_XL[];
 extern uint8_t SmallSymbolFont[];
-
+ 
+// объявления двух массив изображений
+extern unsigned int rvsn2[0x2710];
 
 int  stCurrentLen_pass = 0;              // Длина вводимой строки
 char pass_user[20];                      // Строка с паролем пользователя
@@ -3060,6 +3062,16 @@ void setup()
 	  Serial.begin(9600);
 	  Serial2.begin(9600);
 	  Serial1.end();
+	  myGLCD.InitLCD();
+	  myGLCD.clrScr();
+	  myGLCD.setFont(BigFont);
+	  myTouch.InitTouch();
+	 // myTouch.setPrecision(PREC_MEDIUM);
+	  myTouch.setPrecision(PREC_HI);
+	  myButtons.setTextFont(BigFont);
+	  myButtons.setSymbolFont(Dingbats1_XL);
+	  myGLCD.fillScr(255, 255, 255);
+	  myGLCD.drawBitmap(60, 20, 100, 100, rvsn2, 2);
 	  Wire.begin();
 	   if (!RTC.begin())
 	  {
@@ -3072,14 +3084,6 @@ void setup()
 	//  timerLoadValue=SetupTimer2(44100);
 	// timerLoadValue=SetupTimer2(10100);
 	  flag_time = 0;
-	  myGLCD.InitLCD();
-	  myGLCD.clrScr();
-	  myGLCD.setFont(BigFont);
-	  myTouch.InitTouch();
-	 // myTouch.setPrecision(PREC_MEDIUM);
-	  myTouch.setPrecision(PREC_HI);
-	  myButtons.setTextFont(BigFont);
-	  myButtons.setSymbolFont(Dingbats1_XL);
 	  format_memory();
 	  myGLCD.setBackColor(0, 0, 255);
 	  pinMode(53, OUTPUT);     // SD Card change this to 53 on a mega
@@ -3096,17 +3100,15 @@ void setup()
 		{
 		  Serial.println("initialization failed ReadWrite!");
 		}
- Serial.println("initialization done.");
+      Serial.println("initialization done.");
 
 	////  Serial.println("Starting up ZigBee*****!");
 	  ReadWriteSD();
 	 if (digitalRead(alarmInPin)==LOW) set_Menu();
  
 // Draw a 64x64 icon in double size.
-  myGLCD.fillScr(255, 255, 255);
-  myGLCD.drawBitmap (0+90, 0+55, 64, 64, radioactive1_L, 2);
-
-  delay(5000);
+ 
+  delay(2000);
 
   	  myGLCD.clrScr();
 
