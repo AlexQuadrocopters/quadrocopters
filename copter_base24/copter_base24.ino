@@ -2969,10 +2969,15 @@ void time_flag_start()
 void test_power()
 {
 	  myGLCD.setFont(SmallFont);
+	 int power = analogRead(A0);
 
-
-      myGLCD.print("\xB0", 300, 1); 
-	  myGLCD.setFont(BigFont);
+	 power = 850;
+	  if (power>900) myGLCD.print("\xB0", 305, 1); 
+	  else if (power<900&&power>800) myGLCD.print("\xB1", 305, 1); 
+	  else if (power<800&&power>700) myGLCD.print("\xB2", 305, 1);
+	  else if (power<700&&power>600) myGLCD.print("\xB3", 305, 1); 
+	  else if (power<600) myGLCD.print("\xB4", 305, 1);
+ 	  myGLCD.setFont(BigFont);
 }
 
 
