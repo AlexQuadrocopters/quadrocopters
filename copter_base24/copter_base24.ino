@@ -285,6 +285,7 @@ void draw_Glav_Menu()
   myGLCD.setColor(0, 255, 0);
   myGLCD.setBackColor(0, 0, 0);
   myGLCD.print("                      ", CENTER, 0); 
+  test_power(); 
   switch (m2) 
 				   {
 					case 1:
@@ -313,8 +314,8 @@ void swichMenu() // Тексты меню в строках "txt....."
 	 m2=1;                           // Устанивить первую странице меню
 	 while(1) 
 	   {
-		   all_alarm();
-			
+		//   all_alarm();
+		// myGLCD.print("\xB0", RIGHT, 10); 	
 		 myButtons.setTextFont(BigFont);    // Установить Большой шрифт кнопок  
 
 			if (myTouch.dataAvailable() == true) // Проверить нажатие кнопок
@@ -341,6 +342,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 							  myGLCD.setColor(0, 255, 0);
 							  myGLCD.setBackColor(0, 0, 0);
 							  myGLCD.print("                      ", CENTER, 0); 
+							  test_power(); 
 							  myGLCD.print(txt_info1, CENTER, 0);            // "Ввод данных"
 		
 						  }
@@ -357,6 +359,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 							  myGLCD.setColor(0, 255, 0);
 							  myGLCD.setBackColor(0, 0, 0);
 							  myGLCD.print("                      ", CENTER, 0); 
+							  test_power();
 							  myGLCD.print(txt_info2, CENTER, 0);            // Информация
 						 }
 
@@ -2963,6 +2966,16 @@ void time_flag_start()
 	 timeF = millis();
 	 if (timeF>60000) flag_time = 1;
  }
+void test_power()
+{
+	  myGLCD.setFont(SmallFont);
+
+
+      myGLCD.print("\xB0", 300, 1); 
+	  myGLCD.setFont(BigFont);
+}
+
+
 void setup() 
 {
 	  Serial.begin(9600);

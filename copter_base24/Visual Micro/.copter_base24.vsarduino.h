@@ -132,6 +132,7 @@ void clearDate();
 void AnalogClock();
 void info_nomer_user();
 void time_flag_start();
+void test_power();
 //
 //
 void drawUpButton(int x, int y);
