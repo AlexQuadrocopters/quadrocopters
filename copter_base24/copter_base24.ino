@@ -8,8 +8,6 @@
  Реализовано:
  - Меню , Пароль, Часы,
 
-
-
  */
 
 #include <avr/pgmspace.h>
@@ -33,7 +31,7 @@ extern "C" {
 //++++++++++++++++++++++++++++  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 const int chipSelect = 53;            // 
-#define  alarmInPin    44             // 44
+//#define  alarmInPin    44             // 44
 int deviceaddress =    0x50;  
 unsigned int eeaddress=0;
 
@@ -52,17 +50,6 @@ int flag_time = 0;
 // MsTimer2::TimerInterrupt
 
 RTC_DS1307 RTC;  // define the Real Time Clock object
-
-byte i;
-byte present = 0;
-byte type_s = 0;
-byte data[12];
-byte addr[8];
-
-int  inByte;
-
-int e1=1;
-int e2=1;
 
 int clockCenterX=119;
 int clockCenterY=119;
@@ -91,40 +78,29 @@ int eeprom_clear = 0;
 int adr_variant_sys          = 241;       //
 //unsigned int eeaddress1 = 0;
 
-int somedata = 12;
-
 byte hi;                                  // Старший байт для преобразования числа
 byte low;                                 // Младший байт для преобразования числа
-// Установки для работы с данными для записи в файл.
-
 
 char n_user[20];                          // Переменная хранения № пользователя
 char n_telefon[20];                       // Переменная хранения № пользователя
 char temp_stLast[20];                     // Переменная для временного хранения содержания строки= stLast
-
 
 unsigned long count_preobr_str = 0;       // Переменная для преобразования строк в число
 unsigned int count_preobr_str1 = 0;       // Переменная для преобразования строк в число
 
 int adr_pass_user = 8;                    // Адрес пароля пользователя
 
-int adr_stCurrentLen1 = 92;              // Адрес указателя длины строки
+int adr_stCurrentLen1 = 92;               // Адрес указателя длины строки
 
 int adr_pass_admin = 118;                 // адрес пароля администратора
 int adr_n_user = 140;                     // Адрес хранения № номера пользователя
 int adr_n_telef = 220;                    // Адрес хранения № номера телефона
 
-
-int result_minus = 0;
 volatile int state = LOW;
 
 
 // Настройка монитора
 
-// Standard Arduino Mega/Due shield            : <display model>,38,39,40,41
-// CTE TFT LCD/SD Shield for Arduino Due       : <display model>,25,26,27,28
-
-// Remember to change the model parameter to suit your display module!
 UTFT          myGLCD(ITDB32S,38,39,40,41);
 // Standard Arduino Mega/Due shield            : 6,5,4,3,2
 UTouch        myTouch(6,5,4,3,2);
@@ -142,7 +118,7 @@ extern uint8_t BigFont[];
 extern uint8_t Dingbats1_XL[];
 extern uint8_t SmallSymbolFont[];
  
-// объявления двух массив изображений
+// объявления массив изображений
 extern unsigned int rvsn2[0x2710];
 
 //-----------------------------------------------------------------------------------------------
@@ -154,10 +130,10 @@ char stCurrent1[20];               // Переменная хранения введенной строки
 int stCurrentLen=0;                // Переменная хранения длины введенной строки 
 int stCurrentLen1=0;               // Переменная временного хранения длины введенной строки  
 int stCurrentLen_user=0;           // Переменная  хранения длины введенной строки пароля пользователя
-int stCurrentLen_telef=0;           // Переменная  хранения длины введенной строки пароля пользователя
+int stCurrentLen_telef=0;          // Переменная  хранения длины введенной строки пароля пользователя
 int stCurrentLen_admin=0;          // Переменная  хранения длины введенной строки пароля администратора
 char stLast[20]="";                // Данные в введенной строке строке.
-char stLast1[20]="";                // Данные в введенной строке строке.
+char stLast1[20]="";               // Данные в введенной строке строке.
 int ret = 0;                       // Признак прерывания операции
 int lenStr = 0;                    // Длина строки ZegBee
 
@@ -170,136 +146,86 @@ int lenStr = 0;                    // Длина строки ZegBee
  int kbutA, kbutB, kbutC, kbutD, kbutE, kbutF;
  int m2 = 1; // Переменная номера меню
 
-// char Xbee_test1[] = "\x7E\x00\x14\x10\x01\x00\x13\xA2\x00\x40\x54\xDE\x2D\xFF\xFE\x00\x00\x31\x32\x33\x34\x35\x36\x68";
-
- // This code block is only needed to support multiple
-// MCU architectures in a single sketch.
-#if defined(__AVR__)
-	#define imagedatatype  unsigned int
-#elif defined(__PIC32MX__)
-	#define imagedatatype  unsigned short
-#elif defined(__arm__)
-	#define imagedatatype  unsigned short
-#endif
-// End of multi-architecture block
-
-
- // Declare which bitmaps we will be using
-extern imagedatatype cat[];
-
-extern unsigned int icon1[0x400];
-extern unsigned int icon2[0x400];
-extern unsigned int radioactive1_L[0x1000];
-
  //------------------------------------------------------------------------------------------------------------------
  // Назначение переменных для хранения текстов
 
-char  txt_menu1_1[] = "MENU1-1";//"Электричество"
-char  txt_menu1_2[] = "MENU1-2";// "ГАЗ"
-char  txt_menu1_3[] = "MENU1-3";   // Вода холодная
-char  txt_menu1_4[] = "MENU1-4"; // Вода горячая
-char  txt_menu2_1[] = "\x86H\x8BO "; // //ИНФО СЧЕТЧИКОВ
-char  txt_menu2_2[] = "\x86H\x8BO N \xA3o\xA0\xAC\x9C."; //
-char  txt_menu2_3[] = "Setup RADIO"; //
-char  txt_menu2_4[] = "menu2_4";//
-char  txt_menu3_1[] = "CTEPET\x92 \x8B""A\x87\x89\x91";//
-char  txt_menu3_2[] = "\x8A""c\xA4.N ""\xA4""e\xA0""e\xA5o\xA2""a";// Уст. № телефона
-char  txt_menu3_3[] = "\x8A""c\xA4.Level Gaz";//
-char  txt_menu3_4[] = "\x8A""c\xA4.Level RAD";//
-char  txt_menu4_1[] = "C\x96poc \x99""a""\xA2\xA2\xABx";// Сброс данных
-char  txt_menu4_2[] = "\x8A""c\xA4.N \xA3o\xA0\xAC\x9C.";// Уст. № польз
-char  txt_menu4_3[] = "\x89""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";// Пароль польз.
-char  txt_menu4_4[] = "\x89""apo\xA0\xAC a\x99\xA1\x9D\xA2.";// Пароль админ.
-char  txt_menu5_1[] = "\x86H\x8BO RADIO";// Инфо ZigBee
-char  txt_menu5_2[] = "Set Adr RADIO";//
-char  txt_menu5_3[] = "Set Adr RADIO";// 
-char  txt_menu5_4[] = "Set Adr RADIO";// 
-char  txt9[6] = "B\x97o\x99"; //Ввод
-char  txt10[8] = "O""\xA4\xA1""e""\xA2""a"; //"Отмена"
-char  txt11[4] = "RET";
-char  txt12[] = "B\x97""e\x99\x9D\xA4""e \xA3""apo\xA0\xAC!";//"Введите пароль"
-char  txt_pass_ok[] = "\xA3""apo\xA0\xAC OK!"; // Пароль ОК!
-char  txt_pass_no[] = "\xA3""apo\xA0\xAC NO!"; // Пароль NO!
-char  txt_botton_clear[] = "C\x96poc"; // Сброс
-char  txt_botton_otmena[] = "O""\xA4\xA1""e""\xA2""a"; // Отмена
-char  txt_system_clear1[] = "B\xA2\x9D\xA1""a\xA2\x9D""e!"; //Внимание !  
-char  txt_system_clear2[] = "Bc\xAF \xA1\xA2\xA5op\xA1""a""\xA6\xA1\xAF \x96y\x99""e\xA4";  // Вся информация будет 
-char  txt_system_clear3[] = "\x8A\x82""A""\x88""EHA!"; // УДАЛЕНА 
-char  txt_n_user[] = "B\x97""e\x99\x9D\xA4""e N \xA3o\xA0\xAC\x9C."; // Введите № польз.
-char  txt_rep_user[] = "\x89o\x97\xA4op\x9D\xA4""e"" N \xA3o\xA0\xAC\x9C.  "; //Повторите № польз.
-char  txt_set_pass_user[] = "Ho\x97\xAB\x9E \xA3""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";  //      "Новый пароль польз."
-char  txt_set_pass_admin[] = "Ho\x97\xAB\x9E \xA3""apo\xA0\xAC  a\x99\xA1\x9D\xA2.";// Новый пароль админ.
-char  txt_rep_pass_user[] = "\x89o\x97\xA4op \xA3""apo\xA0\xAC \xA3o\xA0\xAC\x9C."; //   "Повтор пароль польз."
-char  txt_err_pass_user[] = "O\xA8\x9D\x96ka \x97\x97o\x99""a" ;//Ошибка ввода
-char  txt_rep_pass_admin[] = "\x89o\x97\xA4op \xA3""apo\xA0\xAC a\x99\xA1\x9D\xA2."; //   "Повтор пароль админ"
-char  txt_count1[] = "B\xA2\x9D\xA1""a\xA2\x9D""e!";  //Внимание !
-char  txt_count2[] = "B\x97""e\x99\x9D\xA4""e \xA3o\x9F""a""\x9C""a""\xA2\x9D\xAF"; // Введите показания
-char  txt_count3[] = "He \x96o\xA0\xAC\xA8""e 10 \xA6\x9D\xA5p !"; // Не больше 10 цифр !
-char  txt_count4[] = "\x89o\x97\xA4op\x9D\xA4""e"" \xA3o\x9F""a""\x9C""a""\xA2\x9D\xAF"; // "Повторите показания"
-char  txt_count_elektro1[] = " ***** "; //электросчетчика
-char  txt_count_gaz1[] = " ***** "; // cчетчика газа
-char  txt_count_colwater1[] = " ***** "; // cчетчика хол. воды
-char  txt_count_hotwater1[] = " ***** "; // cчетчика гор. воды
-char  txt_info1[] = "B""\x97""o""\x99"" ""\x99""a""\xA2\xA2\xAB""x";//"Ввод данных"
-char  txt_info2[] = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF";// Информация
-char  txt_info4[] = "\x8A""c\xA4""a\xA2o\x97\x9F\x9D c\x9D""c\xA4""e\xA1\xAB";// 
-char  txt_info3[] = "Hac\xA4po\x9E\x9F""a c\x9D""c\xA4""e\xA1\xAB";// Настройка системы
-char  txt_info5[] = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF RADIO";// Информация ZigBee
-char  txt_mount1[] = "\x95\xA2\x97""ap\xAC";  // Январь
-char  txt_mount2[] = "\x8B""e\x97""pa\xA0\xAC";  // Февраль
-char  txt_mount3[] = "Map\xA4";  // Март
-char  txt_mount4[] = "A\xA3pe\xA0\xAC";  // Апрель
-char  txt_mount5[] = "Ma\x9E";  // Май
-char  txt_mount6[] = "\x86\xAE\xA2\xAC";  // Июнь
-char  txt_mount7[] = "\x86\xAE\xA0\xAC";  // Июль
-char  txt_mount8[] = "A\x97\x98yc\xA4";  // Август
-char  txt_mount9[] = "Ce\xA2\xA4\xAF\x96p\xAC";  // Сентябрь
-char  txt_mount10[] = "O\x9F\xA4\xAF\x96p\xAC"; // Октябрь
-char  txt_mount11[] = "Ho\xAF\x96p\xAC"; // Ноябрь
-char  txt_mount12[] = "\x82""e\x9F""a\x96p\xAC"; // Декабрь
-char  txt_elektro[] = " ***** "; // Электро
-char  txt_gaz[] = " ***** "; // Газ
-char  txt_colwater[] = " ***** "; // хол. водa
-char  txt_hotwater[] = " ***** "; // гор. водa
-char  txt_data[] = "\x82""a\xA4""a";// Data
-char  txt_pred[] = "\x89pe\x99.";// Пред.
-char  txt_tek[] = "Te\x9F.";// Тек.
-char  txt_summa[] = "Pe\x9C.";// Рез.
-char  txt_return[] = "\x85""a\x97""ep\xA8\xA2\xA4\xAC \xA3poc\xA1o\xA4p";// Завершить просмотр
-char  txt_info_count[] = "\x86H\x8BO C\x8D""ET\x8D\x86KOB";//ИНФО СЧЕТЧИКОВ
-char  txt_info_n_user[] = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF \xA3o\xA0\xAC\x9C.";// Информация польз.
-char  txt_info_n_user1[] = "Ho\xA1""ep ""\xA3o\xA0\xAC\x9Co\x97""a""\xA4""e""\xA0\xAF";// Номер пользователя
-char  txt_info_n_telef[] = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
-char  txt_info_n_device[] = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
-char  txt_info_n_device1[] = "B\x97""e\x99\x9D\xA4""e N ""\xA4""e\xA0""e\xA5o\xA2""a";// Введите N телеф.
-char  txt_info_n_device2[] = "\x89o\x97\xA4op\x9D\xA4""e N ""\xA4""e\xA0""e\xA5o\xA2""a";// Повторите N телеф.
-char  txt_level_warm_gaz[]  = "B\x97""e\x99\x9D\xA4""e Level Gaz";//
-char  txt_level_warm_gaz2[] = "\x89o\x97\xA4op\x9D\xA4""e  Level Gaz";//
-char  txt_level_warm_temp[]  = "B\x97""e\x99\x9D\xA4""e Level Temp";//
-char  txt_level_warm_temp2[] = "\x89o\x97\xA4op\x9D\xA4""e Level temp";//
-char  txt_info_ZigBee_ALL[] = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF RADIO";// Информация ZigBee
-char  txt_info_ZigBee_USB[] = "o\xA4\xA3p""a""\x97\xA0""e""\xA2""a"" USB port";//
-char  txt_info_ZigBee_MY[] = " ***** ";//
-char  txt_info_ZigBee_CoordinatorAdr[] = "Address Coordinator";//
-char  txt_info_ZigBee_Serial[] = "Serial Number SH,SL";//
-char  txt_info_ZigBee_Network_Address[]  = "Network (MY) = ";//
-char  txt_info_ZigBee_Operating_PAN_OP[] = "PAN ID (OP)  = ";//
-char  txt_info_ZigBee_Operating_ID[]     = "ID (ID)      = ";//
-char  txt_info_ZigBee_Chanel_CH[]        = "Chanel (CH)  = ";//
-char  txt_info_ZigBee_Association[]      = "Association(AI)=";//
-char  txt_info_ZigBee_Baud_Rate[]        = "Baud Rate(BD)=";//
-char  txt_info_ZigBee_Voltage []         = "Voltage (%V) =";//
-char  txt_sys_info[]         = "B""\xAB\x96op c""\x9D""c""\xA4""e""\xA1\xAB";//
-char  txt_sys_menu1[]         = "Registrator";//
-char  txt_sys_menu2[]         = " ***** ";//
-char  txt_sys_menu3[]         = " ***** ";//
-char  txt_sys_menu4[]         = " ***** ";//
-
-
-
-  
+char  txt_menu1_1[]            = "\x89""P""\x86""EM ""\x82\AHH""\x91""X";           // ПРИЕМ ДАННЫХ
+char  txt_menu1_2[]            = "\x86""H""\x8B""O GPS";                            // ИНФО GPS
+char  txt_menu1_3[]            = "\x82""AHH""\x91""E B""\x91""COTA";                // ДАННЫЕ ВЫСОТА
+char  txt_menu1_4[]            = "\x82""AHH""\x91""E ""\x81""A""\x85";              // ДАННЫЕ ГАЗ
+char  txt_menu2_1[]            = "BBO""\x82"" KOOP""\x82\x86""HAT";                 // ВВОД КООРДИНАТ
+char  txt_menu2_2[]            = "BBO""\x82"" B""\x91""COT""\x91";                  // ВВОД ВЫСОТЫ
+char  txt_menu2_3[]            = "\x89""OPO""\x81"" PA""\x82\x86""A""\x8C\x86\x86"; // ПОРОГ РАДИАЦИИ
+char  txt_menu2_4[]            = "\x89""OPO""\x81"" ""\x81""A""\x85";               // ПОРОГ ГАЗ
+char  txt_menu3_1[]            = "CTEPET""\x92"" ""\x8B""A""\x87\x88\x91";          // СТЕРЕТЬ ФАЙЛЫ
+char  txt_menu3_2[]            = "BBO""\x82"" KO""\x93\x8B\x8B"".PA""\x82"".";      // ВВОД КОЭФФ. РАД.
+char  txt_menu3_3[]            = "\x89""EPE""\x82""A""\x8D""A"" ""\x97"" ""\x89""K";// ПЕРЕДАЧА в ПК
+char  txt_menu3_4[]            = "\x86""H""\x8B""O ""\x8A""CTAHOBK""\x86";          //ИНФО УСТАНОВКИ
+char  txt_menu4_1[]            = "C\x96poc \x99""a""\xA2\xA2\xABx";                 // Сброс данных
+char  txt_menu4_2[]            = "\x8A""c\xA4.N \xA3o\xA0\xAC\x9C.";                // Уст. № польз
+char  txt_menu4_3[]            = "\x89""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";            // Пароль польз.
+char  txt_menu4_4[]            = "\x89""apo\xA0\xAC a\x99\xA1\x9D\xA2.";            // Пароль админ.
+char  txt_menu5_1[]            = "CKAH.PA""\x82\x86""O""\x93\x8B\x86""PA";          // СКАН.РАДИОЭФИРА
+char  txt_menu5_2[]            = "B""\x91\x80""OP KAHA""\x88""A";                   // ВЫБОР КАНАЛА
+char  txt_menu5_3[]            = "B""\x91\x80""OP MO""\x8F""HOCT""\x86";            // ВЫБОР МОЩНОСТИ
+char  txt_menu5_4[]            = "********";                                        // 
+char  txt9[6]                  = "B\x97o\x99";                                      // Ввод
+char  txt10[8]                 = "O""\xA4\xA1""e""\xA2""a";                         // "Отмена"
+char  txt12[]                  = "B\x97""e\x99\x9D\xA4""e \xA3""apo\xA0\xAC!";      // "Введите пароль"
+char  txt_pass_ok[]            = "\xA3""apo\xA0\xAC OK!";                           // Пароль ОК!
+char  txt_pass_no[]            = "\xA3""apo\xA0\xAC NO!";                           // Пароль NO!
+char  txt_botton_clear[]       = "C\x96poc";                                        // Сброс
+char  txt_botton_otmena[]      = "O""\xA4\xA1""e""\xA2""a";                         // Отмена
+char  txt_system_clear1[]      = "B\xA2\x9D\xA1""a\xA2\x9D""e!";                    //Внимание !  
+char  txt_system_clear2[]      = "Bc\xAF \xA1\xA2\xA5op\xA1""a""\xA6\xA1\xAF \x96y\x99""e\xA4";  // Вся информация будет 
+char  txt_system_clear3[]      = "\x8A\x82""A""\x88""EHA!";                              // УДАЛЕНА 
+char  txt_n_user[]             = "B\x97""e\x99\x9D\xA4""e N \xA3o\xA0\xAC\x9C.";         // Введите № польз.
+char  txt_rep_user[]           = "\x89o\x97\xA4op\x9D\xA4""e"" N \xA3o\xA0\xAC\x9C.  ";  // Повторите № польз.
+char  txt_set_pass_user[]      = "Ho\x97\xAB\x9E \xA3""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";  // "Новый пароль польз."
+char  txt_set_pass_admin[]     = "Ho\x97\xAB\x9E \xA3""apo\xA0\xAC  a\x99\xA1\x9D\xA2."; // Новый пароль админ.
+char  txt_rep_pass_user[]      = "\x89o\x97\xA4op \xA3""apo\xA0\xAC \xA3o\xA0\xAC\x9C."; // "Повтор пароль польз."
+char  txt_err_pass_user[]      = "O\xA8\x9D\x96ka \x97\x97o\x99""a" ;                    // Ошибка ввода
+char  txt_rep_pass_admin[]     = "\x89o\x97\xA4op \xA3""apo\xA0\xAC a\x99\xA1\x9D\xA2."; // "Повтор пароль админ"
+char  txt_count1[]             = "B\xA2\x9D\xA1""a\xA2\x9D""e!";                                     // Внимание !
+char  txt_count2[]             = "B\x97""e\x99\x9D\xA4""e \xA3o\x9F""a""\x9C""a""\xA2\x9D\xAF";      // Введите показания
+char  txt_count3[]             = "He \x96o\xA0\xAC\xA8""e 10 \xA6\x9D\xA5p !";                       // Не больше 10 цифр !
+char  txt_count4[]             = "\x89o\x97\xA4op\x9D\xA4""e"" \xA3o\x9F""a""\x9C""a""\xA2\x9D\xAF"; // "Повторите показания"
+char  txt_info1[]              = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF";                             // Информация
+char  txt_info2[]              = "B""\x97""o""\x99"" ""\x99""a""\xA2\xA2\xAB""x";                   //"Ввод данных"
+char  txt_info4[]              = "\x8A""c\xA4""a\xA2o\x97\x9F\x9D c\x9D""c\xA4""e\xA1\xAB";         // 
+char  txt_info3[]              = "Hac\xA4po\x9E\x9F""a c\x9D""c\xA4""e\xA1\xAB";                    // Настройка системы
+char  txt_info5[]              = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF RADIO";                        // 
+char  txt_mount1[]             = "\x95\xA2\x97""ap\xAC";                                            // Январь
+char  txt_mount2[]             = "\x8B""e\x97""pa\xA0\xAC";  // Февраль
+char  txt_mount3[]             = "Map\xA4";  // Март
+char  txt_mount4[]             = "A\xA3pe\xA0\xAC";  // Апрель
+char  txt_mount5[]             = "Ma\x9E";  // Май
+char  txt_mount6[]             = "\x86\xAE\xA2\xAC";  // Июнь
+char  txt_mount7[]             = "\x86\xAE\xA0\xAC";  // Июль
+char  txt_mount8[]             = "A\x97\x98yc\xA4";  // Август
+char  txt_mount9[]             = "Ce\xA2\xA4\xAF\x96p\xAC";  // Сентябрь
+char  txt_mount10[]            = "O\x9F\xA4\xAF\x96p\xAC"; // Октябрь
+char  txt_mount11[]            = "Ho\xAF\x96p\xAC"; // Ноябрь
+char  txt_mount12[]            = "\x82""e\x9F""a\x96p\xAC"; // Декабрь
+char  txt_radiacia[]           = " ***** "; // 
+char  txt_gaz[]                = " ***** "; // 
+char  txt_pressure[]           = " ***** "; //
+char  txt_elevation[]          = " ***** "; // 
+char  txt_altitude[]           = " ***** "; //
+char  txt_data[]               = "\x82""a\xA4""a";// Data
+char  txt_pred[]               = "\x89pe\x99.";// Пред.
+char  txt_tek[]                = "Te\x9F.";// Тек.
+char  txt_summa[]              = "Pe\x9C.";// Рез.
+char  txt_return[]             = "\x85""a\x97""ep\xA8\xA2\xA4\xAC \xA3poc\xA1o\xA4p";// Завершить просмотр
+char  txt_info_count[]         = "\x86H\x8BO C\x8D""ET\x8D\x86KOB";//
+char  txt_info_n_user[]        = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF \xA3o\xA0\xAC\x9C.";// Информация польз.
+char  txt_info_n_user1[]       = "Ho\xA1""ep ""\xA3o\xA0\xAC\x9Co\x97""a""\xA4""e""\xA0\xAF";// Номер пользователя
+char  txt_info_n_telef[]       = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
+char  txt_info_n_device[]      = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
+char  txt_info_n_device1[]     = "B\x97""e\x99\x9D\xA4""e N ""\xA4""e\xA0""e\xA5o\xA2""a";// Введите N телеф.
+char  txt_info_n_device2[]     = "\x89o\x97\xA4op\x9D\xA4""e N ""\xA4""e\xA0""e\xA5o\xA2""a";// Повторите N телеф.
  //=====================================================================
-void dateTime(uint16_t* date, uint16_t* time) // Программа записи времени и даты файла
+void dateTime(uint16_t* date, uint16_t* time)                                                 // Программа записи времени и даты файла
 {
   DateTime now = RTC.now();
 
@@ -582,7 +508,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 
 				  if (pressed_button==but2 && m2 == 2)
 					  {
-						   info_nomer_user();
+						//   info_nomer_user();
 							myGLCD.clrScr();
 							myButtons.drawButtons();
 							print_up();
@@ -758,21 +684,16 @@ void swichMenu() // Тексты меню в строках "txt....."
 							{
 							   pass_test();
 							}
-						if ( ( pass2 == 1) || ( pass3 == 1))
+						if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
 							{
 								myGLCD.clrScr();
 								myGLCD.print(txt_pass_ok, RIGHT, 208);
 								delay (500);
-//						set_warm_temp();
+						   info_nomer_user();
 							}
 						else
 							{
 								txt_pass_no_all();
-								//myGLCD.clrScr();
-								//myGLCD.setColor(255, 255, 255);
-								//myGLCD.setBackColor(0, 0, 0);
-								//myGLCD.print(txt_pass_no, RIGHT, 208);
-								//delay (1000);
 							}
 							bailout43:
 							myGLCD.clrScr();
@@ -782,25 +703,25 @@ void swichMenu() // Тексты меню в строках "txt....."
 
 				   //*****************  Меню №4  **************
 
-				   if (pressed_button==but1 && m2 == 4) // Сброс данных
+				   if (pressed_button==but1 && m2 == 4)     // Сброс данных
 					  {
-							pass_test_start();  // Нарисовать цифровую клавиатуру
-							klav123();          // Считать информацию с клавиатуры
-						if (ret == 1)        // Если "Возврат" - закончить
+							pass_test_start();              // Нарисовать цифровую клавиатуру
+							klav123();                      // Считать информацию с клавиатуры
+						if (ret == 1)                       // Если "Возврат" - закончить
 							{
-							   goto bailout14;  // Перейти на окончание выполнения пункта меню
+							   goto bailout14;              // Перейти на окончание выполнения пункта меню
 							}
-				  //   else                 // Иначе выполнить пункт меню
-					   //   {
-							   pass_test();     // Проверить пароль
-					   //   }
+						else
+							{
+							   pass_test();
+							}
 						if ( ( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
 							{
-								myGLCD.clrScr();   // Очистить экран
+								myGLCD.clrScr();              // Очистить экран
 								myGLCD.print(txt_pass_ok, RIGHT, 208); 
 								delay (500);
-								eeprom_clear = 1; // Разрешить стереть информации
-								system_clear_start(); // если верно - выполнить пункт меню
+								eeprom_clear = 1;             // Разрешить стереть информации
+								system_clear_start();         // если верно - выполнить пункт меню
 							}
 						else  // Пароль не верный - сообщить и закончить
 							{
@@ -1022,92 +943,12 @@ void swichMenu() // Тексты меню в строках "txt....."
 	   
 }
 
-void set_Menu() //
-	
-{
-
-  but1 = myButtons.addButton( 20,  20, 280,  35, txt_sys_menu1);
-  but2 = myButtons.addButton( 20,  65, 280,  35, txt_sys_menu2);
-  but3 = myButtons.addButton( 20, 110, 280,  35, txt_sys_menu3);
-  but4 = myButtons.addButton( 20, 155, 280,  35, txt_sys_menu4);
-  myGLCD.setColor(VGA_BLACK);
-  myGLCD.setBackColor(VGA_WHITE);
-  myGLCD.setColor(0, 255, 0);
-  myGLCD.setBackColor(0, 0, 0);
-  myGLCD.print("                      ", CENTER, 0); 
-  myGLCD.print(txt_sys_info, CENTER, 0);
-  myButtons.drawButtons();
-	
-	 while(1) 
-	   {
-		  myButtons.setTextFont(BigFont);    // 
-
-			if (myTouch.dataAvailable() == true) // 
-			  {
-				pressed_button = myButtons.checkButtons(); // 
-					
-
-				   if (pressed_button==but1)
-					   {
-						  i2c_eeprom_write_byte(deviceaddress, adr_variant_sys, 1); // 
-						  break;
-					   }
-	  
-				   if (pressed_button==but2)
-					   {
-						  i2c_eeprom_write_byte(deviceaddress, adr_variant_sys, 2); // 
-						  break;
-					   }
-	  
-				   if (pressed_button==but3)
-					   {
-						   i2c_eeprom_write_byte(deviceaddress, adr_variant_sys, 3); // 
-						   break;
-					   }
-
-				  if (pressed_button==but4)
-					   {
-						   i2c_eeprom_write_byte(deviceaddress, adr_variant_sys, 4); //
-						   break;
-					   } 
-				
-			  } 
-	   }
-                 // 
-	  myButtons.deleteAllButtons();
-	  myGLCD.clrScr();
-}
 
 void all_alarm()
 {
- 	alarm_kn();
 	time_flag_start();
 	//warm_temp();                    // Проверить температуру
 	//warm_gaz();                     // Проверить уровень Газ
-}
-void alarm_kn()
-{
-	  if (digitalRead(alarmInPin)==LOW)
-		{
-		  state = 1;
-		//		mcp_Out1.digitalWrite(Beep, HIGH); 
-
-				//myGLCD.setColor(255 , 0, 0);
-				myGLCD.setColor(VGA_YELLOW);
-				myGLCD.fillRoundRect (278, 92, 318, 132);
-				myGLCD.setColor(255, 255, 255);
-				myGLCD.drawRoundRect (278, 92, 318, 132);
-				myGLCD.setBackColor(0, 0, 0);
-				delay(200); 
-				delay(1000);
-				myGLCD.setColor(0, 0, 0);
-				myGLCD.fillRoundRect (278, 92, 318, 132);
-				myGLCD.setColor(0, 0, 0);
-				myGLCD.drawRoundRect (278, 92, 318, 132);
-				//mcp_Out1.digitalWrite(Beep, LOW);  
-			//	delay(200);
-		 state = 0;
-	  }
 }
 
 void reset_klav()
@@ -2234,7 +2075,7 @@ void print_info()// Вывод информации со счетчиков
 						myGLCD.setColor(255, 127, 0);
 						myGLCD.drawLine(1,y+38, 319, y+38);
 						myGLCD.setColor(255, 255, 0);
-						myGLCD.print(txt_elektro, LEFT, y+40);
+						myGLCD.print(txt_radiacia, LEFT, y+40);
 						myGLCD.setColor(255, 255, 255);
 		/*				myGLCD.printNumI(count_electro_old, LEFT, y+60);
 						myGLCD.printNumI(count_electro_ok, CENTER, y+60);
@@ -2255,7 +2096,7 @@ void print_info()// Вывод информации со счетчиков
 						myGLCD.drawLine(1,y+118, 319, y+118);
 
 						myGLCD.setColor(0, 255, 0);
-						myGLCD.print(txt_colwater, LEFT, y+120);
+						myGLCD.print(txt_pressure, LEFT, y+120);
 						myGLCD.setColor(255, 255, 255);
 	/*					myGLCD.printNumI(count_colwater_old, LEFT, y+140);
 						myGLCD.printNumI(count_colwater_ok, CENTER, y+140);
@@ -2266,7 +2107,7 @@ void print_info()// Вывод информации со счетчиков
 
 						//myGLCD.setColor(255, 0, 0);
 						myGLCD.setColor(VGA_RED);
-						myGLCD.print(txt_hotwater, LEFT, y+160);
+						myGLCD.print(txt_elevation, LEFT, y+160);
 						myGLCD.setColor(255, 255, 255);
 	/*					myGLCD.printNumI(count_hotwater_old, LEFT, y+180);
 						myGLCD.printNumI(count_hotwater_ok, CENTER, y+180);
@@ -2894,7 +2735,6 @@ void AnalogClock()
 
 void info_nomer_user()
 {
-	
 					myGLCD.clrScr();   // Очистить экран CENTER
 					myGLCD.setColor(0, 0, 255);
 					myGLCD.fillRoundRect (2, 2, 318, 25);
@@ -2942,39 +2782,7 @@ void info_nomer_user()
 					myGLCD.print(txt_info_n_telef, CENTER, 70);
 					myGLCD.print(n_telefon, CENTER, 90);// 
 					myGLCD.setColor(255,255, 255);
-			//		sensorValueGaz = analogRead(analogGaz);  
-					delay(10); 
- 
-					//hi = i2c_eeprom_read_byte( deviceaddress, adr_level_war_gaz+1); // 29-30 Номер строки в файле elektro.txt
-					//low = i2c_eeprom_read_byte( deviceaddress, adr_level_war_gaz);
-   
-					//level_warm_gaz = (hi<<8) | low; // собираем как "настоящие программеры"
-					myGLCD.setColor(255, 255, 255);//
-					myGLCD.print("Gaz", 10, 120);
-					myGLCD.print("      ", CENTER, 120);// 
-					//myGLCD.printNumI(sensorValueGaz, CENTER, 120);// 
-					//myGLCD.printNumI(level_warm_gaz, 220, 120);// 
-				
-					//DHT11_check();
-					//celsius1 = DHT11.temperature;
-					//barometrBMP085();
-					//hi = i2c_eeprom_read_byte( deviceaddress, adr_level_war_temp+1); // 29-30 Номер строки в файле elektro.txt
-					//low = i2c_eeprom_read_byte( deviceaddress, adr_level_war_temp);
-   
-					//int level_warm_temp = (hi<<8) | low; // собираем как "настоящие программеры"
 
-					myGLCD.print("Temp", 10, 140);
-					myGLCD.print("C", 260, 140);
-					//myGLCD.printNumF(celsius1,2, CENTER, 140);// 
-					//myGLCD.printNumI(level_warm_temp, 220, 140);// 
-
-					myGLCD.print("Humidity (%): ", 10, 160);
-					myGLCD.print("      ", RIGHT, 160);// 
-					//myGLCD.printNumF(DHT11.humidity,2, RIGHT, 160);// 
-
-					myGLCD.print("pressure : ", 10, 180);
-					//myGLCD.printNumF(pressure/133.3,2, RIGHT, 180);// 
-				
 					myGLCD.setColor(0, 0, 255);
 					myGLCD.fillRoundRect (2, 216, 318, 238);
 					myGLCD.setColor(255, 255, 255);
@@ -2983,27 +2791,14 @@ void info_nomer_user()
 					myGLCD.setColor(255, 255, 255);
 					myGLCD.print(txt_return, CENTER, 218);// Завершить просмотр 
 
-
-
-					
 		 while (true)
 			{
-					all_alarm();
-					//sensorValueGaz = analogRead(analogGaz);  
-					//barometrBMP085();
 					delay(10); 
 					myGLCD.setColor(255, 255, 255);//
 					myGLCD.setBackColor(0, 0, 0);
 					myGLCD.print("      ", CENTER, 120);// 
 
-					//DHT11_check();
-					//celsius1 = DHT11.temperature;
-					//myGLCD.printNumF(celsius1,2, CENTER, 140);// 
-					//myGLCD.print("      ", RIGHT, 160);// 
-					//myGLCD.printNumF(DHT11.humidity,2, RIGHT, 160);// 
-					//myGLCD.printNumF(pressure/133.3,2, RIGHT, 180);// 
-			   
-			   if (myTouch.dataAvailable())
+					if (myTouch.dataAvailable())
 				{
 					  myTouch.read();
 					  x=myTouch.getX();
@@ -3019,9 +2814,7 @@ void info_nomer_user()
 					  }
 				   }
 				}
-
-		  }				//	delay (1500);
-
+		  }			
 }
 
  
@@ -3071,7 +2864,7 @@ void setup()
 	  Wire.begin();
 	   if (!RTC.begin())
 	  {
-		//Serial.println("RTC failed");
+		Serial.println("RTC failed");
 		while(1);
 	  };
 	 // set date time callback function
@@ -3087,8 +2880,6 @@ void setup()
 	  pinMode(49, OUTPUT);   
 	  digitalWrite(48, HIGH); 
 	  digitalWrite(49, HIGH); 
-	  pinMode(alarmInPin, INPUT);
-	  digitalWrite(alarmInPin, HIGH);
 
 	  InitializingSD();
 
@@ -3097,46 +2888,13 @@ void setup()
 		  Serial.println("initialization failed ReadWrite!");
 		}
       Serial.println("initialization done.");
-
-	////  Serial.println("Starting up ZigBee*****!");
-	  ReadWriteSD();
-	 if (digitalRead(alarmInPin)==LOW) set_Menu();
- 
-// Draw a 64x64 icon in double size.
- 
-  delay(2000);
-
+//	  ReadWriteSD();
   	  myGLCD.clrScr();
-
-	//  myGLCD.print(rwsn, CENTER, 10);
 
 }
 
 void loop()
 {
-		//int  but100;
-		//but100 = myButtons.addButton( 10,  10, 80,  60, cat);
-	 //  myButtons.drawButtons();
-	 // delay(4000);
-
-	// sys_N = i2c_eeprom_read_byte(deviceaddress, adr_variant_sys); //access an address from the memory
-	 sys_N = 1;
-	 switch (sys_N) 
-		{
-			case 1:
-			draw_Glav_Menu();
-			swichMenu();
-				break;
-			case 2:
-				myGLCD.printNumI(sys_N, CENTER, 0);
-				break;
-			case 3:
-				myGLCD.printNumI(sys_N, CENTER, 0);
-				break;
-			case 4:
-
-				myGLCD.printNumI(sys_N, CENTER, 0);
-				break;
-		}
-
+	draw_Glav_Menu();
+	swichMenu();
 } 

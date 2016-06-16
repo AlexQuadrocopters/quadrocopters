@@ -86,9 +86,7 @@ extern "C" void __cxa_pure_virtual() {;}
 void dateTime(uint16_t* date, uint16_t* time);
 void draw_Glav_Menu();
 void swichMenu();
-void set_Menu();
 void all_alarm();
-void alarm_kn();
 void reset_klav();
 void txt_pass_no_all();
 void klav123();
@@ -148,10 +146,10 @@ byte calcDOW(byte d, byte m, int y);
 void waitForTouchRelease();
 
 #include <copter_base24.ino>
-#include <icon2.c>
+#include <cat.c>
+#include <icon1.c>
 #include <radioactive1_L.c>
 #include <rvsn2.c>
-#include <rwsn.c>
 #include <setTimeDate.ino>
 #include <tux.c>
 #include <utils.ino>
