@@ -57,15 +57,15 @@ Arduino Nano      BMP180(BMO085)
 
 // Conversion factor - CPM to uSV/h
 #define CONV_FACTOR 0.00812
-int geiger_input = 2;                         //Назначение ввода подключения счетчика Гейгера
-long count = 0;
-long countPerMinute = 0;
-long timePrevious = 0;
+int geiger_input          = 2;                         //Назначение ввода подключения счетчика Гейгера
+long count                = 0;
+long countPerMinute       = 0;
+long timePrevious         = 0;
 long timePreviousMeassure = 0;
-long time = 0;
-long countPrevious = 0;
-float radiationValue = 0.0;
-
+long time                 = 0;
+long countPrevious        = 0;
+float radiationValue      = 0.0;
+int geiger_ready          = 0;
 //---------------------------------------------------
 
 TinyGPS gps;                                  // Настройка GPS
@@ -198,7 +198,7 @@ void run_nRF24L01()
     Serial.print("Get data: ");
     Serial.println(command);
   }
-  // Если переменная не нулевая, формируем ответ:
+  // Если переменная не нулевая, формируем ответ:geiger_ready = 1;
   if (command != 0)
   {
     switch (command)
@@ -211,14 +211,24 @@ void run_nRF24L01()
         break;
       case 2:
         // команда 2 - отправить значение
+        data = geiger_ready;
+        break;
+      case 3:
+          // команда 2 - отправить значение
         Serial.println("cpm = ");
         data = countPerMinute;
         break;
-      case 3:
+
+     case 4:
         // команда 3 - отправить значение
         Serial.println("uSv/h = ");
         data = radiationValue * 10000 ;
+		geiger_ready = 0;
         break;
+	case 5:
+ 
+        break;
+
       default:
         // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
         // жалуемся в последовательный порт
@@ -253,6 +263,7 @@ void run_geiger()
     Serial.print("uSv/h = ");
     Serial.println(radiationValue, 4);
     count = 0;
+	geiger_ready = 1;
   }
 }
 
