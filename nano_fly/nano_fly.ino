@@ -228,6 +228,27 @@ void run_nRF24L01()
 	case 5:
  
         break;
+	case 6:
+ 
+        break;
+	case 7:
+ 
+        break;
+	case 8:
+ 
+        break;
+	case 9:
+ 
+        break;
+	case 10:
+ 
+        break;
+
+	case 11:
+ 
+        break;
+
+
 
       default:
         // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
@@ -235,9 +256,9 @@ void run_nRF24L01()
         Serial.println("Unknown command");
         for (byte i = 0; i < 10; i++) 
 		{
-          digitalWrite(StatusLed, HIGH);
+       /*   digitalWrite(StatusLed, HIGH);
           delay(100);
-          digitalWrite(StatusLed, LOW);
+          digitalWrite(StatusLed, LOW);*/
         }
         break;
     }
