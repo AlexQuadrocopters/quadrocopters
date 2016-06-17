@@ -105,6 +105,12 @@ int adr_n_telef = 220;                    // Адрес хранения № номера телефона
 
 volatile int state = LOW;
 
+float power60 = 0;                       // Измерение источника питания 6,0 вольт           
+float power50 = 0;                       // Измерение источника питания 5,0 вольт           
+float power33 = 0;                       // Измерение источника питания 3,3 вольт           
+unsigned long currentTime;
+unsigned long loopTime;
+int time_power = 1000;
 
 // Настройка монитора
 
@@ -130,7 +136,7 @@ extern unsigned int rvsn2[0x2710];
 
 //-----------------------------------------------------------------------------------------------
 
-// Переменные для цыфровой клавиатуры
+// Переменные для цифровой клавиатуры
 int x, y, z;
 char stCurrent[20]="";             // Переменная хранения введенной строки 
 char stCurrent1[20];               // Переменная хранения введенной строки 
@@ -2969,22 +2975,35 @@ void time_flag_start()
  }
 void test_power()
 {
+	currentTime = millis();                           // считываем время, прошедшее с момента запуска программы
+  if(currentTime >= (loopTime + time_power))
+  {                                                  // сравниваем текущий таймер с переменной loopTime + 1 секунда
+      loopTime = currentTime;                          // в loopTime записываем новое значение
 	  myGLCD.setFont(SmallFont);
-	  float power = analogRead(A0)*5/1024*2;
-	 // power=5.12;
-	  if (power>5.8) myGLCD.print("\xB0", 295, 20); 
-	  else if (power<=5.8&&power>5.6) myGLCD.print("\xB1", 295, 20); 
-	  else if (power<=5.6&&power>5.4) myGLCD.print("\xB2", 295, 20);
-	  else if (power<=5.4&&power>5.2) myGLCD.print("\xB3", 295, 20); 
+	  int power = analogRead(A3);
+	 // Serial.println(power);
+	  power60 = power*(5.0 / 1023.0*2);
+	//  Serial.println(power60);
+	  if (power60>5.8) myGLCD.print("\xB0", 290, 20); 
+	  else if (power60<=5.8&&power60>5.6) myGLCD.print("\xB1", 290, 20); 
+	  else if (power60<=5.6&&power60>5.4) myGLCD.print("\xB2", 290, 20);
+	  else if (power60<=5.4&&power60>5.2) myGLCD.print("\xB3", 290, 20); 
 
-	  else if (power<=5.2) 
+	  else if (power60<=5.2) 
 	  {
 		  myGLCD.setColor(255, 0, 0);
-		  myGLCD.print("\xB4", 295, 20);
+		  myGLCD.print("\xB4", 290, 20);
 	  }
-	  myGLCD.printNumF(power,1, 290, 35); 
+	  myGLCD.printNumF(power60,2, 280, 35); 
 	  myGLCD.setColor(255, 255, 255);
+	  power = analogRead(A1);
+	  power50 = power*(5.0 / 1023.0*2);
+	  myGLCD.printNumF(power50,2, 280, 45); 
+      power = analogRead(A2);
+	  power33 = power*(5.0 / 1023.0);
+	  myGLCD.printNumF(power33,2, 280, 55); 
  	  myGLCD.setFont(BigFont);
+    }
 }
 
 
