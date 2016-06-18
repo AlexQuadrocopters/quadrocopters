@@ -88,6 +88,7 @@ void flash_time();
 void run_nRF24L01();
 void run_geiger();
 void countPulse();
+void run_GPS();
 void setup(void);
 void loop(void);
 

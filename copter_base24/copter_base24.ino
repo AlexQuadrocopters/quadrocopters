@@ -113,6 +113,7 @@ unsigned long loopTime;
 int time_power    = 1000;
 bool geiger_ready = false;               // Готовность информации со счетчика Гейгера
 float data_f      = 0;
+int gound_m       = 218;                 // Высота местности над уровнем моря           
 
 // Настройка монитора
 
@@ -2238,14 +2239,14 @@ void radiotraffic()
 			  Serial.println("Request millis()");
 
 			  command = 1;
-			  myGLCD.printNumI(command,210,40);
+			  myGLCD.printNumI(command,226,40);
 			  myGLCD.print("->",240,40);
 			  Mirf.send((byte *)&command);
 			  // Мигнули 1 раз - команда отправлена
 			 // digitalWrite(StatusLed, HIGH);
 			  delay(100);
 			//  digitalWrite(StatusLed, LOW);
-			   myGLCD.print("  ",240,40);
+			   myGLCD.print("    ",210,40);
 			  // Запомнили время отправки:
 			  timestamp = millis();
 			  // Запускаем профедуру ожидания ответа
@@ -2253,14 +2254,14 @@ void radiotraffic()
 			  if (myTouch.dataAvailable()) return;
 
 			  command = 2;
-			  myGLCD.printNumI(command,210,40);
+			  myGLCD.printNumI(command,226,40);
 			  myGLCD.print("->",240,40);
 			  Mirf.send((byte *)&command);
 			  // Мигнули 1 раз - команда отправлена
 			 // digitalWrite(StatusLed, HIGH);
 			  delay(100);
 			 // digitalWrite(StatusLed, LOW);
-			  myGLCD.print("  ",240,40);
+			  myGLCD.print("    ",210,40);
 			  // Запомнили время отправки:
 			  timestamp = millis();
 			  // Запускаем профедуру ожидания ответа
@@ -2270,15 +2271,12 @@ void radiotraffic()
 			  {
 				  Serial.print("cpm = ");
 				  command = 3;
-				  myGLCD.printNumI(command,210,40);
+				  myGLCD.printNumI(command,226,40);
 			      myGLCD.print("->",240,40);
 				  Mirf.send((byte *)&command);
-			
-				  // Мигнули 1 раз - команда отправлена
-				 // digitalWrite(StatusLed, HIGH);
 				  delay(100);
 				 // digitalWrite(StatusLed, LOW);
-				   myGLCD.print("  ",240,40);
+				  myGLCD.print("    ",210,40);
 				  // Запомнили время отправки:
 				  timestamp = millis();
 				  // Запускаем процедуру ожидания ответа
@@ -2287,14 +2285,12 @@ void radiotraffic()
 
 				  Serial.print("uSv/h = ");
 				  command = 4;
-				  myGLCD.printNumI(command,210,40);
+				  myGLCD.printNumI(command,226,40);
 			      myGLCD.print("->",240,40);
 				  Mirf.send((byte *)&command);
-				  // Мигнули 1 раз - команда отправлена
-				 // digitalWrite(StatusLed, HIGH);
 				  delay(100);
 				 // digitalWrite(StatusLed, LOW);
-				  myGLCD.print("  ",240,40);
+				 myGLCD.print("    ",210,40);
 				  // Запомнили время отправки:
 				  timestamp = millis();
 				  // Запускаем профедуру ожидания ответа
@@ -2305,14 +2301,11 @@ void radiotraffic()
 			  if (myTouch.dataAvailable()) return;
 
 			  command = 5;
-			  myGLCD.printNumI(command,210,40);
+			  myGLCD.printNumI(command,226,40);
 			  myGLCD.print("->",240,40);
 			  Mirf.send((byte *)&command);
-			  // Мигнули 1 раз - команда отправлена
-			 // digitalWrite(StatusLed, HIGH);
 			  delay(100);
-			 // digitalWrite(StatusLed, LOW);
-			  myGLCD.print("  ",240,40);
+		      myGLCD.print("    ",210,40);
 			  // Запомнили время отправки:
 			  timestamp = millis();
 			  // Запускаем профедуру ожидания ответа
@@ -2320,14 +2313,11 @@ void radiotraffic()
 			  if (myTouch.dataAvailable()) return;
 
 			  command = 6;
-			  myGLCD.printNumI(command,210,40);
+			  myGLCD.printNumI(command,226,40);
 			  myGLCD.print("->",240,40);
 			  Mirf.send((byte *)&command);
-			  // Мигнули 1 раз - команда отправлена
-			 // digitalWrite(StatusLed, HIGH);
 			  delay(100);
-			 // digitalWrite(StatusLed, LOW);
-			  myGLCD.print("  ",240,40);
+			  myGLCD.print("    ",210,40);
 			  // Запомнили время отправки:
 			  timestamp = millis();
 			  // Запускаем профедуру ожидания ответа
@@ -2335,14 +2325,11 @@ void radiotraffic()
 			  if (myTouch.dataAvailable()) return;
 
 			  command = 7;
-			  myGLCD.printNumI(command,210,40);
+			  myGLCD.printNumI(command,226,40);
 			  myGLCD.print("->",240,40);
 			  Mirf.send((byte *)&command);
-			  // Мигнули 1 раз - команда отправлена
-			 // digitalWrite(StatusLed, HIGH);
 			  delay(100);
-			 // digitalWrite(StatusLed, LOW);
-			  myGLCD.print("  ",240,40);
+			  myGLCD.print("    ",210,40);
 			  // Запомнили время отправки:
 			  timestamp = millis();
 			  // Запускаем профедуру ожидания ответа
@@ -2350,35 +2337,44 @@ void radiotraffic()
 			  if (myTouch.dataAvailable()) return;
 			
 			  command = 8;
-			  myGLCD.printNumI(command,210,40);
+			  myGLCD.printNumI(command,226,40);
 			  myGLCD.print("->",240,40);
 			  Mirf.send((byte *)&command);
-			  // Мигнули 1 раз - команда отправлена
-			 // digitalWrite(StatusLed, HIGH);
 			  delay(100);
-			 // digitalWrite(StatusLed, LOW);
-			  myGLCD.print("  ",240,40);
-			  // Запомнили время отправки:
-			  timestamp = millis();
-			  // Запускаем профедуру ожидания ответа
-			  waitanswer();
-			  if (myTouch.dataAvailable()) return;
-
-			  command = 9;
-			  myGLCD.printNumI(command,210,40);
-			  myGLCD.print("->",240,40);
-			  Mirf.send((byte *)&command);
-			  // Мигнули 1 раз - команда отправлена
-			 // digitalWrite(StatusLed, HIGH);
-			  delay(100);
-			 // digitalWrite(StatusLed, LOW);
-			  myGLCD.print("  ",240,40);
+              myGLCD.print("    ",210,40);
 			  // Запомнили время отправки:
 			  timestamp = millis();
 			  // Запускаем профедуру ожидания ответа
 			  waitanswer();
 			  if (myTouch.dataAvailable()) return;
 			  
+			  command = 9;
+			  myGLCD.printNumI(command,226,40);
+			  myGLCD.print("->",240,40);
+			  Mirf.send((byte *)&command);
+			  delay(100);
+			  myGLCD.print("    ",210,40);
+			  // Запомнили время отправки:
+			  timestamp = millis();
+			  // Запускаем профедуру ожидания ответа
+			  waitanswer();
+			  if (myTouch.dataAvailable()) return;
+			  
+			  command = 10;
+			  myGLCD.printNumI(command,210,40);
+			  myGLCD.print("->",240,40);
+			  Mirf.send((byte *)&command);
+			  delay(100);
+			  myGLCD.print("    ",210,40);
+			  // Запомнили время отправки:
+			  timestamp = millis();
+			  // Запускаем профедуру ожидания ответа
+			  waitanswer();
+			  if (myTouch.dataAvailable()) return;
+
+
+
+
 			  delay(10);
 			  Serial.println("-----------------------------------------");
   
@@ -2445,7 +2441,8 @@ void waitanswer()
 	  switch (command)
 	  {
 		case 1:
-		 
+		    myGLCD.print("\x81""a""\x9C"" V =              ", LEFT,100);  //Газ V =              
+			myGLCD.printNumI(data,120, 100);
 		  break;
 		case 2:
 		  if(data == 1)
@@ -2470,22 +2467,36 @@ void waitanswer()
 			myGLCD.printNumF(data_f,4, 120, 80);
 		  break;
 		case 5:
-		  //выполняется, когда var равно 1
+		 	myGLCD.print("Te""\xA1\xA3"".C=   ", LEFT,160);  //Темп.С =                                    
+			myGLCD.printNumF(data*0.1,1, 120, 160);
 		  break;
 		case 6:
-		  //выполняется когда  var равно 2
+		 	myGLCD.print("P   mmHq", 190,160);  //Давл.Ра =                                 
+			myGLCD.printNumI(data, 204, 160);
 		  break;
 		case 7:
-		  //выполняется, когда var равно 1
+	        data_f = data;
+			data_f=data_f/1000000;
+			 myGLCD.setFont(SmallFont);
+		 	myGLCD.print("LAT =          ", 5,180);  //Дист. =                                                                     
+			myGLCD.printNumF(data_f,6, 55, 180);
+			 myGLCD.setFont(BigFont);
 		  break;
 		case 8:
-		  //выполняется когда  var равно 2
+			data_f = data;
+			data_f=data_f/1000000;
+			myGLCD.setFont(SmallFont);
+		   	myGLCD.print("LON =          ",150,180);  //Дист. =                                                                     
+			myGLCD.printNumF(data_f,6, 200, 180);
+			myGLCD.setFont(BigFont);
 		  break;
 		case 9:
-		  //выполняется, когда var равно 1
+		  	myGLCD.print("B""\xAB""co""\xA4""a=       ", LEFT,120);  //Высота =                              
+			myGLCD.printNumI(data, 120, 120);
 		  break;
 		case 10:
-		  //выполняется когда  var равно 2
+		 	myGLCD.print("\x82\x9D""c""\xA4"". =          ", LEFT,140);  //Дист. =                                                                     
+			myGLCD.printNumI(data, 120, 140);
 		  break;
       }
 
