@@ -2371,7 +2371,18 @@ void radiotraffic()
 			  // Запускаем профедуру ожидания ответа
 			  waitanswer();
 			  if (myTouch.dataAvailable()) return;
-
+			  
+			  command = 11;
+			  myGLCD.printNumI(command,210,40);
+			  myGLCD.print("->",240,40);
+			  Mirf.send((byte *)&command);
+			  delay(100);
+			  myGLCD.print("    ",210,40);
+			  // Запомнили время отправки:
+			  timestamp = millis();
+			  // Запускаем профедуру ожидания ответа
+			  waitanswer();
+			  if (myTouch.dataAvailable()) return;
 
 
 
@@ -2479,15 +2490,15 @@ void waitanswer()
 			data_f=data_f/1000000;
 			 myGLCD.setFont(SmallFont);
 		 	myGLCD.print("LAT =          ", 5,180);  //Дист. =                                                                     
-			myGLCD.printNumF(data_f,6, 55, 180);
+			myGLCD.printNumF(data_f,6, 50, 180);
 			 myGLCD.setFont(BigFont);
 		  break;
 		case 8:
 			data_f = data;
 			data_f=data_f/1000000;
 			myGLCD.setFont(SmallFont);
-		   	myGLCD.print("LON =          ",150,180);  //Дист. =                                                                     
-			myGLCD.printNumF(data_f,6, 200, 180);
+		   	myGLCD.print("LON =          ",140,180);  //Дист. =                                                                     
+			myGLCD.printNumF(data_f,6, 190, 180);
 			myGLCD.setFont(BigFont);
 		  break;
 		case 9:
@@ -2497,6 +2508,19 @@ void waitanswer()
 		case 10:
 		 	myGLCD.print("\x82\x9D""c""\xA4"". =          ", LEFT,140);  //Дист. =                                                                     
 			myGLCD.printNumI(data, 120, 140);
+		  break;
+		 case 11:
+		 	myGLCD.setFont(SmallFont);
+		   	myGLCD.print("Sat =      ",5,195);  //Дист. =  
+			if(data == 255)
+			{
+              myGLCD.printNumI(0, 50, 195);
+			}
+			else
+			{
+			  myGLCD.printNumI(data, 50, 195);
+			}
+			myGLCD.setFont(BigFont);
 		  break;
       }
 
