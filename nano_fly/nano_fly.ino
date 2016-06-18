@@ -88,6 +88,10 @@ unsigned long age, date, time, chars = 0;
 unsigned short sentences             = 0, failed = 0;
 static const double LONDON_LAT       = 51.508131, LONDON_LON = -0.128002;
 static const double DOM_LAT          = 55.954994, DOM_LON = 37.231121;
+int gps_satellites                   = 0;
+int gps_lat                          = 0;
+int gps_lon                          = 0;
+int gps_dist                         = 0;
 
 //+++++++++++++++++ Настройки nRF24L01 ++++++++++++++++++++++++++
 
@@ -185,9 +189,6 @@ static void print_str(const char *str, int len)
 //+++++++++++++++ Работа с датчиком давления +++++++++++++++++++++++++++++++++++++++++++++++++
 BMP085 dps = BMP085();    
 long Temperature = 0, Pressure = 0, Altitude = 0;
-//int bmp_temp     = 0;             // Температура
-//int bmp_press    = 0;             // Давление
-//int bmp_alt      = 0;             // Высота
 int bmp_real_alt = 0;             // Реальная высота
 int bmp_gnd      = 219;             // Высота местности над уровнем моря
 //-----------------------------------------------------------------------------------------
@@ -249,10 +250,13 @@ void run_nRF24L01()
         break;
 	case 7:
 		 //digitalWrite(PowerGeiger,HIGH);
-		data = DOM_LAT*1000000;
+		run_GPS();
+		data = gps_lat*1000000;
+		//data = DOM_LAT*1000000;
         break;
 	case 8:
-        data = DOM_LON*1000000;
+        data = gps_lon*1000000;
+		//data = DOM_LON*1000000;
         break;
 	case 9:
         dps.getAltitude(&Altitude); 
@@ -261,14 +265,21 @@ void run_nRF24L01()
         Serial.print(Altitude/100); 
         break;
 	case 10:
-         data = random(100,1100);    //Удаление м. =      
+         data = random(100,1100);    //Дистанция м. =      
         break;
 
 	case 11:
  
         break;
-
-
+	case 12:
+ 
+        break;
+	case 13:
+ 
+        break;
+	case 14:
+ 
+        break;
 
       default:
         // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
@@ -318,10 +329,13 @@ void countPulse()
 
 void run_GPS()
 {
-	/*
+	gps_satellites = (gps.satellites(), TinyGPS::GPS_INVALID_SATELLITES, 5);
+
   print_int(gps.satellites(), TinyGPS::GPS_INVALID_SATELLITES, 5);
   print_int(gps.hdop(), TinyGPS::GPS_INVALID_HDOP, 5);
   gps.f_get_position(&flat, &flon, &age);
+  gps_lat = (flat, TinyGPS::GPS_INVALID_F_ANGLE, 10, 6);
+  gps_lon = (flon, TinyGPS::GPS_INVALID_F_ANGLE, 11, 6);
   print_float(flat, TinyGPS::GPS_INVALID_F_ANGLE, 10, 6);
   print_float(flon, TinyGPS::GPS_INVALID_F_ANGLE, 11, 6);
   print_int(age, TinyGPS::GPS_INVALID_AGE, 5);
@@ -340,8 +354,8 @@ void run_GPS()
   print_int(failed, 0xFFFFFFFF, 9);
   Serial.println();
   
-  smartdelay(1000);
-  */
+ // smartdelay(1000);
+  
 }
 
 void setup(void)
