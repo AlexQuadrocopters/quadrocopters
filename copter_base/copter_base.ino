@@ -80,7 +80,7 @@ void setup()
   Mirf.config();
   Serial.println("Setup Ok");
   Serial.println("Beginning ... ");
-  myGLCD.print("Monitor 2,4",25, 35); 
+  myGLCD.print("Monitor 3,2",25, 35); 
 }
 
 void loop() 

@@ -424,29 +424,31 @@ void swichMenu() // Тексты меню в строках "txt....."
 
 				   if (pressed_button==but1 && m2 == 1)
 					   {
-							 pass_test_start();  // Нарисовать цифровую клавиатуру
-							 klav123();          // Считать информацию с клавиатуры
-						if (ret == 1)        // Если "Возврат" - закончить
-							 {
-								goto bailout11;  // Перейти на окончание выполнения пункта меню
-							 }
-						else                 // Иначе выполнить пункт меню
-							 {
-								pass_test();     // Проверить пароль
-							 }
-						if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
-							 {
-								myGLCD.clrScr();   // Очистить экран
-								myGLCD.print(txt_pass_ok, RIGHT, 208); 
-								delay (500);
-						        radiotraffic(); // если верно - выполнить пункт меню
-							 }
-						else  // Пароль не верный - сообщить и закончить
-							 {
-								txt_pass_no_all();
-							 }
+						//	 pass_test_start();  // Нарисовать цифровую клавиатуру
+						//	 klav123();          // Считать информацию с клавиатуры
+						//if (ret == 1)        // Если "Возврат" - закончить
+						//	 {
+						//		goto bailout11;  // Перейти на окончание выполнения пункта меню
+						//	 }
+						//else                 // Иначе выполнить пункт меню
+						//	 {
+						//		pass_test();     // Проверить пароль
+						//	 }
+						//if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
+						//	 {
+						//		myGLCD.clrScr();   // Очистить экран
+						//		myGLCD.print(txt_pass_ok, RIGHT, 208); 
+						//		delay (500);
+						//        radiotraffic(); // если верно - выполнить пункт меню
+						//	 }
+						//else  // Пароль не верный - сообщить и закончить
+						//	 {
+						//		txt_pass_no_all();
+						//	 }
 
-							 bailout11: // Восстановить пункты меню
+						//	 bailout11: // Восстановить пункты меню
+
+						     radiotraffic(); // если верно - выполнить пункт меню
 							 myGLCD.clrScr();
 							 myButtons.drawButtons();
 							 print_up();
@@ -454,29 +456,29 @@ void swichMenu() // Тексты меню в строках "txt....."
 	  
 				   if (pressed_button==but2 && m2 == 1)
 					   {
-							pass_test_start();  // Нарисовать цифровую клавиатуру
-							klav123();          // Считать информацию с клавиатуры
-						if (ret == 1)        // Если "Возврат" - закончить
-							 {
-								goto bailout21;  // Перейти на окончание выполнения пункта меню
-							 }
-						else                 // Иначе выполнить пункт меню
-							 {
-								pass_test();     // Проверить пароль
-							 }
-						if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
-							 {
-								myGLCD.clrScr();   // Очистить экран
-								myGLCD.print(txt_pass_ok, RIGHT, 208); 
-								delay (500);
-//						gaz_save_start(); // если верно - выполнить пункт меню
-							 }
-						else  // Пароль не верный - сообщить и закончить
-							 {
-								txt_pass_no_all();
-							 }
-
-							bailout21: // Восстановить пункты меню
+//							pass_test_start();  // Нарисовать цифровую клавиатуру
+//							klav123();          // Считать информацию с клавиатуры
+//						if (ret == 1)        // Если "Возврат" - закончить
+//							 {
+//								goto bailout21;  // Перейти на окончание выполнения пункта меню
+//							 }
+//						else                 // Иначе выполнить пункт меню
+//							 {
+//								pass_test();     // Проверить пароль
+//							 }
+//						if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
+//							 {
+//								myGLCD.clrScr();   // Очистить экран
+//								myGLCD.print(txt_pass_ok, RIGHT, 208); 
+//								delay (500);
+////						gaz_save_start(); // если верно - выполнить пункт меню
+//							 }
+//						else  // Пароль не верный - сообщить и закончить
+//							 {
+//								txt_pass_no_all();
+//							 }
+//
+//							bailout21: // Восстановить пункты меню
 							myGLCD.clrScr();
 							myButtons.drawButtons();
 							print_up();
@@ -484,58 +486,58 @@ void swichMenu() // Тексты меню в строках "txt....."
 	  
 				   if (pressed_button==but3 && m2 == 1)
 					   {
-						   pass_test_start();  // Нарисовать цифровую клавиатуру
-						   klav123();          // Считать информацию с клавиатуры
-						if (ret == 1)        // Если "Возврат" - закончить
-							 {
-								goto bailout31;  // Перейти на окончание выполнения пункта меню
-							 }
-						else                 // Иначе выполнить пункт меню
-							 {
-								pass_test();     // Проверить пароль
-							 }
-						if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
-							 {
-								myGLCD.clrScr();   // Очистить экран
-								myGLCD.print(txt_pass_ok, RIGHT, 208); 
-								delay (500);
-//					   colwater_save_start(); // если верно - выполнить пункт меню
-							 }
-						else  // Пароль не верный - сообщить и закончить
-							 {
-								txt_pass_no_all();
-							 }
-
-							bailout31: // Восстановить пункты меню
+//						   pass_test_start();  // Нарисовать цифровую клавиатуру
+//						   klav123();          // Считать информацию с клавиатуры
+//						if (ret == 1)        // Если "Возврат" - закончить
+//							 {
+//								goto bailout31;  // Перейти на окончание выполнения пункта меню
+//							 }
+//						else                 // Иначе выполнить пункт меню
+//							 {
+//								pass_test();     // Проверить пароль
+//							 }
+//						if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
+//							 {
+//								myGLCD.clrScr();   // Очистить экран
+//								myGLCD.print(txt_pass_ok, RIGHT, 208); 
+//								delay (500);
+////					   colwater_save_start(); // если верно - выполнить пункт меню
+//							 }
+//						else  // Пароль не верный - сообщить и закончить
+//							 {
+//								txt_pass_no_all();
+//							 }
+//
+//							bailout31: // Восстановить пункты меню
 							myGLCD.clrScr();
 							myButtons.drawButtons();
 							print_up();
 					   }
 				   if (pressed_button==but4 && m2 == 1)
 					   {
-							pass_test_start();  // Нарисовать цифровую клавиатуру
-							klav123();          // Считать информацию с клавиатуры
-						if (ret == 1)        // Если "Возврат" - закончить
-							 {
-								goto bailout41;  // Перейти на окончание выполнения пункта меню
-							 }
-						else                 // Иначе выполнить пункт меню
-							 {
-								pass_test();     // Проверить пароль
-							 }
-						if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
-							 {
-								myGLCD.clrScr();   // Очистить экран
-								myGLCD.print(txt_pass_ok, RIGHT, 208); 
-								delay (500);
-//						hotwater_save_start(); // если верно - выполнить пункт меню
-							 }
-						else  // Пароль не верный - сообщить и закончить
-							 {
-								txt_pass_no_all();
-							 }
-
-							bailout41: // Восстановить пункты меню
+//							pass_test_start();  // Нарисовать цифровую клавиатуру
+//							klav123();          // Считать информацию с клавиатуры
+//						if (ret == 1)        // Если "Возврат" - закончить
+//							 {
+//								goto bailout41;  // Перейти на окончание выполнения пункта меню
+//							 }
+//						else                 // Иначе выполнить пункт меню
+//							 {
+//								pass_test();     // Проверить пароль
+//							 }
+//						if ( ( pass1 == 1)||( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
+//							 {
+//								myGLCD.clrScr();   // Очистить экран
+//								myGLCD.print(txt_pass_ok, RIGHT, 208); 
+//								delay (500);
+////						hotwater_save_start(); // если верно - выполнить пункт меню
+//							 }
+//						else  // Пароль не верный - сообщить и закончить
+//							 {
+//								txt_pass_no_all();
+//							 }
+//
+//							bailout41: // Восстановить пункты меню
 							myGLCD.clrScr();
 							myButtons.drawButtons();
 							print_up();
@@ -562,58 +564,58 @@ void swichMenu() // Тексты меню в строках "txt....."
 	  
 				  if (pressed_button==but3 && m2 == 2)
 					  {
-						  	pass_test_start();
-							klav123();
-						if (ret == 1)
-						   {
-							   goto bailout32;
-						   }
-						else
-						   {
-							   pass_test();
-						   }
-						if ( ( pass2 == 1) || ( pass3 == 1))
-							{
-								myGLCD.clrScr();
-								myGLCD.print(txt_pass_ok, RIGHT, 208);
-								delay (500);
-//						XBee_Setup();
-							}
-						 else
-							{
-								txt_pass_no_all();
-							}
-
-							bailout32:
+//						  	pass_test_start();
+//							klav123();
+//						if (ret == 1)
+//						   {
+//							   goto bailout32;
+//						   }
+//						else
+//						   {
+//							   pass_test();
+//						   }
+//						if ( ( pass2 == 1) || ( pass3 == 1))
+//							{
+//								myGLCD.clrScr();
+//								myGLCD.print(txt_pass_ok, RIGHT, 208);
+//								delay (500);
+////						XBee_Setup();
+//							}
+//						 else
+//							{
+//								txt_pass_no_all();
+//							}
+//
+//							bailout32:
 							myGLCD.clrScr();
 							myButtons.drawButtons();
 							print_up();
 					  }
 				  if (pressed_button==but4 && m2 == 2)
 					  {
-					  	pass_test_start();
-							klav123();
-						if (ret == 1)
-						   {
-							   goto bailout42;
-						   }
-						else
-						   {
-							   pass_test();
-						   }
-						if ( ( pass2 == 1) || ( pass3 == 1))
-							{
-								myGLCD.clrScr();
-								myGLCD.print(txt_pass_ok, RIGHT, 208);
-								delay (500);
-							//	XBee_Setup();
-							}
-						 else
-							{
-								txt_pass_no_all();
-							}
+					 // 	pass_test_start();
+						//	klav123();
+						//if (ret == 1)
+						//   {
+						//	   goto bailout42;
+						//   }
+						//else
+						//   {
+						//	   pass_test();
+						//   }
+						//if ( ( pass2 == 1) || ( pass3 == 1))
+						//	{
+						//		myGLCD.clrScr();
+						//		myGLCD.print(txt_pass_ok, RIGHT, 208);
+						//		delay (500);
+						//	//	XBee_Setup();
+						//	}
+						// else
+						//	{
+						//		txt_pass_no_all();
+						//	}
 
-							bailout42:
+						//	bailout42:
 							myGLCD.clrScr();
 							myButtons.drawButtons();
 							print_up();
@@ -624,7 +626,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 					  {
 							pass_test_start();  // Нарисовать цифровую клавиатуру
 							klav123();          // Считать информацию с клавиатуры
-						if (ret == 1)        // Если "Возврат" - закончить
+						if (ret == 1)           // Если "Возврат" - закончить
 							{
 							   goto bailout13;  // Перейти на окончание выполнения пункта меню
 							}
@@ -689,29 +691,29 @@ void swichMenu() // Тексты меню в строках "txt....."
 
 				   if (pressed_button==but3 && m2 == 3)  // Третий пункт меню 3
 					  { 
-							pass_test_start();
-							klav123();
-						if (ret == 1)
-						   {
-							   goto bailout33;
-						   }
-						else
-						   {
-							   pass_test();
-						   }
-						if ( ( pass2 == 1) || ( pass3 == 1))
-							{
-								myGLCD.clrScr();
-								myGLCD.print(txt_pass_ok, RIGHT, 208);
-								delay (500);
-						//		set_warm_gaz();
-							}
-						 else
-							{
-								txt_pass_no_all();
-							}
+						//	pass_test_start();
+						//	klav123();
+						//if (ret == 1)
+						//   {
+						//	   goto bailout33;
+						//   }
+						//else
+						//   {
+						//	   pass_test();
+						//   }
+						//if ( ( pass2 == 1) || ( pass3 == 1))
+						//	{
+						//		myGLCD.clrScr();
+						//		myGLCD.print(txt_pass_ok, RIGHT, 208);
+						//		delay (500);
+						////		set_warm_gaz();
+						//	}
+						// else
+						//	{
+						//		txt_pass_no_all();
+						//	}
 
-							bailout33:
+						//	bailout33:
 							myGLCD.clrScr();
 							myButtons.drawButtons();
 							print_up();
@@ -778,11 +780,10 @@ void swichMenu() // Тексты меню в строках "txt....."
 							myGLCD.clrScr();
 							myButtons.drawButtons();
 							print_up();
-				   
 					  }
 
 				   if (pressed_button==but2 && m2 == 4)
-					  {
+					  { 
 							pass_test_start();
 							klav123();
 						if (ret == 1)
