@@ -187,7 +187,8 @@ void waitanswer() {
       data = 0;
     }
   }
-  if (timeout) {
+  if (timeout) 
+  {
     // Мигнули 10 раз - ответа не пришло
     for (byte i = 0; i < 10; i++) {
       digitalWrite(StatusLed, HIGH);
