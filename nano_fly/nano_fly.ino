@@ -98,6 +98,13 @@ float gps_lat                        = 0;
 float gps_lon                        = 0;
 int gps_dist                         = 0;
 
+unsigned long currentMillisGPS       = 0;              // Переменная для временного хранения текущего времени
+unsigned long currentMillis          = 0;              // Переменная для временного хранения текущего времени
+unsigned long timeGPS                = 10000;           //  
+bool ButGPS_Start                    = false;          // Флаг запуска программы по команде 
+
+
+
 //+++++++++++++++++ Настройки nRF24L01 ++++++++++++++++++++++++++
 
 #define ADDR "fly10"                          // Адрес модуля
@@ -124,6 +131,9 @@ void flash_time()                             // Программа обрабо
 //+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
 void run_GPS()
 {
+	//if(ButGPS_Start==false)
+	//{
+	//	  ButGPS_Start = true;
   float flat, flon;
   unsigned long age, date, time, chars = 0;
   unsigned short sentences = 0, failed = 0;
@@ -156,6 +166,10 @@ void run_GPS()
   Serial.println(sat_lat,6);
       
   smartdelay(1000);
+
+ //  currentMillisGPS = millis();  // Установить при вызове программы измерения
+ // // ButGPS_Start = true;
+	//}
 }
 
 static void smartdelay(unsigned long ms)
@@ -167,6 +181,27 @@ static void smartdelay(unsigned long ms)
       gps.encode(ss.read());
   } while (millis() - start < ms);
 }
+
+void UpdateGPS()                                   // Проверка окончания выполнения программы 
+{
+  if ((ButGPS_Start == true) && (currentMillis - currentMillisGPS >= timeGPS))
+  {
+   //  digitalWrite(Rele_R2, LOW);
+  	while (ss.available())
+      gps.encode(ss.read());
+	  run_GPS();
+	 ButGPS_Start = false;
+    Serial.println("**** GPS Start");
+  }
+}
+//      currentMillisECO = millis();  // Установить при вызове программы измерения
+
+
+
+
+
+
+
 static void print_float(float val, float invalid, int len, int prec)
 {
   if (val == invalid)
@@ -371,6 +406,10 @@ void countPulse()
   attachInterrupt(0, countPulse, FALLING);
 }
 
+
+
+
+
 void setup(void)
 {
   Serial.begin(9600);
@@ -420,7 +459,6 @@ void setup(void)
 
 	//	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
 	//	MsTimer2::start();                         // Включить таймер прерывания
-
 	attachInterrupt(0, countPulse, FALLING);
 }
 
@@ -428,5 +466,8 @@ void loop(void)
 {
   delay(100);
   run_geiger();
+  currentMillis=millis();
+ // run_GPS();
+ // UpdateGPS();
   run_nRF24L01();
 }

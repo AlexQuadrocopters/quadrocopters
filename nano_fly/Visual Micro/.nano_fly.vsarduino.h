@@ -86,6 +86,7 @@ extern "C" void __cxa_pure_virtual() {;}
 
 void flash_time();
 void run_GPS();
+void UpdateGPS();
 void run_nRF24L01();
 void run_geiger();
 void countPulse();
