@@ -150,10 +150,8 @@ void waitForTouchRelease();
 #include <copter_base24.ino>
 #include <cat.c>
 #include <icon1.c>
-#include <icon2.c>
 #include <radioactive1_L.c>
 #include <rvsn2.c>
-#include <rwsn.c>
 #include <setTimeDate.ino>
 #include <tux.c>
 #include <utils.ino>
