@@ -74,6 +74,11 @@ TinyGPS gps;                                  // Настройка GPS
 static const int RXPin = 5, TXPin = 4;
 static const uint32_t GPSBaud = 9600;         // Скорость обмена с модулем GPS
 
+ int year;
+  byte month, day, hour, minute, second, hundredths;
+  unsigned long age_t;
+
+
 SoftwareSerial ss(RXPin, TXPin);              // Подключение GPS к сериал
 //SoftwareSerial ss(5, 4);                    // Подключение GPS к сериал
 
@@ -119,7 +124,7 @@ void flash_time()                             // Программа обрабо
 //+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
 void run_GPS()
 {
-    float flat, flon;
+  float flat, flon;
   unsigned long age, date, time, chars = 0;
   unsigned short sentences = 0, failed = 0;
   static const double LONDON_LAT = 51.508131, LONDON_LON = -0.128002;
@@ -147,8 +152,8 @@ void run_GPS()
   gps_satellites = gps.satellites();
   Serial.println( gps_satellites);
   gps.f_get_position(&flat, &flon, &age);
-   float sat_lat = flat;
-      Serial.println(sat_lat,6);
+  float sat_lat = flat;
+  Serial.println(sat_lat,6);
       
   smartdelay(1000);
 }
@@ -198,11 +203,11 @@ static void print_int(unsigned long val, unsigned long invalid, int len)
 }
 static void print_date(TinyGPS &gps)
 {
-  int year;
+ /* int year;
   byte month, day, hour, minute, second, hundredths;
-  unsigned long age;
-  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
-  if (age == TinyGPS::GPS_INVALID_AGE)
+  unsigned long age;*/
+  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age_t);
+  if (age_t == TinyGPS::GPS_INVALID_AGE)
     Serial.print("********** ******** ");
   else
   {
