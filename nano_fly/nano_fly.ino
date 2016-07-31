@@ -59,8 +59,8 @@ Arduino Nano      BMP180(BMO085)
 #define  LedFlyFront A2                 // Светодиод полета передний
 #define  LedFlyRear  A3                 // Светодиод полета задний
 #define  LedPause    A7                 // Пауза между включением
-int TimelyFront    = 2000;              // Время включения светодиода 
-int TimelyRear     = 2000;              // Время включения светодиода 
+int TimelyFront    = 1500;              // Время включения светодиода 
+int TimelyRear     = 1500;              // Время включения светодиода 
 int TimeInterval   = 1000;              // Время между включениями светодиодов
 bool Front_Start   = false;             // Флаг запуска программы по команде 
 bool Rear_Start    = false;             // Флаг запуска программы по команде 
@@ -112,8 +112,10 @@ float gps_lon                        = 0;
 int gps_dist                         = 0;
 
 unsigned long currentMillisGPS       = 0;              // Переменная для временного хранения текущего времени
+unsigned long currentMillisnRF24L01  = 0;              // Переменная для временного хранения текущего времени
 unsigned long currentMillis          = 0;              // Переменная для временного хранения текущего времени
 unsigned long timeGPS                = 10000;           //  
+unsigned long nRF24L01               = 200;           //  
 bool ButGPS_Start                    = false;          // Флаг запуска программы по команде 
 
 
@@ -124,7 +126,7 @@ bool ButGPS_Start                    = false;          // Флаг запуск�
 #define PAYLOAD sizeof(unsigned long)         // Размер полезной нагрузки
 #define StatusLed 10                          // Светодиод для индикации - 10 пин
 unsigned long data = 0;                       // Переменная для приёма и передачи данных
-unsigned long command = 0;                    //
+unsigned int command = 0;                    //
 
 //---------------------------------------------------------------
 
@@ -285,16 +287,16 @@ void run_nRF24L01()
   // Ждём данных
   if (!Mirf.isSending() && Mirf.dataReady()) 
   {
-    Serial.println("Got packet");
-    //Сообщаем коротким миганием светодиода о наличии данных
-    digitalWrite(StatusLed, HIGH);
-    delay(100);
-    digitalWrite(StatusLed, LOW);
+    //Serial.println("Got packet");
+    ////Сообщаем коротким миганием светодиода о наличии данных
+    //digitalWrite(StatusLed, HIGH);
+    //delay(100);
+    //digitalWrite(StatusLed, LOW);
     // Принимаем пакет данные в виде массива байт в переменную data:
     Mirf.getData((byte *) &command);
     // Сообщаем длинным миганием светодиода о получении данных
     digitalWrite(StatusLed, HIGH);
-    delay(500);
+    delay(300);
     digitalWrite(StatusLed, LOW);
     // Выводим полученные данные в монитор серийного порта
     Serial.print("Get data: ");
@@ -306,57 +308,55 @@ void run_nRF24L01()
     switch (command)
     {
       case 1:
-        data = analogRead(A0);
+        data = analogRead(A0);     // Анализатор Газа
         break;
       case 2:
         // команда 2 - отправить значение
-        data = geiger_ready;
+        data = geiger_ready;       // Флаг готовности Счетчика Гейгера
         break;
       case 3:
           // команда 2 - отправить значение
         Serial.println("cpm = ");
-        data = countPerMinute;
+        data = countPerMinute;  
         break;
      case 4:
         // команда 3 - отправить значение
         Serial.println("uSv/h = ");
         data = radiationValue * 10000 ;
-		geiger_ready = 0;
+		geiger_ready = 0;                // Показания Счетчика Гейгера отправлены
         break;
 	case 5:
-		dps.getTemperature(&Temperature);
-		data = Temperature;
+		dps.getTemperature(&Temperature); 
+		data = Temperature;                 // Паказания температуры
          //digitalWrite(Power_gaz,HIGH);
         break;
 	case 6:
 		dps.getPressure(&Pressure); 
-		data = Pressure/133.3;
-         //digitalWrite(Power_gaz,LOW);
+		data = Pressure/133.3;             // Показания давления 
         break;
 	case 7:
-		 //digitalWrite(PowerGeiger,HIGH);
-		gps.f_get_position(&flat, &flon, &age);;
+	    gps.f_get_position(&flat, &flon, &age); 
 		data = flat*1000000;
 		//data = DOM_LAT*1000000;
         break;
 	case 8:
-		gps.f_get_position(&flat, &flon, &age);;
+		gps.f_get_position(&flat, &flon, &age);
 		data = flon*1000000;
        // data = gps_lon*1000000;
 		//data = DOM_LON*1000000;
         break;
 	case 9:
         dps.getAltitude(&Altitude); 
-		data =Altitude/100;// Высота
-		Serial.print("  Alt(m):"); 
-        Serial.println(Altitude/100); 
+		data =Altitude/100;             // Показания Высота
+		//Serial.print("  Alt(m):"); 
+  //      Serial.println(Altitude/100); 
         break;
 	case 10:
-         data = random(100,1100);    //Дистанция м. =      
+         data = random(1000,1100);    // Показания Дистанция м. =      
         break;
 	case 11:
         gps_satellites = gps.satellites();
-	    data = gps_satellites;
+	    data = gps_satellites;                 // Количество спутников
         break;
 	case 12:
  
@@ -466,6 +466,28 @@ class Flasher                                      // Управление св�
  Flasher led2(LedFlyRear,  TimelyRear,  TimeInterval);
  Flasher Pause1(LedPause,  TimeInterval,  TimeInterval);
  Flasher Pause2(LedPause,  TimeInterval,  TimeInterval);
+
+
+void UpdatenRF24L01()
+{
+ /*   unsigned long currentMillis = millis();
+
+    if ((currentMillis - previousMillis >= OnTime))
+    {
+    ledState = LOW;
+    previousMillis = currentMillis;
+    digitalWrite(ledPin, ledState);
+    }
+    else if ((ledState == LOW) && (currentMillis - previousMillis >= OffTime))
+    {
+    ledState = HIGH;
+    previousMillis = currentMillis;
+    digitalWrite(ledPin, ledState);
+    }*/
+}
+
+
+
 
 
 void setup(void)

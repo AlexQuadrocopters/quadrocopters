@@ -90,6 +90,7 @@ void UpdateGPS();
 void run_nRF24L01();
 void run_geiger();
 void countPulse();
+void UpdatenRF24L01();
 void setup(void);
 void loop(void);
 
