@@ -54,11 +54,24 @@ Arduino Nano      BMP180(BMO085)
 #include <Wire.h> 
 #include <BMP085.h>
 
+// Индикация полета
+
+#define  LedFlyFront A2                 // Светодиод полета передний
+#define  LedFlyRear  A3                 // Светодиод полета задний
+#define  LedPause    A7                 // Пауза между включением
+int TimelyFront    = 2000;              // Время включения светодиода 
+int TimelyRear     = 2000;              // Время включения светодиода 
+int TimeInterval   = 1000;              // Время между включениями светодиодов
+bool Front_Start   = false;             // Флаг запуска программы по команде 
+bool Rear_Start    = false;             // Флаг запуска программы по команде 
+int numled         = 0;
+
+
 //------ Настройки счетчика Гейгера ------------------
 
 // Conversion factor - CPM to uSV/h
 #define CONV_FACTOR 0.00812
-int geiger_input          = 2;                         //Назначение ввода подключения счетчика Гейгера
+int geiger_input          = 2;                    //Назначение ввода подключения счетчика Гейгера
 long count                = 0;
 long countPerMinute       = 0;
 long timePrevious         = 0;
@@ -195,11 +208,6 @@ void UpdateGPS()                                   // Проверка окон�
   }
 }
 //      currentMillisECO = millis();  // Установить при вызове программы измерения
-
-
-
-
-
 
 
 static void print_float(float val, float invalid, int len, int prec)
@@ -341,7 +349,7 @@ void run_nRF24L01()
         dps.getAltitude(&Altitude); 
 		data =Altitude/100;// Высота
 		Serial.print("  Alt(m):"); 
-        Serial.print(Altitude/100); 
+        Serial.println(Altitude/100); 
         break;
 	case 10:
          data = random(100,1100);    //Дистанция м. =      
@@ -364,12 +372,12 @@ void run_nRF24L01()
         // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
         // жалуемся в последовательный порт
         Serial.println("Unknown command");
-        for (byte i = 0; i < 10; i++) 
+     /*   for (byte i = 0; i < 10; i++) 
 		{
-       /*   digitalWrite(StatusLed, HIGH);
+          digitalWrite(StatusLed, HIGH);
           delay(100);
-          digitalWrite(StatusLed, LOW);*/
-        }
+          digitalWrite(StatusLed, LOW);
+        }*/
         break;
     }
     // Отправляем ответ:
@@ -406,8 +414,58 @@ void countPulse()
   attachInterrupt(0, countPulse, FALLING);
 }
 
+// Программа управления светодиодами
 
 
+class Flasher                                      // Управление светодиодами в многозадачном режиме
+{
+    int ledPin;
+    long OnTime;
+    long OffTime;
+
+    int ledState;
+    unsigned long previousMillis;
+  public:
+    Flasher(int pin,  long on, long off)
+    {
+      ledPin = pin;
+      pinMode(ledPin, OUTPUT);
+
+      OnTime = on;
+      OffTime = off;
+
+      ledState = LOW;
+      previousMillis = 0;
+    }
+
+    void Update()
+    {
+      unsigned long currentMillis = millis();
+
+      if ((ledState == HIGH) && (currentMillis - previousMillis >= OnTime))
+      {
+        ledState = LOW;
+        previousMillis = currentMillis;
+        digitalWrite(ledPin, ledState);
+		numled++;
+		if(numled>3)
+		{
+			numled=0;
+		}
+      }
+      else if ((ledState == LOW) && (currentMillis - previousMillis >= OffTime))
+      {
+        ledState = HIGH;
+        previousMillis = currentMillis;
+        digitalWrite(ledPin, ledState);
+      }
+    }
+};
+
+ Flasher led1(LedFlyFront, TimelyFront, TimeInterval);
+ Flasher led2(LedFlyRear,  TimelyRear,  TimeInterval);
+ Flasher Pause1(LedPause,  TimeInterval,  TimeInterval);
+ Flasher Pause2(LedPause,  TimeInterval,  TimeInterval);
 
 
 void setup(void)
@@ -459,15 +517,35 @@ void setup(void)
 
 	//	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
 	//	MsTimer2::start();                         // Включить таймер прерывания
+	//Front_Start = true;
 	attachInterrupt(0, countPulse, FALLING);
 }
 
 void loop(void)
 {
-  delay(100);
-  run_geiger();
+//  delay(100);
   currentMillis=millis();
+  run_geiger();
  // run_GPS();
  // UpdateGPS();
   run_nRF24L01();
+
+  if(numled == 0)
+  {
+    led1.Update();
+  }
+  if(numled == 1)
+  {
+    Pause1.Update();
+  }
+
+  if(numled == 2)
+  {
+    led2.Update();
+  }
+  if(numled == 3)
+  {
+    Pause2.Update();
+  }
+
 }
