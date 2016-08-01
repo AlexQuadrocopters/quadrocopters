@@ -112,21 +112,24 @@ float gps_lon                        = 0;
 int gps_dist                         = 0;
 
 unsigned long currentMillisGPS       = 0;              // Переменная для временного хранения текущего времени
-unsigned long currentMillisnRF24L01  = 0;              // Переменная для временного хранения текущего времени
 unsigned long currentMillis          = 0;              // Переменная для временного хранения текущего времени
-unsigned long timeGPS                = 10000;           //  
-unsigned long nRF24L01               = 200;           //  
+unsigned long timeGPS                = 1000;          //  
 bool ButGPS_Start                    = false;          // Флаг запуска программы по команде 
 
 
 
 //+++++++++++++++++ Настройки nRF24L01 ++++++++++++++++++++++++++
 
-#define ADDR "fly10"                          // Адрес модуля
-#define PAYLOAD sizeof(unsigned long)         // Размер полезной нагрузки
-#define StatusLed 10                          // Светодиод для индикации - 10 пин
-unsigned long data = 0;                       // Переменная для приёма и передачи данных
-unsigned int command = 0;                     //
+#define ADDR "fly10"                                   // Адрес модуля
+#define PAYLOAD sizeof(unsigned long)                  // Размер полезной нагрузки
+#define StatusLed 10                                   // Светодиод для индикации - 10 пин
+unsigned long data = 0;                                // Переменная для приёма и передачи данных
+unsigned int command = 0;                              //
+unsigned long timePreviousRF24L01    = 0;   
+unsigned long currentMillisnRF24L01  = 0;              // Переменная для временного хранения текущего времени
+unsigned int time_nRF24L01           = 200;            //  
+bool nRF24L01_Start                  = false;          // Флаг запуска программы по команде 
+
 
 //---------------------------------------------------------------
 
@@ -146,9 +149,6 @@ void flash_time()                             // Программа обрабо
 //+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
 void run_GPS()
 {
-	//if(ButGPS_Start==false)
-	//{
-	//	  ButGPS_Start = true;
   float flat, flon;
   unsigned long age, date, time, chars = 0;
   unsigned short sentences = 0, failed = 0;
@@ -179,12 +179,8 @@ void run_GPS()
   gps.f_get_position(&flat, &flon, &age);
   float sat_lat = flat;
   Serial.println(sat_lat,6);
-      
-  smartdelay(1000);
-
- //  currentMillisGPS = millis();  // Установить при вызове программы измерения
- // // ButGPS_Start = true;
-	//}
+     
+ // smartdelay(1000);
 }
 
 static void smartdelay(unsigned long ms)
@@ -199,14 +195,14 @@ static void smartdelay(unsigned long ms)
 
 void UpdateGPS()                                   // Проверка окончания выполнения программы 
 {
-  if ((ButGPS_Start == true) && (currentMillis - currentMillisGPS >= timeGPS))
+  if (currentMillis - currentMillisGPS >= timeGPS)
   {
-   //  digitalWrite(Rele_R2, LOW);
-  	while (ss.available())
+      currentMillisGPS = millis();
+  	  while (ss.available())
       gps.encode(ss.read());
 	  run_GPS();
-	 ButGPS_Start = false;
-    Serial.println("**** GPS Start");
+	  //ButGPS_Start = false;
+      Serial.println("**** GPS Start");
   }
 }
 //      currentMillisECO = millis();  // Установить при вызове программы измерения
@@ -287,20 +283,11 @@ void run_nRF24L01()
   // Ждём данных
   if (!Mirf.isSending() && Mirf.dataReady()) 
   {
-    //Serial.println("Got packet");
-    ////Сообщаем коротким миганием светодиода о наличии данных
-    //digitalWrite(StatusLed, HIGH);
-    //delay(100);
-    //digitalWrite(StatusLed, LOW);
-    // Принимаем пакет данные в виде массива байт в переменную data:
+     // Принимаем пакет данные в виде массива байт в переменную data:
     Mirf.getData((byte *) &command);
-    // Сообщаем длинным миганием светодиода о получении данных
-    digitalWrite(StatusLed, HIGH);
-    delay(300);
-    digitalWrite(StatusLed, LOW);
-    // Выводим полученные данные в монитор серийного порта
-    Serial.print("Get data: ");
-    Serial.println(command);
+    delay(250);
+   /*  Serial.print("Get data: ");
+    Serial.println(command);*/
   }
   // Если переменная не нулевая, формируем ответ:geiger_ready = 1;
   if (command != 0)
@@ -372,12 +359,6 @@ void run_nRF24L01()
         // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
         // жалуемся в последовательный порт
         Serial.println("Unknown command");
-     /*   for (byte i = 0; i < 10; i++) 
-		{
-          digitalWrite(StatusLed, HIGH);
-          delay(100);
-          digitalWrite(StatusLed, LOW);
-        }*/
         break;
     }
     // Отправляем ответ:
@@ -470,25 +451,12 @@ class Flasher                                      // Управление св�
 
 void UpdatenRF24L01()
 {
- /*   unsigned long currentMillis = millis();
-
-    if ((currentMillis - previousMillis >= OnTime))
-    {
-    ledState = LOW;
-    previousMillis = currentMillis;
-    digitalWrite(ledPin, ledState);
-    }
-    else if ((ledState == LOW) && (currentMillis - previousMillis >= OffTime))
-    {
-    ledState = HIGH;
-    previousMillis = currentMillis;
-    digitalWrite(ledPin, ledState);
-    }*/
+  if (currentMillis - timePreviousRF24L01 > 300)
+  {
+    timePreviousRF24L01 = millis();
+    run_nRF24L01();
+  }
 }
-
-
-
-
 
 void setup(void)
 {
@@ -549,8 +517,9 @@ void loop(void)
   currentMillis=millis();
   run_geiger();
  // run_GPS();
- // UpdateGPS();
-  run_nRF24L01();
+  UpdateGPS();
+
+  UpdatenRF24L01();
 
   if(numled == 0)
   {
