@@ -86,14 +86,7 @@ TinyGPS gps;                                  // Настройка GPS
 
 static const int RXPin = 5, TXPin = 4;
 static const uint32_t GPSBaud = 9600;         // Скорость обмена с модулем GPS
-
- int year;
-  byte month, day, hour, minute, second, hundredths;
-  unsigned long age_t;
-
-
 SoftwareSerial ss(RXPin, TXPin);              // Подключение GPS к сериал
-//SoftwareSerial ss(5, 4);                    // Подключение GPS к сериал
 
 static void smartdelay(unsigned long ms);
 static void print_float(float val, float invalid, int len, int prec);
@@ -101,11 +94,18 @@ static void print_int(unsigned long val, unsigned long invalid, int len);
 static void print_date(TinyGPS &gps);
 static void print_str(const char *str, int len);
 
-float flat, flon;
+
+int year;
+byte month, day, hour, minute, second, hundredths;
+unsigned long age_t;
+
+float flat = 0, flon = 0;
 unsigned long age, date, time, chars = 0;
 unsigned short sentences             = 0, failed = 0;
 static const double LONDON_LAT       = 51.508131, LONDON_LON = -0.128002;
-static const double DOM_LAT          = 55.954994, DOM_LON = 37.231121;
+
+
+static const double DOM_LAT          = 55.954994, DOM_LON    = 37.231121;
 int gps_satellites                   = 0;
 float gps_lat                        = 0;
 float gps_lon                        = 0;
@@ -113,7 +113,7 @@ int gps_dist                         = 0;
 
 unsigned long currentMillisGPS       = 0;              // Переменная для временного хранения текущего времени
 unsigned long currentMillis          = 0;              // Переменная для временного хранения текущего времени
-unsigned long timeGPS                = 1000;          //  
+unsigned long timeGPS                = 1000;           //  
 bool ButGPS_Start                    = false;          // Флаг запуска программы по команде 
 
 
@@ -141,19 +141,14 @@ int ledState = LOW;                           // Переменная состо
 
 void flash_time()                             // Программа обработчик прерывания
 {
-  //digitalWrite(ledPin, HIGH);             // включаем светодиод
-  //slave.run();                            // Запрос протокола MODBUS
-  //digitalWrite(ledPin, LOW);              // включаем светодиод
+ 
 }
 
 //+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
+
+/*
 void run_GPS()
 {
-  float flat, flon;
-  unsigned long age, date, time, chars = 0;
-  unsigned short sentences = 0, failed = 0;
-  static const double LONDON_LAT = 51.508131, LONDON_LON = -0.128002;
-  
   print_int(gps.satellites(), TinyGPS::GPS_INVALID_SATELLITES, 5);
   print_int(gps.hdop(), TinyGPS::GPS_INVALID_HDOP, 5);
   gps.f_get_position(&flat, &flon, &age);
@@ -205,9 +200,6 @@ void UpdateGPS()                                   // Проверка окон�
       Serial.println("**** GPS Start");
   }
 }
-//      currentMillisECO = millis();  // Установить при вызове программы измерения
-
-
 static void print_float(float val, float invalid, int len, int prec)
 {
   if (val == invalid)
@@ -244,9 +236,9 @@ static void print_int(unsigned long val, unsigned long invalid, int len)
 }
 static void print_date(TinyGPS &gps)
 {
- /* int year;
-  byte month, day, hour, minute, second, hundredths;
-  unsigned long age;*/
+ // int year;
+ // byte month, day, hour, minute, second, hundredths;
+ // unsigned long age;
   gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age_t);
   if (age_t == TinyGPS::GPS_INVALID_AGE)
     Serial.print("********** ******** ");
@@ -267,6 +259,50 @@ static void print_str(const char *str, int len)
     Serial.print(i<slen ? str[i] : ' ');
   smartdelay(0);
 }
+*/
+
+void UpdateGPS()  
+{
+  bool newData = false;
+   // For one second we parse GPS data and report some key values
+ /* for (unsigned long start = millis(); millis() - start < 1000;)
+  {*/
+   if (currentMillis - currentMillisGPS >= timeGPS)
+  {
+      currentMillisGPS = millis();
+    while (ss.available())
+    {
+      char c = ss.read();
+      // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+      if (gps.encode(c)) // Did a new valid sentence come in?
+        newData = true;
+    }
+  }
+
+  if (newData)
+  {
+    gps.f_get_position(&flat, &flon, &age);
+    Serial.print("LAT=");
+    Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+    Serial.print(" LON=");
+    Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+    Serial.print(" SAT=");
+    Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+    Serial.print(" PREC=");
+    Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
+  }
+  
+ /* gps.stats(&chars, &sentences, &failed);
+  Serial.print(" CHARS=");
+  Serial.print(chars);
+  Serial.print(" SENTENCES=");
+  Serial.print(sentences);
+  Serial.print(" CSUM ERR=");
+  Serial.println(failed);
+  if (chars == 0)
+    Serial.println("** No characters received from GPS: check wiring **");*/
+}
+
 
 //------------------------------------------------------------------------------
 //+++++++++++++++ Работа с датчиком давления +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -275,6 +311,12 @@ long Temperature = 0, Pressure = 0, Altitude = 0;
 int bmp_real_alt = 0;             // Реальная высота
 int bmp_gnd      = 219;             // Высота местности над уровнем моря
 //-----------------------------------------------------------------------------------------
+
+
+
+
+
+
 void run_nRF24L01()
 {
   // Обнуляем переменную с данными:
@@ -285,7 +327,7 @@ void run_nRF24L01()
   {
      // Принимаем пакет данные в виде массива байт в переменную data:
     Mirf.getData((byte *) &command);
-    delay(250);
+    delay(200);
    /*  Serial.print("Get data: ");
     Serial.println(command);*/
   }
@@ -538,5 +580,4 @@ void loop(void)
   {
     Pause2.Update();
   }
-
 }

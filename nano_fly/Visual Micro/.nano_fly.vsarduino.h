@@ -85,7 +85,6 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portModeRegister(P)
 
 void flash_time();
-void run_GPS();
 void UpdateGPS();
 void run_nRF24L01();
 void run_geiger();
