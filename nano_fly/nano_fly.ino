@@ -40,7 +40,9 @@ Arduino Nano      BMP180(BMO085)
     A5               SCL
 
   ---------------------------------------------------
-
+  D3 - управление ключем питания газоанализатора
+  А0 - аналоговый выход газоанализатора
+  А1 - цифровой выход газоанализатора
 
 */
 
@@ -59,9 +61,9 @@ Arduino Nano      BMP180(BMO085)
 #define  LedFlyFront A2                 // Светодиод полета передний
 #define  LedFlyRear  A3                 // Светодиод полета задний
 #define  LedPause    A7                 // Пауза между включением
-int TimelyFront    = 1500;              // Время включения светодиода 
-int TimelyRear     = 1500;              // Время включения светодиода 
-int TimeInterval   = 1000;              // Время между включениями светодиодов
+int TimelyFront    = 1100;              // Время включения светодиода 
+int TimelyRear     = 1100;              // Время включения светодиода 
+int TimeInterval   = 500;              // Время между включениями светодиодов
 bool Front_Start   = false;             // Флаг запуска программы по команде 
 bool Rear_Start    = false;             // Флаг запуска программы по команде 
 int numled         = 0;
@@ -99,13 +101,14 @@ int year;
 byte month, day, hour, minute, second, hundredths;
 unsigned long age_t;
 
-float flat = 0, flon = 0;
+float flat                 = 0, flon = 0;
 unsigned long age, date, time, chars = 0;
 unsigned short sentences             = 0, failed = 0;
 static const double LONDON_LAT       = 51.508131, LONDON_LON = -0.128002;
 
 
-static const double DOM_LAT          = 55.954994, DOM_LON    = 37.231121;
+double DOM_LAT                       = 55.954994;
+double DOM_LON                       = 37.231121;
 int gps_satellites                   = 0;
 float gps_lat                        = 0;
 float gps_lon                        = 0;
@@ -113,7 +116,7 @@ int gps_dist                         = 0;
 
 unsigned long currentMillisGPS       = 0;              // Переменная для временного хранения текущего времени
 unsigned long currentMillis          = 0;              // Переменная для временного хранения текущего времени
-unsigned long timeGPS                = 1000;           //  
+unsigned long timeGPS                = 2200;           //  
 bool ButGPS_Start                    = false;          // Флаг запуска программы по команде 
 
 
@@ -127,27 +130,38 @@ unsigned long data = 0;                                // Переменная �
 unsigned int command = 0;                              //
 unsigned long timePreviousRF24L01    = 0;   
 unsigned long currentMillisnRF24L01  = 0;              // Переменная для временного хранения текущего времени
-unsigned int time_nRF24L01           = 200;            //  
+unsigned int time_nRF24L01           = 100;            //  
 bool nRF24L01_Start                  = false;          // Флаг запуска программы по команде 
 
 
 //---------------------------------------------------------------
 
-#define  Power_gaz   7                        // Назначение вывода для управления питанием датчика газа MQ2 
-#define  GazA0       A0                       // Назначение вывода для подключения датчика газа MQ2 
-#define  PowerGeiger 6                        // Назначение вывода для управления питанием счетчика Гейгера
+#define  Power_gaz   3                                // Назначение вывода для управления питанием датчика газа MQ2 
+#define  GazA0       A0                               // Назначение вывода для подключения датчика газа MQ2, аналоговый выход газоанализатора
+#define  GazA1       A1                               // Назначение вывода для подключения датчика газа MQ2, цифровой выход газоанализатора
+#define  PowerGeiger 6                                // Назначение вывода для управления питанием счетчика Гейгера
 
-int ledState = LOW;                           // Переменная состояния светодиода
+int ledState = LOW;                                   // Переменная состояния светодиода
 
-void flash_time()                             // Программа обработчик прерывания
+void flash_time()                                     // Программа обработчик прерывания
 {
  
 }
 
 //+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
-
+ /*----------------------------------------------------------*/
+  //Sats - количество найденных спутников
+  //HDOP - горизонтальная точность
+  //Latitude - широта в градусах
+  //Longitude - долгота в градусах
+  //Date - дата
+  //Time - времы UTC(-4 часа от Московского)
+  //Alt - высота над уровнем моря (в метрах)
+  //Course - путевой угол (направление скорости) в градусах. Значение 0 - север, 90 — восток, 180 — юг, 270 — запад.
+  //Speed - скорость(км/ч)
+  /*----------------------------------------------------------*/
 /*
-void run_GPS()
+void run_GPS()   
 {
   print_int(gps.satellites(), TinyGPS::GPS_INVALID_SATELLITES, 5);
   print_int(gps.hdop(), TinyGPS::GPS_INVALID_HDOP, 5);
@@ -156,7 +170,7 @@ void run_GPS()
   print_float(flon, TinyGPS::GPS_INVALID_F_ANGLE, 11, 6);
   print_int(age, TinyGPS::GPS_INVALID_AGE, 5);
   print_date(gps);
-  print_float(gps.f_altitude(), TinyGPS::GPS_INVALID_F_ALTITUDE, 7, 2);
+  print_float(gps.f_altitude(), TinyGPS::GPS_INVALID_F_ALTITUDE, 7, 2); 
   print_float(gps.f_course(), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
   print_float(gps.f_speed_kmph(), TinyGPS::GPS_INVALID_F_SPEED, 6, 2);
   print_str(gps.f_course() == TinyGPS::GPS_INVALID_F_ANGLE ? "*** " : TinyGPS::cardinal(gps.f_course()), 6);
@@ -269,7 +283,8 @@ void UpdateGPS()
   {*/
    if (currentMillis - currentMillisGPS >= timeGPS)
   {
-      currentMillisGPS = millis();
+    currentMillisGPS = millis();
+	Serial.println("LAT=");
     while (ss.available())
     {
       char c = ss.read();
@@ -327,7 +342,7 @@ void run_nRF24L01()
   {
      // Принимаем пакет данные в виде массива байт в переменную data:
     Mirf.getData((byte *) &command);
-    delay(200);
+    delay(300);
    /*  Serial.print("Get data: ");
     Serial.println(command);*/
   }
@@ -337,11 +352,11 @@ void run_nRF24L01()
     switch (command)
     {
       case 1:
-        data = analogRead(A0);     // Анализатор Газа
+        data = analogRead(A0);                     // Анализатор Газа
         break;
       case 2:
         // команда 2 - отправить значение
-        data = geiger_ready;       // Флаг готовности Счетчика Гейгера
+        data = geiger_ready;                      // Флаг готовности Счетчика Гейгера
         break;
       case 3:
           // команда 2 - отправить значение
@@ -352,53 +367,68 @@ void run_nRF24L01()
         // команда 3 - отправить значение
         Serial.println("uSv/h = ");
         data = radiationValue * 10000 ;
-		geiger_ready = 0;                // Показания Счетчика Гейгера отправлены
+		geiger_ready = 0;                        // Показания Счетчика Гейгера отправлены
         break;
 	case 5:
 		dps.getTemperature(&Temperature); 
-		data = Temperature;                 // Паказания температуры
-         //digitalWrite(Power_gaz,HIGH);
+		data = Temperature;                      // Паказания температуры
         break;
 	case 6:
 		dps.getPressure(&Pressure); 
-		data = Pressure/133.3;             // Показания давления 
-        break;
+		data = Pressure/133.3;                   // Показания давления 
+        break;  
 	case 7:
 	    gps.f_get_position(&flat, &flon, &age); 
 		data = flat*1000000;
-		//data = DOM_LAT*1000000;
         break;
 	case 8:
-		gps.f_get_position(&flat, &flon, &age);
+		//gps.f_get_position(&flat, &flon, &age);
 		data = flon*1000000;
-       // data = gps_lon*1000000;
-		//data = DOM_LON*1000000;
         break;
 	case 9:
         dps.getAltitude(&Altitude); 
-		data =Altitude/100;             // Показания Высота
-		//Serial.print("  Alt(m):"); 
-  //      Serial.println(Altitude/100); 
+		data =Altitude/100;                    // Показания Высота
         break;
 	case 10:
-         data = random(1000,1100);    // Показания Дистанция м. =      
+         data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, DOM_LAT, DOM_LON) / 1000, 0xFFFFFFFF, 9);  // Показания Дистанция м. =      
         break;
 	case 11:
         gps_satellites = gps.satellites();
 	    data = gps_satellites;                 // Количество спутников
         break;
 	case 12:
- 
+ 		digitalWrite(Power_gaz, LOW);          // Включить анализатор газа
         break;
 	case 13:
- 
+ 		digitalWrite(Power_gaz, HIGH);         // Выключить анализатор газа
         break;
-	case 14:
- 
+		case 14:
+      
         break;
-
+	case 15:
+        digitalWrite(PowerGeiger,LOW);         // Включить счетчик Гейгера
+        break;
+	case 16:
+        digitalWrite(PowerGeiger,HIGH);        // Выключить счетчик Гейгера
+        break;
+		case 17:
+      
+        break;
+	case 18:                                   // Зафиксировать местные координаты
+        DOM_LAT = flat;
+        DOM_LON = flon;
+        break;
+	case 19:                                   // Передать местные координаты DOM_LAT
+        data = DOM_LAT*1000000;
+        break;
+	case 20:
+      	data = DOM_LON*1000000;                // Передать местные координаты DOM_LON
+        break;
+	case 21:
+      
+        break;
       default:
-        // Нераспознанная команда. Сердито мигаем светодиодом 10 раз и
+        // Нераспознанная команда.
         // жалуемся в последовательный порт
         Serial.println("Unknown command");
         break;
@@ -409,7 +439,7 @@ void run_nRF24L01()
   }
   // Экспериментально вычисленная задержка.
   // Позволяет избежать проблем с модулем.
-  delay(10);
+  delay(20);
 }
 
 void run_geiger()
@@ -493,7 +523,7 @@ class Flasher                                      // Управление св�
 
 void UpdatenRF24L01()
 {
-  if (currentMillis - timePreviousRF24L01 > 300)
+  if (currentMillis - timePreviousRF24L01 > time_nRF24L01)
   {
     timePreviousRF24L01 = millis();
     run_nRF24L01();
@@ -507,8 +537,8 @@ void setup(void)
 	pinMode(Power_gaz,OUTPUT);
 	pinMode(PowerGeiger,OUTPUT);
 	pinMode(StatusLed,OUTPUT);
-	digitalWrite(Power_gaz,LOW);
-	digitalWrite(PowerGeiger,LOW);
+	digitalWrite(Power_gaz,HIGH);
+	digitalWrite(PowerGeiger,HIGH);
 	digitalWrite(StatusLed,LOW);
 
 
@@ -549,7 +579,14 @@ void setup(void)
 
 	//	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
 	//	MsTimer2::start();                         // Включить таймер прерывания
-	//Front_Start = true;
+	for(int i = 0;i < 4;i++)
+	{
+		digitalWrite(Power_gaz, HIGH);
+        delay(500);
+		digitalWrite(Power_gaz, LOW);
+		delay(500);
+	}
+	digitalWrite(Power_gaz, HIGH);
 	attachInterrupt(0, countPulse, FALLING);
 }
 
