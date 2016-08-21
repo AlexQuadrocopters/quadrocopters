@@ -151,7 +151,14 @@ int stCurrentLen_admin=0;          // Переменная  хранения длины введенной строк
 char stLast[20]="";                // Данные в введенной строке строке.
 char stLast1[20]="";               // Данные в введенной строке строке.
 int ret = 0;                       // Признак прерывания операции
-int lenStr = 0;                    // Длина строки ZegBee
+int lenStr = 0;                    // Длина строки  
+
+bool st_Power_gaz    = false;
+bool st_PowerGeiger  = false;
+
+double DOM_LAT                       = 55.954994;
+double DOM_LON                       = 37.231121;
+
 
 //----------------------------
 
@@ -537,6 +544,8 @@ void swichMenu() // Тексты меню в строках "txt....."
 //								txt_pass_no_all();
 //							 }
 //
+
+
 //							bailout41: // Восстановить пункты меню
 							myGLCD.clrScr();
 							myButtons.drawButtons();
@@ -2384,7 +2393,17 @@ void radiotraffic()
 			  // Запускаем профедуру ожидания ответа
 			  waitanswer();
 			  if (myTouch.dataAvailable()) return;
-
+			  command = 14;
+			  myGLCD.printNumI(command,210,40);
+			  myGLCD.print("->",240,40);
+			  Mirf.send((byte *)&command);
+			  delay(100);
+			  myGLCD.print("    ",210,40);
+			  // Запомнили время отправки:
+			  timestamp = millis();
+			  // Запускаем профедуру ожидания ответа
+			  waitanswer();
+			  if (myTouch.dataAvailable()) return;
 
 
 			  delay(10);
@@ -2523,6 +2542,105 @@ void waitanswer()
 			}
 			myGLCD.setFont(BigFont);
 		  break;
+		  case 12:
+           if(data == 0)
+			   {
+				   st_Power_gaz = false;
+			   }
+		   else if(data ==1)
+			   {
+				   st_Power_gaz = true;
+			   }
+		   else
+			   {
+
+			   }
+            break;
+		  case 13:
+            if(data == 0)
+			   {
+				   st_Power_gaz = false;
+			   }
+		   else if(data == 1)
+			   {
+				   st_Power_gaz = true;
+			   }
+		   else
+			   {
+
+			   }
+            break;
+		  case 14:
+		   if(data == 0)
+			   {
+				   st_Power_gaz = false;
+				   Serial.println("Power_gaz OFF");
+			   }
+		   else if(data ==1)
+			   {
+				   st_Power_gaz = true;
+				   Serial.println("Power_gaz ON");
+			   }
+		   else
+			   {
+				   Serial.println("No Power_gaz ");
+			   }
+            break;
+		  case 15:
+            if(data == 0)
+			   {
+				  st_PowerGeiger = false;
+			   }
+		   else if(data ==1)
+			   {
+				   st_PowerGeiger = true;
+			   }
+		   else
+			   {
+
+			   }
+            break;
+		  case 16:
+		   if(data == 0)
+			  {
+				  st_PowerGeiger = false;
+			   }
+		   else if(data ==1)
+			   {
+				   st_PowerGeiger = true;
+			   }
+		   else
+			   {
+
+			   }
+            break;
+		  case 17:
+			
+			if(data == 0)  
+			  {
+				  st_PowerGeiger = false;
+			   }
+		   else if(data ==1)
+			   {
+				   st_PowerGeiger = true;
+			   }
+		   else
+			   {
+
+			   }
+            break;
+		  case 18:
+
+            break;
+		  case 19:
+			 DOM_LAT = data*1000000;
+            break;
+		  case 20:
+			 DOM_LON = data*1000000;            
+            break;
+		  case 21:
+
+            break;
       }
 
       data = 0;
@@ -3221,6 +3339,28 @@ void test_power()
  	  myGLCD.setFont(BigFont);
     }
 }
+void menu_gaz()
+{
+
+}
+void radio_send(int command_rf)
+{
+	command = command_rf;
+	Mirf.setTADDR((byte *)&"fly10");
+	Mirf.send((byte *)&command);
+	// Мигнули 1 раз - команда отправлена
+	// digitalWrite(StatusLed, HIGH);
+	delay(100);
+	//  digitalWrite(StatusLed, LOW);
+//	myGLCD.print("    ",210,40);
+	// Запомнили время отправки:
+	timestamp = millis();
+	// Запускаем профедуру ожидания ответа
+	waitanswer();
+	if (myTouch.dataAvailable()) return;
+
+}
+
 
 
 void setup() 
@@ -3274,9 +3414,18 @@ void setup()
 	  Mirf.setRADDR((byte*)ADDR);
 	  Mirf.payload = sizeof(unsigned long);
 	  Mirf.config();
-
-
-
+	  radio_send(12);
+	  delay(1500);
+	  Serial.println(st_Power_gaz);
+	  radio_send(14);
+	  delay(1500);
+	  Serial.println(st_Power_gaz);
+	  //radio_send(13);
+	  //delay(1500);
+	  //Serial.println(st_Power_gaz);
+	  //radio_send(14);
+	  //delay(1500);
+	  //Serial.println(st_Power_gaz);
 //	  ReadWriteSD();
   	  myGLCD.clrScr();
 

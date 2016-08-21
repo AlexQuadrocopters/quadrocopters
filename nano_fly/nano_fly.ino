@@ -1,4 +1,4 @@
-/*
+ /*
   Базовый модуль Arduino Nano
   Размещается на квадрокоптере.
   Установленное оборудование:
@@ -9,16 +9,16 @@
  Arduino Nano    GY-GPS6MV2
    VCC +5V          VCC
 	 GND            GND
-     D4             RX
+	 D4             RX
 	 D5             TX
   ---------------------------------------
   Модуль NRF24L01 Подключение
   +++++++++++++++++++++++++++++++++++++++
  Arduino Nano     NRF24L01
-    GND           1 GND
+	GND           1 GND
   VCC +3,3V       2 VCC +3,3V
-  	 D8           3 CE
-     D7		      4 SCN
+	 D8           3 CE
+	 D7		      4 SCN
 SCK  D13	      5 SCK
 MOSI D11 	      6 MOSI
 MISO D12	      7 MISO
@@ -26,7 +26,7 @@ MISO D12	      7 MISO
   Счетчик Гейгера
   ++++++++++++++++++++++++++++++++++++++++++
 Arduino Nano     Счетчик Гейгера
-    GND              GND
+	GND              GND
  VCC +5,0V        VCC +5,0V
 	D2       Выход коллектора транзистора
 	D6       Управление питанием (реле)
@@ -34,10 +34,10 @@ Arduino Nano     Счетчик Гейгера
   Датчик давления  BMP180(BMO085)   (измерение высоты)
   ++++++++++++++++++++++++++++++++++++++++++++++++++++
 Arduino Nano      BMP180(BMO085) 
-    GND               GND  
+	GND               GND  
  VCC +5,0V        VCC +5,0V
-    A4               SDA
-    A5               SCL
+	A4               SDA
+	A5               SCL
 
   ---------------------------------------------------
   D3 - управление ключем питания газоанализатора
@@ -63,7 +63,7 @@ Arduino Nano      BMP180(BMO085)
 #define  LedPause    A7                 // Пауза между включением
 int TimelyFront    = 1100;              // Время включения светодиода 
 int TimelyRear     = 1100;              // Время включения светодиода 
-int TimeInterval   = 500;              // Время между включениями светодиодов
+int TimeInterval   = 500;               // Время между включениями светодиодов
 bool Front_Start   = false;             // Флаг запуска программы по команде 
 bool Rear_Start    = false;             // Флаг запуска программы по команде 
 int numled         = 0;
@@ -136,14 +136,18 @@ bool nRF24L01_Start                  = false;          // Флаг запуск�
 
 //---------------------------------------------------------------
 
-#define  Power_gaz   3                                // Назначение вывода для управления питанием датчика газа MQ2 
-#define  GazA0       A0                               // Назначение вывода для подключения датчика газа MQ2, аналоговый выход газоанализатора
-#define  GazA1       A1                               // Назначение вывода для подключения датчика газа MQ2, цифровой выход газоанализатора
-#define  PowerGeiger 6                                // Назначение вывода для управления питанием счетчика Гейгера
+#define  Power_gaz   3                                 // Назначение вывода для управления питанием датчика газа MQ2 
+#define  GazA0       A0                                // Назначение вывода для подключения датчика газа MQ2, аналоговый выход газоанализатора
+#define  GazA1       A1                                // Назначение вывода для подключения датчика газа MQ2, цифровой выход газоанализатора
+#define  PowerGeiger 6                                 // Назначение вывода для управления питанием счетчика Гейгера
+bool st_Power_gaz    = false;
+bool st_PowerGeiger  = false;
+bool old_Power_gaz   = false;
+bool old_PowerGeiger = false;
+ 
+int ledState = LOW;                                    // Переменная состояния светодиода
 
-int ledState = LOW;                                   // Переменная состояния светодиода
-
-void flash_time()                                     // Программа обработчик прерывания
+void flash_time()                                      // Программа обработчик прерывания
 {
  
 }
@@ -188,7 +192,7 @@ void run_GPS()
   gps.f_get_position(&flat, &flon, &age);
   float sat_lat = flat;
   Serial.println(sat_lat,6);
-     
+	 
  // smartdelay(1000);
 }
 
@@ -197,8 +201,8 @@ static void smartdelay(unsigned long ms)
   unsigned long start = millis();
   do 
   {
-    while (ss.available())
-      gps.encode(ss.read());
+	while (ss.available())
+	  gps.encode(ss.read());
   } while (millis() - start < ms);
 }
 
@@ -206,30 +210,30 @@ void UpdateGPS()                                   // Проверка окон�
 {
   if (currentMillis - currentMillisGPS >= timeGPS)
   {
-      currentMillisGPS = millis();
-  	  while (ss.available())
-      gps.encode(ss.read());
+	  currentMillisGPS = millis();
+	  while (ss.available())
+	  gps.encode(ss.read());
 	  run_GPS();
 	  //ButGPS_Start = false;
-      Serial.println("**** GPS Start");
+	  Serial.println("**** GPS Start");
   }
 }
 static void print_float(float val, float invalid, int len, int prec)
 {
   if (val == invalid)
   {
-    while (len-- > 1)
-      Serial.print('*');
-    Serial.print(' ');
+	while (len-- > 1)
+	  Serial.print('*');
+	Serial.print(' ');
   }
   else
   {
-    Serial.print(val, prec);
-    int vi = abs((int)val);
-    int flen = prec + (val < 0.0 ? 2 : 1); // . and -
-    flen += vi >= 1000 ? 4 : vi >= 100 ? 3 : vi >= 10 ? 2 : 1;
-    for (int i=flen; i<len; ++i)
-      Serial.print(' ');
+	Serial.print(val, prec);
+	int vi = abs((int)val);
+	int flen = prec + (val < 0.0 ? 2 : 1); // . and -
+	flen += vi >= 1000 ? 4 : vi >= 100 ? 3 : vi >= 10 ? 2 : 1;
+	for (int i=flen; i<len; ++i)
+	  Serial.print(' ');
   }
   smartdelay(0);
 }
@@ -237,14 +241,14 @@ static void print_int(unsigned long val, unsigned long invalid, int len)
 {
   char sz[32];
   if (val == invalid)
-    strcpy(sz, "*******");
+	strcpy(sz, "*******");
   else
-    sprintf(sz, "%ld", val);
+	sprintf(sz, "%ld", val);
   sz[len] = 0;
   for (int i=strlen(sz); i<len; ++i)
-    sz[i] = ' ';
+	sz[i] = ' ';
   if (len > 0) 
-    sz[len-1] = ' ';
+	sz[len-1] = ' ';
   Serial.print(sz);
   smartdelay(0);
 }
@@ -255,13 +259,13 @@ static void print_date(TinyGPS &gps)
  // unsigned long age;
   gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age_t);
   if (age_t == TinyGPS::GPS_INVALID_AGE)
-    Serial.print("********** ******** ");
+	Serial.print("********** ******** ");
   else
   {
-    char sz[32];
-    sprintf(sz, "%02d/%02d/%02d %02d:%02d:%02d ",
-        month, day, year, hour, minute, second);
-    Serial.print(sz);
+	char sz[32];
+	sprintf(sz, "%02d/%02d/%02d %02d:%02d:%02d ",
+		month, day, year, hour, minute, second);
+	Serial.print(sz);
   }
   print_int(age, TinyGPS::GPS_INVALID_AGE, 5);
   smartdelay(0);
@@ -270,7 +274,7 @@ static void print_str(const char *str, int len)
 {
   int slen = strlen(str);
   for (int i=0; i<len; ++i)
-    Serial.print(i<slen ? str[i] : ' ');
+	Serial.print(i<slen ? str[i] : ' ');
   smartdelay(0);
 }
 */
@@ -283,28 +287,28 @@ void UpdateGPS()
   {*/
    if (currentMillis - currentMillisGPS >= timeGPS)
   {
-    currentMillisGPS = millis();
-	Serial.println("LAT=");
-    while (ss.available())
-    {
-      char c = ss.read();
-      // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
-      if (gps.encode(c)) // Did a new valid sentence come in?
-        newData = true;
-    }
+	currentMillisGPS = millis();
+//	Serial.println("LAT=");
+	while (ss.available())
+	{
+	  char c = ss.read();
+	  // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+	  if (gps.encode(c)) // Did a new valid sentence come in?
+		newData = true;
+	}
   }
 
   if (newData)
   {
-    gps.f_get_position(&flat, &flon, &age);
-    Serial.print("LAT=");
-    Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-    Serial.print(" LON=");
-    Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-    Serial.print(" SAT=");
-    Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-    Serial.print(" PREC=");
-    Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
+	gps.f_get_position(&flat, &flon, &age);
+	Serial.print("LAT=");
+	Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+	Serial.print(" LON=");
+	Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+	Serial.print(" SAT=");
+	Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+	Serial.print(" PREC=");
+	Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
   }
   
  /* gps.stats(&chars, &sentences, &failed);
@@ -315,7 +319,7 @@ void UpdateGPS()
   Serial.print(" CSUM ERR=");
   Serial.println(failed);
   if (chars == 0)
-    Serial.println("** No characters received from GPS: check wiring **");*/
+	Serial.println("** No characters received from GPS: check wiring **");*/
 }
 
 
@@ -323,11 +327,39 @@ void UpdateGPS()
 //+++++++++++++++ Работа с датчиком давления +++++++++++++++++++++++++++++++++++++++++++++++++
 BMP085 dps = BMP085();    
 long Temperature = 0, Pressure = 0, Altitude = 0;
-int bmp_real_alt = 0;             // Реальная высота
-int bmp_gnd      = 219;             // Высота местности над уровнем моря
+int bmp_real_alt = 0;                  // Реальная высота
+int bmp_gnd      = 219;                // Высота местности над уровнем моря
 //-----------------------------------------------------------------------------------------
 
+void power_on_off()
+{
+  if(old_Power_gaz != st_Power_gaz )
+  {
+	old_Power_gaz = st_Power_gaz;
+	if(st_Power_gaz)
+	{
+	   digitalWrite(Power_gaz, LOW);          // Включить анализатор газа
+	}
+	else
+	{
+	   digitalWrite(Power_gaz, HIGH);         // Выключить анализатор газа
+	}
 
+  }
+  if(old_PowerGeiger != st_PowerGeiger)
+  {
+	old_PowerGeiger = st_PowerGeiger;
+
+	if(st_PowerGeiger)
+	{
+		digitalWrite(PowerGeiger,LOW);         // Включить счетчик Гейгера
+	}
+	else
+	{
+		digitalWrite(PowerGeiger,HIGH);        // Выключить счетчик Гейгера
+	}
+  }
+}
 
 
 
@@ -340,102 +372,121 @@ void run_nRF24L01()
   // Ждём данных
   if (!Mirf.isSending() && Mirf.dataReady()) 
   {
-     // Принимаем пакет данные в виде массива байт в переменную data:
-    Mirf.getData((byte *) &command);
-    delay(300);
+	 // Принимаем пакет данные в виде массива байт в переменную data:
+	Mirf.getData((byte *) &command);
+	delay(300);
    /*  Serial.print("Get data: ");
-    Serial.println(command);*/
+	Serial.println(command);*/
   }
   // Если переменная не нулевая, формируем ответ:geiger_ready = 1;
   if (command != 0)
   {
-    switch (command)
-    {
-      case 1:
-        data = analogRead(A0);                     // Анализатор Газа
-        break;
-      case 2:
-        // команда 2 - отправить значение
-        data = geiger_ready;                      // Флаг готовности Счетчика Гейгера
-        break;
-      case 3:
-          // команда 2 - отправить значение
-        Serial.println("cpm = ");
-        data = countPerMinute;  
-        break;
-     case 4:
-        // команда 3 - отправить значение
-        Serial.println("uSv/h = ");
-        data = radiationValue * 10000 ;
+	switch (command)
+	{
+	  case 1:
+		data = analogRead(A0);                     // Анализатор Газа
+		break;
+	  case 2:
+		// команда 2 - отправить значение
+		data = geiger_ready;                      // Флаг готовности Счетчика Гейгера
+		break;
+	  case 3:
+		  // команда 2 - отправить значение
+		Serial.println("cpm = ");
+		data = countPerMinute;  
+		break;
+	 case 4:
+		// команда 3 - отправить значение
+		Serial.println("uSv/h = ");
+		data = radiationValue * 10000 ;
 		geiger_ready = 0;                        // Показания Счетчика Гейгера отправлены
-        break;
+		break;
 	case 5:
 		dps.getTemperature(&Temperature); 
 		data = Temperature;                      // Паказания температуры
-        break;
+		break;
 	case 6:
 		dps.getPressure(&Pressure); 
 		data = Pressure/133.3;                   // Показания давления 
-        break;  
+		break;  
 	case 7:
-	    gps.f_get_position(&flat, &flon, &age); 
+		gps.f_get_position(&flat, &flon, &age); 
 		data = flat*1000000;
-        break;
+		break;
 	case 8:
 		//gps.f_get_position(&flat, &flon, &age);
 		data = flon*1000000;
-        break;
+		break;
 	case 9:
-        dps.getAltitude(&Altitude); 
+		dps.getAltitude(&Altitude); 
 		data =Altitude/100;                    // Показания Высота
-        break;
+		break;
 	case 10:
-         data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, DOM_LAT, DOM_LON) / 1000, 0xFFFFFFFF, 9);  // Показания Дистанция м. =      
-        break;
+		 data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, DOM_LAT, DOM_LON) / 1000, 0xFFFFFFFF, 9);  // Показания Дистанция м. =      
+		break;
 	case 11:
-        gps_satellites = gps.satellites();
-	    data = gps_satellites;                 // Количество спутников
-        break;
+		gps_satellites = gps.satellites();
+		data = gps_satellites;                 // Количество спутников
+		break;
 	case 12:
- 		digitalWrite(Power_gaz, LOW);          // Включить анализатор газа
-        break;
+		st_Power_gaz = true;
+		data = 1;
+		break;
 	case 13:
- 		digitalWrite(Power_gaz, HIGH);         // Выключить анализатор газа
-        break;
-		case 14:
-      
-        break;
+		st_Power_gaz = false;
+		data = 0;
+		break;
+	case 14:                                  // Состоянеи ключа включения питания датчика газа
+		if(st_Power_gaz == true)
+			{
+				data = 1;
+			}
+		else
+			{
+				data = 0;
+			}
+		break;
 	case 15:
-        digitalWrite(PowerGeiger,LOW);         // Включить счетчик Гейгера
-        break;
+		st_PowerGeiger = true;
+		data = 1;
+		break;
 	case 16:
-        digitalWrite(PowerGeiger,HIGH);        // Выключить счетчик Гейгера
-        break;
-		case 17:
-      
-        break;
+		st_PowerGeiger = false;
+		data = 1;
+		break;
+	case 17:
+		if(st_PowerGeiger == true)             // Состоянеи ключа включения питания счетчика Гейгера
+			{
+				data = 1;
+			}
+		else
+			{
+				data = 0;
+			}
+		break; 
 	case 18:                                   // Зафиксировать местные координаты
-        DOM_LAT = flat;
-        DOM_LON = flon;
-        break;
+		DOM_LAT = flat;
+		DOM_LON = flon;
+		data=1;
+		break;
 	case 19:                                   // Передать местные координаты DOM_LAT
-        data = DOM_LAT*1000000;
-        break;
+		data = DOM_LAT*1000000;
+		break;
 	case 20:
-      	data = DOM_LON*1000000;                // Передать местные координаты DOM_LON
-        break;
+		data = DOM_LON*1000000;                // Передать местные координаты DOM_LON
+		break;
 	case 21:
-      
-        break;
-      default:
-        // Нераспознанная команда.
-        // жалуемся в последовательный порт
-        Serial.println("Unknown command");
-        break;
-    }
-    // Отправляем ответ:
-    Mirf.setTADDR((byte *)"remot");
-    Mirf.send((byte *)&data);                         //Отправляем ответ в виде массива байт:
+	  
+		break;
+	  default:
+		// Нераспознанная команда.
+		// жалуемся в последовательный порт
+		Serial.println("Unknown command");
+		break;
+	}
+	// Отправляем ответ:
+	Mirf.setTADDR((byte *)"remot");
+	Mirf.send((byte *)&data);                         //Отправляем ответ в виде массива байт:
   }
   // Экспериментально вычисленная задержка.
   // Позволяет избежать проблем с модулем.
@@ -446,15 +497,15 @@ void run_geiger()
 {
   if (millis() - timePreviousMeassure > 10000)
   {
-    countPerMinute = 6 * count;
-    radiationValue = countPerMinute * CONV_FACTOR;
-    timePreviousMeassure = millis();
-    Serial.print("cpm = ");
-    Serial.print(countPerMinute, DEC);
-    Serial.print(" - ");
-    Serial.print("uSv/h = ");
-    Serial.println(radiationValue, 4);
-    count = 0;
+	countPerMinute = 6 * count;
+	radiationValue = countPerMinute * CONV_FACTOR;
+	timePreviousMeassure = millis();
+	Serial.print("cpm = ");
+	Serial.print(countPerMinute, DEC);
+	Serial.print(" - ");
+	Serial.print("uSv/h = ");
+	Serial.println(radiationValue, 4);
+	count = 0;
 	geiger_ready = 1;
   }
 }
@@ -472,47 +523,47 @@ void countPulse()
 
 class Flasher                                      // Управление светодиодами в многозадачном режиме
 {
-    int ledPin;
-    long OnTime;
-    long OffTime;
+	int ledPin;
+	long OnTime;
+	long OffTime;
 
-    int ledState;
-    unsigned long previousMillis;
+	int ledState;
+	unsigned long previousMillis;
   public:
-    Flasher(int pin,  long on, long off)
-    {
-      ledPin = pin;
-      pinMode(ledPin, OUTPUT);
+	Flasher(int pin,  long on, long off)
+	{
+	  ledPin = pin;
+	  pinMode(ledPin, OUTPUT);
 
-      OnTime = on;
-      OffTime = off;
+	  OnTime = on;
+	  OffTime = off;
 
-      ledState = LOW;
-      previousMillis = 0;
-    }
+	  ledState = LOW;
+	  previousMillis = 0;
+	}
 
-    void Update()
-    {
-      unsigned long currentMillis = millis();
+	void Update()
+	{
+	  unsigned long currentMillis = millis();
 
-      if ((ledState == HIGH) && (currentMillis - previousMillis >= OnTime))
-      {
-        ledState = LOW;
-        previousMillis = currentMillis;
-        digitalWrite(ledPin, ledState);
+	  if ((ledState == HIGH) && (currentMillis - previousMillis >= OnTime))
+	  {
+		ledState = LOW;
+		previousMillis = currentMillis;
+		digitalWrite(ledPin, ledState);
 		numled++;
 		if(numled>3)
 		{
 			numled=0;
 		}
-      }
-      else if ((ledState == LOW) && (currentMillis - previousMillis >= OffTime))
-      {
-        ledState = HIGH;
-        previousMillis = currentMillis;
-        digitalWrite(ledPin, ledState);
-      }
-    }
+	  }
+	  else if ((ledState == LOW) && (currentMillis - previousMillis >= OffTime))
+	  {
+		ledState = HIGH;
+		previousMillis = currentMillis;
+		digitalWrite(ledPin, ledState);
+	  }
+	}
 };
 
  Flasher led1(LedFlyFront, TimelyFront, TimeInterval);
@@ -525,8 +576,8 @@ void UpdatenRF24L01()
 {
   if (currentMillis - timePreviousRF24L01 > time_nRF24L01)
   {
-    timePreviousRF24L01 = millis();
-    run_nRF24L01();
+	timePreviousRF24L01 = millis();
+	run_nRF24L01();
   }
 }
 
@@ -561,15 +612,15 @@ void setup(void)
 
  // uncomment for different initialization settings
   //dps.init();     // QFE (Field Elevation above ground level) is set to 0 meters.
-                  // same as init(MODE_STANDARD, 0, true);
+				  // same as init(MODE_STANDARD, 0, true);
   
  // dps.init(MODE_STANDARD, 101850, false);  // 101850Pa = 1018.50hPa, false = using Pa units
-                  // this initialization is useful for normalizing pressure to specific datum.
-                  // OR setting current local hPa information from a weather station/local airport (QNH).
+				  // this initialization is useful for normalizing pressure to specific datum.
+				  // OR setting current local hPa information from a weather station/local airport (QNH).
   
   dps.init(MODE_ULTRA_HIGHRES, bmp_gnd, true);  // 220 meters, true = using meter units
-                  // this initialization is useful if current altitude is known,
-                  // pressure will be calculated based on TruePressure and known altitude.
+				  // this initialization is useful if current altitude is known,
+				  // pressure will be calculated based on TruePressure and known altitude.
 
   // note: use zeroCal only after initialization.
   // dps.zeroCal(101800, 0);    // set zero point
@@ -582,7 +633,7 @@ void setup(void)
 	for(int i = 0;i < 4;i++)
 	{
 		digitalWrite(Power_gaz, HIGH);
-        delay(500);
+		delay(500);
 		digitalWrite(Power_gaz, LOW);
 		delay(500);
 	}
@@ -599,22 +650,23 @@ void loop(void)
   UpdateGPS();
 
   UpdatenRF24L01();
+  power_on_off();
 
   if(numled == 0)
   {
-    led1.Update();
+	led1.Update();
   }
   if(numled == 1)
   {
-    Pause1.Update();
+	Pause1.Update();
   }
 
   if(numled == 2)
   {
-    led2.Update();
+	led2.Update();
   }
   if(numled == 3)
   {
-    Pause2.Update();
+	Pause2.Update();
   }
 }
