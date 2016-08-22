@@ -430,25 +430,25 @@ void run_nRF24L01()
 		break;
 	case 12:
 		st_Power_gaz = true;
-		data = 1;
+		data = 2;
 		break;
 	case 13:
 		st_Power_gaz = false;
-		data = 0;
+		data = 1;
 		break;
 	case 14:                                  // Состоянеи ключа включения питания датчика газа
 		if(st_Power_gaz == true)
 			{
-				data = 1;
+				data = 2;
 			}
 		else
 			{
-				data = 0;
+				data = 1;
 			}
 		break;
 	case 15:
 		st_PowerGeiger = true;
-		data = 1;
+		data = 2;
 		break;
 	case 16:
 		st_PowerGeiger = false;
@@ -457,11 +457,11 @@ void run_nRF24L01()
 	case 17:
 		if(st_PowerGeiger == true)             // Состоянеи ключа включения питания счетчика Гейгера
 			{
-				data = 1;
+				data = 2;
 			}
 		else
 			{
-				data = 0;
+				data = 1;
 			}
 		break; 
 	case 18:                                   // Зафиксировать местные координаты

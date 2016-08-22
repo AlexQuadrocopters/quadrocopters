@@ -134,6 +134,9 @@ void info_nomer_user();
 void time_flag_start();
 void test_power();
 void menu_gaz();
+void info_power_gaz();
+void menu_Geiger();
+void info_power_geiger();
 void radio_send(int command_rf);
 //
 //

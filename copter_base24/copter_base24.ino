@@ -153,8 +153,8 @@ char stLast1[20]="";               // Данные в введенной строке строке.
 int ret = 0;                       // Признак прерывания операции
 int lenStr = 0;                    // Длина строки  
 
-bool st_Power_gaz    = false;
-bool st_PowerGeiger  = false;
+int st_Power_gaz    = 0;           // Состояние источника питания датчика газа
+int st_PowerGeiger  = 0;           // Состояние источника питания датчика Гейгера
 
 double DOM_LAT                       = 55.954994;
 double DOM_LON                       = 37.231121;
@@ -200,8 +200,8 @@ unsigned long timestamp = 0;
 
 char  txt_menu1_1[]            = "\x89""P""\x86""EM ""\x82\AHH""\x91""X";           // ПРИЕМ ДАННЫХ
 char  txt_menu1_2[]            = "\x86""H""\x8B""O GPS";                            // ИНФО GPS
-char  txt_menu1_3[]            = "\x82""AHH""\x91""E B""\x91""COTA";                // ДАННЫЕ ВЫСОТА
-char  txt_menu1_4[]            = "\x82""AHH""\x91""E ""\x81""A""\x85";              // ДАННЫЕ ГАЗ
+char  txt_menu1_3[]            = "\x89\x86""T""A""H""\x86""E \x81""e""\x9E\x98""epa";                // ПИТАНИЕ Гейгера
+char  txt_menu1_4[]            = "\x89\x86""T""A""H""\x86""E ""\x99""a""\xA4"".""\x81""A""\x85";     // ПИТАНИЕ датч. ГАЗА
 char  txt_menu2_1[]            = "BBO""\x82"" KOOP""\x82\x86""HAT";                 // ВВОД КООРДИНАТ
 char  txt_menu2_2[]            = "BBO""\x82"" B""\x91""COT""\x91";                  // ВВОД ВЫСОТЫ
 char  txt_menu2_3[]            = "\x89""OPO""\x81"" PA""\x82\x86""A""\x8C\x86\x86"; // ПОРОГ РАДИАЦИИ
@@ -257,7 +257,16 @@ char  txt_mount10[]            = "O\x9F\xA4\xAF\x96p\xAC";                      
 char  txt_mount11[]            = "Ho\xAF\x96p\xAC";                                                  // Ноябрь
 char  txt_mount12[]            = "\x82""e\x9F""a\x96p\xAC";                                          // Декабрь
 char  txt_radiacia[]           = " ***** "; // 
-char  txt_gaz[]                = " ***** "; // 
+char  txt_gaz[]                = "\x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a";                   // Датчик газа
+char  txt_gazOn[]              = " \x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a BK""\x88"".";      // Датчик газа ВКЛ.
+char  txt_gazOff[]             = "\x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a OTK""\x88"".";      // Датчик газа ОТКЛ.
+char  txt_gazNo[]              = "\x82""a""\xA2\xA2\xAB""e ""\xA2""e ""\xA3""o""\xA0""y""\xA7""e""\xA2\xAB"; // Данные не получены
+char  txt_On[]                 = "BK""\x88"".";                                                      // ВКЛ.
+char  txt_Off[]                = "OTK""\x88"".";                                                     // ОТКЛ.
+char  txt_Exit[]               = "B""\xAB""xo""\x99";                                                // Выход
+char  txt_geiger[]             = "\x82""a""\xA4\xA7\x9D\x9F"" ""\x81""e""\x9E\x98""epa";             // Датчик Гейгера
+char  txt_geigerOn[]           = "\x82""a""\xA4\xA7\x9D\x9F"" ""\x81""e""\x9E\x98""epa  BK""\x88";   // Датчик Гейгера  ВКЛ.
+char  txt_geigerOff[]          = "\x82""a""\xA4\xA7\x9D\x9F"" ""\x81""e""\x9E\x98""epa OTK""\x88";   // Датчик Гейгера ОТКЛ.
 char  txt_pressure[]           = " ***** "; //
 char  txt_elevation[]          = " ***** "; // 
 char  txt_altitude[]           = " ***** "; //
@@ -268,7 +277,7 @@ char  txt_summa[]              = "Pe\x9C.";                                     
 char  txt_return[]             = "\x85""a\x97""ep\xA8\xA2\xA4\xAC \xA3poc\xA1o\xA4p";                // Завершить просмотр
 char  txt_info_count[]         = "\x86H\x8BO C\x8D""ET\x8D\x86KOB";                                  //
 char  txt_info_n_user[]        = "\x89""p""\x9D""e""\xA1"" ""\x9D\xA2\xA5""op""\xA1""a""\xA6\x9D\x9D"; // Прием информации
-char  txt_info_n_user1[]       = "Ho\xA1""ep ""\xA3o\xA0\xAC\x9Co\x97""a""\xA4""e""\xA0\xAF";        // Номер пользователя
+char  txt_info_n_user1[]       = "Ho\xA1""ep ""\xA3o\xA0\xAC\x9Co\x97""a""\xA4""e""\xA0\xAF";         // Номер пользователя
 char  txt_info_n_telef[]       = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
 char  txt_info_n_device[]      = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
 char  txt_info_n_device1[]     = "B\x97""e\x99\x9D\xA4""e N ""\xA4""e\xA0""e\xA5o\xA2""a";// Введите N телеф.
@@ -508,7 +517,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 //								myGLCD.clrScr();   // Очистить экран
 //								myGLCD.print(txt_pass_ok, RIGHT, 208); 
 //								delay (500);
-////					   colwater_save_start(); // если верно - выполнить пункт меню
+                          menu_Geiger(); // если верно - выполнить пункт меню
 //							 }
 //						else  // Пароль не верный - сообщить и закончить
 //							 {
@@ -537,15 +546,13 @@ void swichMenu() // Тексты меню в строках "txt....."
 //								myGLCD.clrScr();   // Очистить экран
 //								myGLCD.print(txt_pass_ok, RIGHT, 208); 
 //								delay (500);
-////						hotwater_save_start(); // если верно - выполнить пункт меню
+                            menu_gaz(); // если верно - выполнить пункт меню
 //							 }
 //						else  // Пароль не верный - сообщить и закончить
 //							 {
 //								txt_pass_no_all();
 //							 }
 //
-
-
 //							bailout41: // Восстановить пункты меню
 							myGLCD.clrScr();
 							myButtons.drawButtons();
@@ -2543,90 +2550,91 @@ void waitanswer()
 			myGLCD.setFont(BigFont);
 		  break;
 		  case 12:
-           if(data == 0)
+           if(data == 1)
 			   {
-				   st_Power_gaz = false;
+				   st_Power_gaz = 1;
 			   }
-		   else if(data ==1)
+		   else if(data == 2)
 			   {
-				   st_Power_gaz = true;
+				   st_Power_gaz = 2;
 			   }
 		   else
 			   {
-
+				    st_Power_gaz = 0;
 			   }
             break;
 		  case 13:
-            if(data == 0)
+            if(data == 1)
 			   {
-				   st_Power_gaz = false;
+				   st_Power_gaz = 1;
 			   }
-		   else if(data == 1)
+		   else if(data == 2)
 			   {
-				   st_Power_gaz = true;
+				   st_Power_gaz = 2;
 			   }
 		   else
 			   {
-
+				   st_Power_gaz = 0;
 			   }
             break;
 		  case 14:
-		   if(data == 0)
+		   if(data == 1)
 			   {
-				   st_Power_gaz = false;
+				   st_Power_gaz = 1;
 				   Serial.println("Power_gaz OFF");
 			   }
-		   else if(data ==1)
+		   else if(data == 2)
 			   {
-				   st_Power_gaz = true;
+				   st_Power_gaz = 2;
 				   Serial.println("Power_gaz ON");
 			   }
 		   else
 			   {
+				   st_Power_gaz = 0;
 				   Serial.println("No Power_gaz ");
-			   }
+				}
             break;
 		  case 15:
-            if(data == 0)
+            if(data == 1)
 			   {
-				  st_PowerGeiger = false;
+				  st_PowerGeiger = 1;
 			   }
-		   else if(data ==1)
+		   else if(data ==2)
 			   {
-				   st_PowerGeiger = true;
+				   st_PowerGeiger = 2;
 			   }
 		   else
 			   {
-
+                   st_PowerGeiger = 0;
 			   }
             break;
 		  case 16:
-		   if(data == 0)
+		   if(data == 1)
 			  {
-				  st_PowerGeiger = false;
+				  st_PowerGeiger = 1;
 			   }
-		   else if(data ==1)
+		   else if(data == 2)
 			   {
-				   st_PowerGeiger = true;
+				   st_PowerGeiger = 2;
 			   }
 		   else
 			   {
-
+				   st_PowerGeiger = 0;
 			   }
             break;
 		  case 17:
 			
-			if(data == 0)  
+			if(data == 1)  
 			  {
-				  st_PowerGeiger = false;
+				  st_PowerGeiger = 1;
 			   }
-		   else if(data ==1)
+		   else if(data == 2)
 			   {
-				   st_PowerGeiger = true;
+				   st_PowerGeiger = 2;
 			   }
 		   else
 			   {
-
+				   st_PowerGeiger = 0;
 			   }
             break;
 		  case 18:
@@ -2658,7 +2666,6 @@ void waitanswer()
     Serial.println("Timeout");
   }
 }
-
 
 void read_data_eeprom()// Чтение состояния счетчиков из памяти
 {
@@ -3341,24 +3348,222 @@ void test_power()
 }
 void menu_gaz()
 {
+	st_Power_gaz = 0;
+	myGLCD.clrScr();                                // Очистить экран CENTER
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (2, 2, 318, 25);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (2, 2, 318, 25);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.setBackColor(0, 0, 255);
+	myGLCD.print(txt_gaz, CENTER, 5);
 
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (2, 60, 318, 90);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (2, 60, 318, 90);
+
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (20, 110, 150, 150);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (20, 110, 150, 150);
+
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (170, 110, 300, 150);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (170, 110, 300, 150);
+
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (95, 170, 225, 210);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (95, 170, 225, 210);
+
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.setBackColor(0, 0, 255);
+	myGLCD.print(txt_On, 58, 122);
+	myGLCD.print(txt_Off, 200, 122);
+	myGLCD.print(txt_Exit, 120, 180);
+
+    info_power_gaz();
+
+	while(true)
+		{
+			if(myTouch.dataAvailable())
+			{
+				myTouch.read();
+				x=myTouch.getX();
+				y=myTouch.getY();
+	  
+				if ((y>=110) && (y<=150))           // 
+				  {
+					if ((x>=20) && (x<=150))        // ВКЛ
+					  {
+						  waitForIt(20, 110, 150, 150);
+						  radio_send(12);
+	                      delay(500);
+                          info_power_gaz();
+					  }
+					if ((x>=170) && (x<=300))      // ОТКЛ
+					  {
+						  waitForIt(170, 110, 300, 150);
+						  radio_send(13);
+	                      delay(500);
+						  info_power_gaz();
+					  }
+				 }
+				if ((y>=170) && (y<=210))           // 
+				  {
+					if ((x>=95) && (x<=225))      // ОТКЛ
+					  {
+						  waitForIt(95, 170, 225, 210);
+						  break;
+						//  return;
+					  }
+					}
+			}
+		}
 }
+
+
+void info_power_gaz()
+{
+	myGLCD.setBackColor(0, 0, 0);
+	myGLCD.setColor(0, 0, 0);
+	radio_send(14);                                       // Запросить состояние питания датчика газа
+	delay(500);
+	if(st_Power_gaz == 2 )                            // Питание включено
+	{
+		myGLCD.setBackColor(0, 0, 255);
+		myGLCD.setColor(255, 255, 255);
+		myGLCD.print(txt_gazOn, CENTER, 67);          // Завершить просмотр 
+	}
+	else if(st_Power_gaz == 1 )                        // Питание отключено
+	{
+		myGLCD.setBackColor(0, 0, 255);
+		myGLCD.setColor(255, 255, 255);
+		myGLCD.print(txt_gazOff, CENTER, 67);          // Завершить просмотр 
+	}
+	else
+	{                                                 // Данные не получены
+		myGLCD.setBackColor(0, 0, 255);
+		myGLCD.setColor(255, 255, 255);
+		myGLCD.print(txt_gazNo, CENTER, 67);          // Завершить просмотр 
+	}
+}
+void menu_Geiger()
+{
+	st_PowerGeiger = 0;
+	myGLCD.clrScr();                                // Очистить экран CENTER
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (2, 2, 318, 25);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (2, 2, 318, 25);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.setBackColor(0, 0, 255);
+	myGLCD.print(txt_geiger, CENTER, 5);
+
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (2, 60, 318, 90);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (2, 60, 318, 90);
+
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (20, 110, 150, 150);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (20, 110, 150, 150);
+
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (170, 110, 300, 150);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (170, 110, 300, 150);
+
+	myGLCD.setColor(0, 0, 255);
+	myGLCD.fillRoundRect (95, 170, 225, 210);
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (95, 170, 225, 210);
+
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.setBackColor(0, 0, 255);
+	myGLCD.print(txt_On, 58, 122);
+	myGLCD.print(txt_Off, 200, 122);
+	myGLCD.print(txt_Exit, 120, 180);
+
+    info_power_geiger();
+
+	while(true)
+		{
+			if(myTouch.dataAvailable())
+			{
+				myTouch.read();
+				x=myTouch.getX();
+				y=myTouch.getY();
+	  
+				if ((y>=110) && (y<=150))           // 
+				  {
+					if ((x>=20) && (x<=150))        // ВКЛ
+					  {
+						  waitForIt(20, 110, 150, 150);
+						  radio_send(15);
+	                      delay(500);
+                          info_power_geiger();
+					  }
+					if ((x>=170) && (x<=300))      // ОТКЛ
+					  {
+						  waitForIt(170, 110, 300, 150);
+						  radio_send(16);
+	                      delay(500);
+						  info_power_geiger();
+					  }
+				 }
+				if ((y>=170) && (y<=210))           // 
+				  {
+					if ((x>=95) && (x<=225))      // ОТКЛ
+					  {
+						  waitForIt(95, 170, 225, 210);
+						  break;
+						//  return;
+					  }
+					}
+			}
+		}
+}
+void info_power_geiger()
+{
+	myGLCD.setBackColor(0, 0, 0);
+	myGLCD.setColor(0, 0, 0);
+	radio_send(17);                                       // Запросить состояние питания датчика газа
+	delay(500);
+	if(st_PowerGeiger == 2 )                            // Питание включено
+	{
+		myGLCD.setBackColor(0, 0, 255);
+		myGLCD.setColor(255, 255, 255);
+		myGLCD.print(txt_geigerOn, CENTER, 67);          // Завершить просмотр 
+	}
+	else if(st_PowerGeiger == 1 )                        // Питание отключено
+	{
+		myGLCD.setBackColor(0, 0, 255);
+		myGLCD.setColor(255, 255, 255);
+		myGLCD.print(txt_geigerOff, CENTER, 67);          // Завершить просмотр 
+	}
+	else
+	{                                                 // Данные не получены
+		myGLCD.setBackColor(0, 0, 255);
+		myGLCD.setColor(255, 255, 255);
+		myGLCD.print(txt_gazNo, CENTER, 67);          // Завершить просмотр 
+	}
+}
+
+
+
 void radio_send(int command_rf)
 {
 	command = command_rf;
 	Mirf.setTADDR((byte *)&"fly10");
-	Mirf.send((byte *)&command);
-	// Мигнули 1 раз - команда отправлена
-	// digitalWrite(StatusLed, HIGH);
+	Mirf.send((byte *)&command);    // команда отправлена
 	delay(100);
-	//  digitalWrite(StatusLed, LOW);
-//	myGLCD.print("    ",210,40);
-	// Запомнили время отправки:
-	timestamp = millis();
-	// Запускаем профедуру ожидания ответа
-	waitanswer();
+	timestamp = millis();           // Запомнили время отправки:
+	waitanswer();                   // Запускаем профедуру ожидания ответа
 	if (myTouch.dataAvailable()) return;
-
 }
 
 
@@ -3414,12 +3619,12 @@ void setup()
 	  Mirf.setRADDR((byte*)ADDR);
 	  Mirf.payload = sizeof(unsigned long);
 	  Mirf.config();
-	  radio_send(12);
-	  delay(1500);
-	  Serial.println(st_Power_gaz);
-	  radio_send(14);
-	  delay(1500);
-	  Serial.println(st_Power_gaz);
+	  //radio_send(12);
+	  //delay(1500);
+	  //Serial.println(st_Power_gaz);
+	  //radio_send(14);
+	  //delay(1500);
+	  //Serial.println(st_Power_gaz);
 	  //radio_send(13);
 	  //delay(1500);
 	  //Serial.println(st_Power_gaz);
