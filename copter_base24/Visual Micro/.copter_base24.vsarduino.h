@@ -130,7 +130,6 @@ void drawHour(int h, int m);
 void printDate();
 void clearDate();
 void AnalogClock();
-void info_nomer_user();
 void time_flag_start();
 void test_power();
 void menu_gaz();

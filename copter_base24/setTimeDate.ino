@@ -484,7 +484,7 @@ void setClock()
             myGLCD.setFont(BigFont);
           }
         }
-        else if ((x>=234) && (x<=266))// èñïðàâèòü
+        else if ((x>=234) && (x<=266))// Ð¸ÑÐ¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ
         {
           buttonWait(234, 110);
           t_temp_year+=1;
@@ -557,7 +557,7 @@ void setClock()
             myGLCD.setFont(BigFont);
           }
         }
-        else if ((x>=234) && (x<=266))// èñïðàâèòü
+        else if ((x>=234) && (x<=266))// Ð¸ÑÐ¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ
         {
           buttonWait(234, 161);
           t_temp_year-=1;
@@ -621,5 +621,6 @@ void setClock()
   drawDisplay();
   printDate();
 }
+
 
 
