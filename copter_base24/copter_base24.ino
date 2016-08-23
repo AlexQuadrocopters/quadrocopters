@@ -2251,6 +2251,7 @@ void radiotraffic()
 			// Запрашиваем число милисекунд,
 			// прошедших с последней перезагрузки сервера:
 			Serial.println("Request millis()");
+
 			command = 1;
 			myGLCD.printNumI(command,226,40);
 			myGLCD.print("->",240,40);
@@ -2278,6 +2279,7 @@ void radiotraffic()
 			if(geiger_ready == true)
 			{
 				Serial.print("cpm = ");
+
 				command = 3;
 				myGLCD.printNumI(command,226,40);
 				myGLCD.print("->",240,40);
@@ -2288,6 +2290,7 @@ void radiotraffic()
 				waitanswer();                              // Запускаем процедуру ожидания ответа
 				if (myTouch.dataAvailable()) return;
 				Serial.print("uSv/h = ");
+
 				command = 4;
 				myGLCD.printNumI(command,226,40);
 				myGLCD.print("->",240,40);
@@ -2302,6 +2305,7 @@ void radiotraffic()
 				if (myTouch.dataAvailable()) return;
 			}
 			if (myTouch.dataAvailable()) return;
+
 			command = 5;
 			myGLCD.printNumI(command,226,40);
 			myGLCD.print("->",240,40);
