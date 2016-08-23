@@ -20,11 +20,12 @@
     <None Include="utils.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Visual Micro\.copter_base24.vsarduino.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
+    <ClCompile Include="cat.c">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="icon1.c">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
     <ClCompile Include="radioactive1_L.c">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
@@ -32,12 +33,6 @@
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="tux.c">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="cat.c">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="icon1.c">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>

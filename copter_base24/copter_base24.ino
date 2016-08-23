@@ -464,7 +464,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 
 						//	 bailout11: // Восстановить пункты меню
 
-						     radiotraffic(); // если верно - выполнить пункт меню
+							 radiotraffic(); // если верно - выполнить пункт меню
 							 myGLCD.clrScr();
 							 myButtons.drawButtons();
 							 print_up();
@@ -517,7 +517,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 //								myGLCD.clrScr();   // Очистить экран
 //								myGLCD.print(txt_pass_ok, RIGHT, 208); 
 //								delay (500);
-                          menu_Geiger(); // если верно - выполнить пункт меню
+						  menu_Geiger(); // если верно - выполнить пункт меню
 //							 }
 //						else  // Пароль не верный - сообщить и закончить
 //							 {
@@ -546,7 +546,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 //								myGLCD.clrScr();   // Очистить экран
 //								myGLCD.print(txt_pass_ok, RIGHT, 208); 
 //								delay (500);
-                            menu_gaz(); // если верно - выполнить пункт меню
+							menu_gaz(); // если верно - выполнить пункт меню
 //							 }
 //						else  // Пароль не верный - сообщить и закончить
 //							 {
@@ -2289,7 +2289,7 @@ void radiotraffic()
 				  Serial.print("cpm = ");
 				  command = 3;
 				  myGLCD.printNumI(command,226,40);
-			      myGLCD.print("->",240,40);
+				  myGLCD.print("->",240,40);
 				  Mirf.send((byte *)&command);
 				  delay(100);
 				 // digitalWrite(StatusLed, LOW);
@@ -2303,7 +2303,7 @@ void radiotraffic()
 				  Serial.print("uSv/h = ");
 				  command = 4;
 				  myGLCD.printNumI(command,226,40);
-			      myGLCD.print("->",240,40);
+				  myGLCD.print("->",240,40);
 				  Mirf.send((byte *)&command);
 				  delay(100);
 				 // digitalWrite(StatusLed, LOW);
@@ -2312,7 +2312,7 @@ void radiotraffic()
 				  timestamp = millis();
 				  // Запускаем профедуру ожидания ответа
 				  waitanswer();
-                  if (myTouch.dataAvailable()) return;
+				  if (myTouch.dataAvailable()) return;
 
 			  }
 			  if (myTouch.dataAvailable()) return;
@@ -2322,7 +2322,7 @@ void radiotraffic()
 			  myGLCD.print("->",240,40);
 			  Mirf.send((byte *)&command);
 			  delay(100);
-		      myGLCD.print("    ",210,40);
+			  myGLCD.print("    ",210,40);
 			  // Запомнили время отправки:
 			  timestamp = millis();
 			  // Запускаем профедуру ожидания ответа
@@ -2358,7 +2358,7 @@ void radiotraffic()
 			  myGLCD.print("->",240,40);
 			  Mirf.send((byte *)&command);
 			  delay(100);
-              myGLCD.print("    ",210,40);
+			  myGLCD.print("    ",210,40);
 			  // Запомнили время отправки:
 			  timestamp = millis();
 			  // Запускаем профедуру ожидания ответа
@@ -2460,26 +2460,26 @@ void waitanswer()
 	{
 		 myGLCD.print("      ",100,40);
 		 myGLCD.printNumI(millis() - timestamp, 100, 40);
-      // Мигнули 2 раза - ответ получен
-    /*  for (byte i = 0; i < 2; i++) 
+	  // Мигнули 2 раза - ответ получен
+	/*  for (byte i = 0; i < 2; i++) 
 	  {*/
 		 myGLCD.print("<-",280,40);
-       // digitalWrite(StatusLed, HIGH);
-        delay(200);
+	   // digitalWrite(StatusLed, HIGH);
+		delay(200);
 		myGLCD.print("  ",280,40);
-       // digitalWrite(StatusLed, LOW);
-      //}
-      timeout = false;
+	   // digitalWrite(StatusLed, LOW);
+	  //}
+	  timeout = false;
 
-      // Принимаем пакет данные в виде массива байт в переменную data:
-      Mirf.getData((byte *)&data);
-      // Выводим полученные данные в монитор серийного порта
-      //  Serial.print("Get data: ");
+	  // Принимаем пакет данные в виде массива байт в переменную data:
+	  Mirf.getData((byte *)&data);
+	  // Выводим полученные данные в монитор серийного порта
+	  //  Serial.print("Get data: ");
 
 	  switch (command)
 	  {
 		case 1:
-		    myGLCD.print("\x81""a""\x9C"" V =              ", LEFT,100);  //Газ V =              
+			myGLCD.print("\x81""a""\x9C"" V =              ", LEFT,100);  //Газ V =              
 			myGLCD.printNumI(data,120, 100);
 		  break;
 		case 2:
@@ -2493,30 +2493,30 @@ void waitanswer()
 			  }
 		  break;
 		case 3:
-		    Serial.println(data);
+			Serial.println(data);
 			myGLCD.print("cpm   =        ", LEFT,60);
 			myGLCD.printNumI(data, 120, 60);
 		  break;
 		case 4:
-		    data_f = data;
+			data_f = data;
 			data_f=data_f/10000;
 			Serial.println(data_f ,4);
 			myGLCD.print("uSv/h =        ", LEFT,80);
 			myGLCD.printNumF(data_f,4, 120, 80);
 		  break;
 		case 5:
-		 	myGLCD.print("Te""\xA1\xA3"".C=   ", LEFT,160);  //Темп.С =                                    
+			myGLCD.print("Te""\xA1\xA3"".C=   ", LEFT,160);  //Темп.С =                                    
 			myGLCD.printNumF(data*0.1,1, 120, 160);
 		  break;
 		case 6:
-		 	myGLCD.print("P   mmHq", 190,160);  //Давл.Ра =                                 
+			myGLCD.print("P   mmHq", 190,160);  //Давл.Ра =                                 
 			myGLCD.printNumI(data, 204, 160);
 		  break;
 		case 7:
-	        data_f = data;
+			data_f = data;
 			data_f=data_f/1000000;
 			 myGLCD.setFont(SmallFont);
-		 	myGLCD.print("LAT =          ", 5,180);  //Дист. =                                                                     
+			myGLCD.print("LAT =          ", 5,180);  //Дист. =                                                                     
 			myGLCD.printNumF(data_f,6, 50, 180);
 			 myGLCD.setFont(BigFont);
 		  break;
@@ -2524,24 +2524,24 @@ void waitanswer()
 			data_f = data;
 			data_f=data_f/1000000;
 			myGLCD.setFont(SmallFont);
-		   	myGLCD.print("LON =          ",140,180);  //Дист. =                                                                     
+			myGLCD.print("LON =          ",140,180);  //Дист. =                                                                     
 			myGLCD.printNumF(data_f,6, 190, 180);
 			myGLCD.setFont(BigFont);
 		  break;
 		case 9:
-		  	myGLCD.print("B""\xAB""co""\xA4""a=       ", LEFT,120);  //Высота =                              
+			myGLCD.print("B""\xAB""co""\xA4""a=       ", LEFT,120);  //Высота =                              
 			myGLCD.printNumI(data, 120, 120);
 		  break;
 		case 10:
-		 	myGLCD.print("\x82\x9D""c""\xA4"". =          ", LEFT,140);  //Дист. =                                                                     
+			myGLCD.print("\x82\x9D""c""\xA4"". =          ", LEFT,140);  //Дист. =                                                                     
 			myGLCD.printNumI(data, 120, 140);
 		  break;
 		 case 11:
-		 	myGLCD.setFont(SmallFont);
-		   	myGLCD.print("Sat =      ",5,195);  //Дист. =  
+			myGLCD.setFont(SmallFont);
+			myGLCD.print("Sat =      ",5,195);  //Дист. =  
 			if(data == 255)
 			{
-              myGLCD.printNumI(0, 50, 195);
+			  myGLCD.printNumI(0, 50, 195);
 			}
 			else
 			{
@@ -2550,7 +2550,7 @@ void waitanswer()
 			myGLCD.setFont(BigFont);
 		  break;
 		  case 12:
-           if(data == 1)
+		   if(data == 1)
 			   {
 				   st_Power_gaz = 1;
 			   }
@@ -2560,11 +2560,11 @@ void waitanswer()
 			   }
 		   else
 			   {
-				    st_Power_gaz = 0;
+					st_Power_gaz = 0;
 			   }
-            break;
+			break;
 		  case 13:
-            if(data == 1)
+			if(data == 1)
 			   {
 				   st_Power_gaz = 1;
 			   }
@@ -2576,7 +2576,7 @@ void waitanswer()
 			   {
 				   st_Power_gaz = 0;
 			   }
-            break;
+			break;
 		  case 14:
 		   if(data == 1)
 			   {
@@ -2593,9 +2593,9 @@ void waitanswer()
 				   st_Power_gaz = 0;
 				   Serial.println("No Power_gaz ");
 				}
-            break;
+			break;
 		  case 15:
-            if(data == 1)
+			if(data == 1)
 			   {
 				  st_PowerGeiger = 1;
 			   }
@@ -2605,9 +2605,9 @@ void waitanswer()
 			   }
 		   else
 			   {
-                   st_PowerGeiger = 0;
+				   st_PowerGeiger = 0;
 			   }
-            break;
+			break;
 		  case 16:
 		   if(data == 1)
 			  {
@@ -2621,7 +2621,7 @@ void waitanswer()
 			   {
 				   st_PowerGeiger = 0;
 			   }
-            break;
+			break;
 		  case 17:
 			
 			if(data == 1)  
@@ -2636,34 +2636,34 @@ void waitanswer()
 			   {
 				   st_PowerGeiger = 0;
 			   }
-            break;
+			break;
 		  case 18:
 
-            break;
+			break;
 		  case 19:
 			 DOM_LAT = data*1000000;
-            break;
+			break;
 		  case 20:
 			 DOM_LON = data*1000000;            
-            break;
+			break;
 		  case 21:
 
-            break;
-      }
+			break;
+	  }
 
-      data = 0;
-    }
+	  data = 0;
+	}
   }
   if (timeout) 
   {
-    // ответа не пришло
-    for (byte i = 0; i < 2; i++) 
+	// ответа не пришло
+	for (byte i = 0; i < 2; i++) 
 	{
-      myGLCD.print("X ",280,40);
-      delay(500);
-      myGLCD.print("  ",280,40);
-    }
-    Serial.println("Timeout");
+	  myGLCD.print("X ",280,40);
+	  delay(500);
+	  myGLCD.print("  ",280,40);
+	}
+	Serial.println("Timeout");
   }
 }
 
@@ -3318,7 +3318,7 @@ void test_power()
   currentTime = millis();                           // считываем время, прошедшее с момента запуска программы
   if(currentTime >= (loopTime + time_power))
   {                                                  // сравниваем текущий таймер с переменной loopTime + 1 секунда
-      loopTime = currentTime;                          // в loopTime записываем новое значение
+	  loopTime = currentTime;                          // в loopTime записываем новое значение
 	  myGLCD.setFont(SmallFont);
 	  myGLCD.setColor(0, 255, 0);
 	  int power = analogRead(A3);
@@ -3340,11 +3340,11 @@ void test_power()
 	  power = analogRead(A1);
 	  power50 = power*(5.0 / 1023.0*2);
 	  myGLCD.printNumF(power50,2, 280, 45); 
-      power = analogRead(A2);
+	  power = analogRead(A2);
 	  power33 = power*(5.0 / 1023.0);
 	  myGLCD.printNumF(power33,2, 280, 55); 
- 	  myGLCD.setFont(BigFont);
-    }
+	  myGLCD.setFont(BigFont);
+	}
 }
 void menu_gaz()
 {
@@ -3384,7 +3384,7 @@ void menu_gaz()
 	myGLCD.print(txt_Off, 200, 122);
 	myGLCD.print(txt_Exit, 120, 180);
 
-    info_power_gaz();
+	info_power_gaz();
 
 	while(true)
 		{
@@ -3400,14 +3400,14 @@ void menu_gaz()
 					  {
 						  waitForIt(20, 110, 150, 150);
 						  radio_send(12);
-	                      delay(500);
-                          info_power_gaz();
+						  delay(500);
+						  info_power_gaz();
 					  }
 					if ((x>=170) && (x<=300))      // ОТКЛ
 					  {
 						  waitForIt(170, 110, 300, 150);
 						  radio_send(13);
-	                      delay(500);
+						  delay(500);
 						  info_power_gaz();
 					  }
 				 }
@@ -3488,7 +3488,7 @@ void menu_Geiger()
 	myGLCD.print(txt_Off, 200, 122);
 	myGLCD.print(txt_Exit, 120, 180);
 
-    info_power_geiger();
+	info_power_geiger();
 
 	while(true)
 		{
@@ -3504,14 +3504,14 @@ void menu_Geiger()
 					  {
 						  waitForIt(20, 110, 150, 150);
 						  radio_send(15);
-	                      delay(500);
-                          info_power_geiger();
+						  delay(500);
+						  info_power_geiger();
 					  }
 					if ((x>=170) && (x<=300))      // ОТКЛ
 					  {
 						  waitForIt(170, 110, 300, 150);
 						  radio_send(16);
-	                      delay(500);
+						  delay(500);
 						  info_power_geiger();
 					  }
 				 }
@@ -3609,7 +3609,7 @@ void setup()
 		{
 		  Serial.println("initialization failed ReadWrite!");
 		}
-      Serial.println("initialization done.");
+	  Serial.println("initialization done.");
 	  // Настройка радиоканала
 	  Mirf.cePin = 8;
 	  Mirf.csnPin = 9;
@@ -3632,7 +3632,7 @@ void setup()
 	  //delay(1500);
 	  //Serial.println(st_Power_gaz);
 //	  ReadWriteSD();
-  	  myGLCD.clrScr();
+	  myGLCD.clrScr();
 
 }
 
