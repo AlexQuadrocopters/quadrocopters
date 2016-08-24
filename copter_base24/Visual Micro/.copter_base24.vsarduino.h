@@ -98,7 +98,6 @@ void DumpFileSD();
 void FilesSD();
 void setup_printDirectorySD();
 void printDirectory(File dir, int numTabs);
-void ReadWriteSD();
 void create_fileSD();
 void pass_test_start();
 void pass_test();

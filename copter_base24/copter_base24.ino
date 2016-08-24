@@ -1212,70 +1212,56 @@ void printDirectory(File dir, int numTabs)
     }
   */
 }
-void ReadWriteSD()
-{
-  //
-  // if (!SD.begin(53))
-  // {
-  //Serial.println("initialization failed ReadWrite!");
-  //return;
-  // }
-  // Serial.println("initialization done.");
-
-  // open the file. note that only one file can be open at a time,
-  // so you have to close this one before opening another.
-  myFile = SD.open("test.txt", FILE_WRITE);
-
-  // if the file opened okay, write to it:
-  if (myFile) {
-    Serial.print("Writing to test.txt...");
-    myFile.println("testing 1, 2, 3.");
-    // close the file:
-    myFile.close();
-    Serial.println("done.");
-  } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
-  }
-
-  // re-open the file for reading:
-  myFile = SD.open("test.txt");
-  if (myFile) {
-    Serial.println("test.txt:");
-
-    // read from the file until there's nothing else in it:
-    while (myFile.available()) {
-      Serial.write(myFile.read());
-    }
-    // close the file:
-    myFile.close();
-  } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
-  }
-
-}
+//void ReadWriteSD()
+//{
+//  //
+//  // if (!SD.begin(53))
+//  // {
+//  //Serial.println("initialization failed ReadWrite!");
+//  //return;
+//  // }
+//  // Serial.println("initialization done.");
+//
+//  // open the file. note that only one file can be open at a time,
+//  // so you have to close this one before opening another.
+//  myFile = SD.open("test.txt", FILE_WRITE);
+//
+//  // if the file opened okay, write to it:
+//  if (myFile) {
+//    Serial.print("Writing to test.txt...");
+//    myFile.println("testing 1, 2, 3.");
+//    // close the file:
+//    myFile.close();
+//    Serial.println("done.");
+//  } else {
+//    // if the file didn't open, print an error:
+//    Serial.println("error opening test.txt");
+//  }
+//
+//  // re-open the file for reading:
+//  myFile = SD.open("test.txt");
+//  if (myFile) {
+//    Serial.println("test.txt:");
+//
+//    // read from the file until there's nothing else in it:
+//    while (myFile.available()) {
+//      Serial.write(myFile.read());
+//    }
+//    // close the file:
+//    myFile.close();
+//  } else {
+//    // if the file didn't open, print an error:
+//    Serial.println("error opening test.txt");
+//  }
+//
+//}
 void create_fileSD()
 {
-  if (!SD.begin(53)) {
+  if (!SD.begin(53))
+  {
     Serial.println("initialization failed ReadWrite!");
     return;
   }
-  myFile = SD.open("elektro.txt", FILE_WRITE);
-  myFile.println("testing elektro.txt");
-  myFile.close();
-
-  myFile = SD.open("gaz.txt", FILE_WRITE);
-  myFile.println("testing gaz.txt");
-  myFile.close();
-
-  myFile = SD.open("colwater.txt", FILE_WRITE);
-  myFile.println("testing coldwater.txt");
-  myFile.close();
-
-  myFile = SD.open("hotwater.txt", FILE_WRITE);
-  myFile.println("testing hotwater.txt");
-  myFile.close();
 }
 
 void pass_test_start() // Начало проверки пароля
@@ -2489,7 +2475,7 @@ void exit_file_save()
 		{
 			waitForIt(2, 196, 318, 238);
 			save_file = !save_file;
-			if(save_file == true)                              // Записать данные в файл
+			if(save_file == true)                                // Записать данные в файл
 			{
 			  if(start_save_file == false)                      // Записать имя файла
 			   {
