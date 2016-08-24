@@ -111,6 +111,7 @@ void print_info();
 void print_up();
 void radiotraffic();
 void waitanswer();
+void exit_file_save();
 void read_data_eeprom();
 void format_memory();
 int bcd2bin(int temp);

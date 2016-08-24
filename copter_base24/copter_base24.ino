@@ -141,11 +141,15 @@ char stLast1[20] = "";             // Данные в введенной стр�
 int ret = 0;                       // Признак прерывания операции
 int lenStr = 0;                    // Длина строки
 
-int st_Power_gaz    = 0;           // Состояние источника питания датчика газа
-int st_PowerGeiger  = 0;           // Состояние источника питания датчика Гейгера
+int st_Power_gaz       = 0;        // Состояние источника питания датчика газа
+int st_PowerGeiger     = 0;        // Состояние источника питания датчика Гейгера
+bool stop_info         = false;    // Остановить прием информации
+bool save_file         = false;    // Записать данные в файл
+bool start_save_file   = false;    // Открыть файл для записи    
+bool stop_save_file    = false;    // Закрыть файл для записи  
 
-double DOM_LAT                       = 55.954994;
-double DOM_LON                       = 37.231121;
+double DOM_LAT         = 55.954994;
+double DOM_LON         = 37.231121;
 //----------------------------
 
 //Назначение переменных для хранения № опций меню (клавиш)
@@ -245,8 +249,10 @@ char  txt_elevation[]          = " ***** "; //
 char  txt_altitude[]           = " ***** "; //
 char  txt_data[]               = "\x82""a\xA4""a";                                                   // Data
 char  txt_pred[]               = "\x89pe\x99.";                                                      // Пред.
-char  txt_tek[]                = "Te\x9F.";                                                          // Тек.
-char  txt_summa[]              = "Pe\x9C.";                                                          // Рез.
+char  txt_file_save[]          = "\x85""a""\xA3\x9D""ca""\xA4\xAC"" ""\x97"" ""\xA5""a""\x9E\xA0";   // Записать в файл
+char  txt_file_stop[]          = "Oc""\xA4""a""\xA2""o""\x97\x9D\xA4\xAC"" ""\x9C""a""\xA3\x9D""c""\xAC"; // Остановить запись
+//char  txt_tek[]                = "Te\x9F.";                                                          // Тек.
+//char  txt_summa[]              = "Pe\x9C.";                                                          // Рез.
 char  txt_return[]             = "\x85""a\x97""ep\xA8\xA2\xA4\xAC \xA3poc\xA1o\xA4p";                // Завершить просмотр
 char  txt_info_count[]         = "\x86H\x8BO C\x8D""ET\x8D\x86KOB";                                  //
 char  txt_info_n_user[]        = "\x89""p""\x9D""e""\xA1"" ""\x9D\xA2\xA5""op""\xA1""a""\xA6\x9D\x9D"; // Прием информации
@@ -431,7 +437,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 
       if (pressed_button == but1 && m2 == 2)
       {
-        print_info();
+      //  print_info();
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -1884,8 +1890,8 @@ void print_info()                  // Вывод информации со сч�
   myGLCD.setBackColor(0, 0, 0);
   myGLCD.setColor(0, 255, 0);
   myGLCD.print(txt_pred, LEFT, y + 20);
-  myGLCD.print(txt_tek, CENTER, y + 20);
-  myGLCD.print(txt_summa , RIGHT, y + 20);
+//  myGLCD.print(txt_tek, CENTER, y + 20);
+//  myGLCD.print(txt_summa , RIGHT, y + 20);
 
   myGLCD.setColor(255, 127, 0);
   myGLCD.drawLine(1, y + 38, 319, y + 38);
@@ -1995,15 +2001,15 @@ void radiotraffic()
   myGLCD.print(txt_info_n_user, CENTER, 5);
 
   myGLCD.setColor(0, 0, 255);
-  myGLCD.fillRoundRect (2, 216, 318, 238);
+  myGLCD.fillRoundRect (2, 196, 318, 238);
   myGLCD.setColor(255, 255, 255);
-  myGLCD.drawRoundRect (2, 216, 318, 238);
+  myGLCD.drawRoundRect (2, 196, 318, 238);
   myGLCD.setBackColor(0, 0, 255);
   myGLCD.setColor(255, 255, 255);
   myGLCD.drawRoundRect (299, 59, 313, 73);                 // Индикатор питания счетчика Гейгера
   myGLCD.drawRoundRect (299, 99, 313, 113);                // Индикатор питания датчика газа
-  myGLCD.print(txt_return, CENTER, 218);                   // Завершить просмотр
-
+  myGLCD.print(txt_file_save, CENTER, 207);                // Записать в файл
+  stop_info = false;
 
   while (true)
   {
@@ -2011,9 +2017,7 @@ void radiotraffic()
     timeout = false;
     Mirf.setTADDR((byte *)&"fly10");                // Устанавливаем адрес передачи
     myGLCD.print("fly10", LEFT, 40);
-    // Запрашиваем число милисекунд,
-    // прошедших с последней перезагрузки сервера:
-    Serial.println("Request millis()");
+  //  Serial.println("Request millis()");            // Запрашиваем число милисекунд, прошедших с последней перезагрузки сервера:
 
     command = 1;
     myGLCD.printNumI(command, 226, 40);
@@ -2023,8 +2027,12 @@ void radiotraffic()
     myGLCD.print("    ", 210, 40);
     timestamp = millis();                          // Запомнили время отправки:
     waitanswer();                                  // Запускаем профедуру ожидания ответа
-    if (myTouch.dataAvailable()) return;
-
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+	{
+		stop_info = false;
+		return;
+	}
     command = 2;
     myGLCD.printNumI(command, 226, 40);
     myGLCD.print("->", 240, 40);
@@ -2048,7 +2056,12 @@ void radiotraffic()
       myGLCD.print("    ", 210, 40);
       timestamp = millis();                      // Запомнили время отправки:
       waitanswer();                              // Запускаем процедуру ожидания ответа
-      if (myTouch.dataAvailable()) return;
+      exit_file_save();                              // Проверка состояния кнопок
+	  if(stop_info == true)
+       {
+	   	 stop_info = false;
+		 return;
+	   }
       Serial.print("uSv/h = ");
 
       command = 4;
@@ -2056,16 +2069,24 @@ void radiotraffic()
       myGLCD.print("->", 240, 40);
       Mirf.send((byte *)&command);
       delay(100);
-      // digitalWrite(StatusLed, LOW);
       myGLCD.print("    ", 210, 40);
       // Запомнили время отправки:
       timestamp = millis();
       // Запускаем профедуру ожидания ответа
       waitanswer();
-      if (myTouch.dataAvailable()) return;
+      exit_file_save();                              // Проверка состояния кнопок
+	  if(stop_info == true)
+       {
+	   	 stop_info = false;
+		 return;
+	   }
     }
-    if (myTouch.dataAvailable()) return;
-
+    exit_file_save();                                // Проверка состояния кнопок
+	  if(stop_info == true)
+       {
+	   	 stop_info = false;
+		 return;
+	   }
     command = 5;
     myGLCD.printNumI(command, 226, 40);
     myGLCD.print("->", 240, 40);
@@ -2076,8 +2097,12 @@ void radiotraffic()
     timestamp = millis();
     // Запускаем профедуру ожидания ответа
     waitanswer();
-    if (myTouch.dataAvailable()) return;
-
+	exit_file_save();                                // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
     command = 6;
     myGLCD.printNumI(command, 226, 40);
     myGLCD.print("->", 240, 40);
@@ -2086,11 +2111,30 @@ void radiotraffic()
     myGLCD.print("    ", 210, 40);
     // Запомнили время отправки:
     timestamp = millis();
+    waitanswer();                                    // Запускаем профедуру ожидания ответа
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
+	command = 7;
+    myGLCD.printNumI(command, 226, 40);
+    myGLCD.print("->", 240, 40);
+    Mirf.send((byte *)&command);
+    delay(100);
+    myGLCD.print("    ", 210, 40);
+    // Запомнили время отправки:
+    timestamp = millis();                             
     // Запускаем профедуру ожидания ответа
-    waitanswer();
-    if (myTouch.dataAvailable()) return;
-
-    command = 7;
+    waitanswer();                                   // Запускаем профедуру ожидания ответа                                     
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
+	command = 8;
     myGLCD.printNumI(command, 226, 40);
     myGLCD.print("->", 240, 40);
     Mirf.send((byte *)&command);
@@ -2098,23 +2142,14 @@ void radiotraffic()
     myGLCD.print("    ", 210, 40);
     // Запомнили время отправки:
     timestamp = millis();
-    // Запускаем профедуру ожидания ответа
-    waitanswer();
-    if (myTouch.dataAvailable()) return;
-
-    command = 8;
-    myGLCD.printNumI(command, 226, 40);
-    myGLCD.print("->", 240, 40);
-    Mirf.send((byte *)&command);
-    delay(100);
-    myGLCD.print("    ", 210, 40);
-    // Запомнили время отправки:
-    timestamp = millis();
-    // Запускаем профедуру ожидания ответа
-    waitanswer();
-    if (myTouch.dataAvailable()) return;
-
-    command = 9;
+    waitanswer();                                   // Запускаем профедуру ожидания ответа 
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
+	command = 9;
     myGLCD.printNumI(command, 226, 40);
     myGLCD.print("->", 240, 40);
     Mirf.send((byte *)&command);
@@ -2122,7 +2157,12 @@ void radiotraffic()
     myGLCD.print("    ", 210, 40);
     timestamp = millis();                   // Запомнили время отправки:
     waitanswer();                           // Запускаем профедуру ожидания ответа
-    if (myTouch.dataAvailable()) return;
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
     command = 10;
     myGLCD.printNumI(command, 210, 40);
     myGLCD.print("->", 240, 40);
@@ -2131,7 +2171,12 @@ void radiotraffic()
     myGLCD.print("    ", 210, 40);
     timestamp = millis();                  // Запомнили время отправки:
     waitanswer();                          // Запускаем профедуру ожидания ответа
-    if (myTouch.dataAvailable()) return;
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
     command = 11;
     myGLCD.printNumI(command, 210, 40);
     myGLCD.print("->", 240, 40);
@@ -2140,8 +2185,12 @@ void radiotraffic()
     myGLCD.print("    ", 210, 40);
     timestamp = millis();                  // Запомнили время отправки:
     waitanswer();                          // Запускаем профедуру ожидания ответа
-    if (myTouch.dataAvailable()) return;
- 
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
 	command = 14;                          // Состояние питания датчика газа
 	st_Power_gaz = 0;
     myGLCD.printNumI(command, 210, 40);
@@ -2169,7 +2218,12 @@ void radiotraffic()
 	    myGLCD.fillRoundRect  (300, 100, 312, 112);   // Индикатор питания датчика газа
 		myGLCD.setColor(255, 255, 255);
 	}
-    if (myTouch.dataAvailable()) return;
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
 	command = 17;                          // Состояние питания датчика Гейгера
 	st_PowerGeiger = 0;
     myGLCD.printNumI(command, 210, 40);
@@ -2179,7 +2233,12 @@ void radiotraffic()
     myGLCD.print("    ", 210, 40);
     timestamp = millis();                  // Запомнили время отправки:
     waitanswer();                          // Запускаем профедуру ожидания ответа
-    if (myTouch.dataAvailable()) return;
+    exit_file_save();                              // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
 	if (st_PowerGeiger == 2 )                           // Питание включено
 	{
 		myGLCD.setColor(0, 255, 0);
@@ -2252,47 +2311,53 @@ void waitanswer()
           myGLCD.printNumF(data_f, 4, 120, 80);
           break;
         case 5:
-          myGLCD.print("Te""\xA1\xA3"".C=   ", LEFT, 160);                 //Темп.С =
-          myGLCD.printNumF(data * 0.1, 1, 120, 160);
+          myGLCD.print("Te""\xA1\xA3"".C=   ", LEFT, 120);                 //Темп.С =
+          myGLCD.printNumF(data * 0.1, 1, 120, 120);
           break;
         case 6:
-          myGLCD.print("P   mmHq", 190, 160);                              //Давл.Ра =
-          myGLCD.printNumI(data, 204, 160);
+          myGLCD.print("P   mmHq", 190, 120);                              //Давл.Ра =
+          myGLCD.printNumI(data, 204, 120);
           break;
         case 7:
           data_f = data;
           data_f = data_f / 1000000;
           myGLCD.setFont(SmallFont);
-          myGLCD.print("LAT =          ", 5, 180);                         //Дист. =
-          myGLCD.printNumF(data_f, 6, 50, 180);
+          myGLCD.print("LAT =           ", 5, 160);                         // 
+          myGLCD.printNumF(data_f, 6, 50, 160);
           myGLCD.setFont(BigFont);
           break;
         case 8:
           data_f = data;
           data_f = data_f / 1000000;
           myGLCD.setFont(SmallFont);
-          myGLCD.print("LON =          ", 140, 180);                       //Дист. =
-          myGLCD.printNumF(data_f, 6, 190, 180);
+          myGLCD.print("LON =           ", 140, 160);                       // 
+          myGLCD.printNumF(data_f, 6, 190, 160);
           myGLCD.setFont(BigFont);
           break;
         case 9:
-          myGLCD.print("B""\xAB""co""\xA4""a=       ", LEFT, 120);        //Высота =
-          myGLCD.printNumI(data, 120, 120);
+          myGLCD.setFont(SmallFont);
+          myGLCD.print("B""\xAB""co""\xA4""a =     ", 5, 143);              //Высота =
+		  data = 1000;
+          myGLCD.printNumI(data, 75, 143);
+		  myGLCD.setFont(BigFont);
           break;
         case 10:
-          myGLCD.print("\x82\x9D""c""\xA4"". =          ", LEFT, 140);    //Дист. =
-          myGLCD.printNumI(data, 120, 140);
+          myGLCD.setFont(SmallFont);
+          myGLCD.print("\x82\x9D""c""\xA4"". =     ", 140, 143);            //Дист. =
+		  data = 1000;
+          myGLCD.printNumI(data, 205, 143);
+		  myGLCD.setFont(BigFont);
           break;
         case 11:
-          myGLCD.setFont(SmallFont);
-          myGLCD.print("Sat =      ", 5, 195); //Дист. =
+		  myGLCD.setFont(SmallFont);
+          myGLCD.print("Sat =      ", 5, 175); //Дист. =
           if (data == 255)
           {
-            myGLCD.printNumI(0, 50, 195);
+            myGLCD.printNumI(0, 50, 175);
           }
           else
           {
-            myGLCD.printNumI(data, 50, 195);
+            myGLCD.printNumI(data, 50, 175);
           }
           myGLCD.setFont(BigFont);
           break;
@@ -2328,17 +2393,14 @@ void waitanswer()
           if (data == 1)
           {
             st_Power_gaz = 1;
-       //     Serial.println("Power_gaz OFF");
           }
           else if (data == 2)
           {
             st_Power_gaz = 2;
-        //    Serial.println("Power_gaz ON");
           }
           else
           {
             st_Power_gaz = 0;
-        //    Serial.println("No Power_gaz ");
           }
           break;
         case 15:
@@ -2406,6 +2468,60 @@ void waitanswer()
       myGLCD.print("  ", 280, 40);
     }
     Serial.println("Timeout");
+  }
+}
+
+void exit_file_save()
+{
+  if (myTouch.dataAvailable())
+  {
+	myTouch.read();
+	x = myTouch.getX();
+	y = myTouch.getY();	
+	if ((x >= 2) && (x <= 318))            //
+		{
+		if ((y >= 2) && (y <= 190))        // Выход
+		{
+			waitForIt(2, 2, 318, 190);
+			stop_info = true;                // Остановить прием информации
+		}
+		if ((y >= 196) && (y <= 238))      // ОТКЛ
+		{
+			waitForIt(2, 196, 318, 238);
+			save_file = !save_file;
+			if(save_file == true)                              // Записать данные в файл
+			{
+			  if(start_save_file == true)                      // Записать имя файла
+			   {
+				   start_save_file = false;
+				   stop_save_file = true;
+			   }
+				myGLCD.setColor(255, 0, 0);
+				myGLCD.fillRoundRect (3, 197, 317, 237);
+				myGLCD.setColor(255, 255, 255);
+				myGLCD.setBackColor(255, 0, 0);
+				myGLCD.print(txt_file_stop, CENTER, 207);      // Записать в файл
+				myGLCD.setBackColor(0, 0, 0);
+
+			}
+			else
+			{
+				myGLCD.setColor(0, 0, 255);
+				myGLCD.fillRoundRect (3, 197, 317, 237);
+				myGLCD.setColor(255, 255, 255);
+				myGLCD.setBackColor(0, 0, 255);
+				myGLCD.print(txt_file_save, CENTER, 207);      // Записать в файл
+				myGLCD.setBackColor(0, 0, 0);
+				if(	stop_save_file = true)                     // Закрыть файл  
+				{
+	               stop_save_file = false;
+
+
+				}
+
+			}
+		}
+	}
   }
 }
 
