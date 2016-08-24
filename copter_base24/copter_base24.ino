@@ -2491,10 +2491,15 @@ void exit_file_save()
 			save_file = !save_file;
 			if(save_file == true)                              // Записать данные в файл
 			{
-			  if(start_save_file == true)                      // Записать имя файла
+			  if(start_save_file == false)                      // Записать имя файла
 			   {
-				   start_save_file = false;
-				   stop_save_file = true;
+				   start_save_file = true;
+				   stop_save_file  = true;
+				   myGLCD.setBackColor(0, 0, 255);
+				   myGLCD.print("                  ", CENTER, 5);
+				   myGLCD.print("Save file", CENTER, 5);
+				   myGLCD.setBackColor(0, 0, 0);
+
 			   }
 				myGLCD.setColor(255, 0, 0);
 				myGLCD.fillRoundRect (3, 197, 317, 237);
@@ -2514,9 +2519,11 @@ void exit_file_save()
 				myGLCD.setBackColor(0, 0, 0);
 				if(	stop_save_file = true)                     // Закрыть файл  
 				{
-	               stop_save_file = false;
-
-
+	               stop_save_file  = false;
+				   start_save_file = false;
+				   myGLCD.setBackColor(0, 0, 255);
+				   myGLCD.print(txt_info_n_user, CENTER, 5);
+				   myGLCD.setBackColor(0, 0, 0);
 				}
 
 			}
