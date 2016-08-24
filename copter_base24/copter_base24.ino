@@ -10,6 +10,7 @@
 
 */
 
+
 #include <avr/pgmspace.h>
 #include <avr/io.h>
 #include "Wire.h"
@@ -22,7 +23,8 @@
 #include <OneWire.h>
 #include <RTClib.h>
 #include "I2Cdev.h"
-
+#include <SdFat.h>
+#include <SdFatUtil.h>
 #include <Mirf.h>
 #include <MirfHardwareSpiDriver.h>
 #include <nRF24L01.h>
@@ -60,12 +62,27 @@ char* str[] = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
 char* str_mon[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 char start[80], *end;
+//++++++++++++++++++++++ Работа с файлами +++++++++++++++++++++++++++++++++++++++
 
-// set up variables using the SD utility library functions:
-Sd2Card card;
+
 SdVolume volume;
-SdFile root;
+//SdFile root;
+#define chipSelect SS
+//#define chipSelect 49                                              // Настройка выбора SD
+SdFat sd;
 File myFile;
+SdFile file;
+Sd2Card card;
+uint32_t cardSizeBlocks;
+uint16_t cardCapacityMB;
+
+// cache for SD block
+cache_t cache;
+
+
+
+
+
 
 int  stCurrentLen_pass = 0;              // Длина вводимой строки
 char pass_user[20];                      // Строка с паролем пользователя
@@ -1093,10 +1110,10 @@ void InitializingSD()
   Serial.println(volumesize);
 
   Serial.println("\nFiles found on the card (name, date and size in bytes): ");
-  root.openRoot(volume);
+  file.openRoot(volume);
 
   // list all files in the card with date and size
-  root.ls(LS_R | LS_DATE | LS_SIZE);
+  file.ls(LS_R | LS_DATE | LS_SIZE);
 }
 // Примеры работы с SD
 void DumpFileSD()
@@ -3413,6 +3430,68 @@ void radio_send(int command_rf)
   waitanswer();                   // Запускаем профедуру ожидания ответа
   if (myTouch.dataAvailable()) return;
 }
+
+//void list_file()
+//{
+// while (file.openNext(sd.vwd(), O_READ))
+//  {
+//	file.printName(&Serial);
+//	Serial.write(' ');
+//	file.printModifyDateTime(&Serial);
+//	Serial.write(' ');
+//	file.printFileSize(&Serial);
+//	if (file.isDir()) {
+//	  // Indicate a directory.
+//	  Serial.write('/');
+//	}
+//	Serial.println();
+//	file.close();
+//  }
+//}
+//void load_list_files()
+//{
+//
+//	if (!sd.begin(chipSelect)) 
+//		{
+//			Serial.println("initialization SD failed!");
+//		}
+//	else
+//		{
+//	
+//		while (file.openNext(sd.vwd(), O_READ))
+//		  {
+//			file.printName(&Serial2);
+//			Serial2.println();
+//			file.printName(&Serial);
+//			Serial.println();
+//
+//			file.close();
+//		  } 
+//		   Serial2.flush();
+//		 }
+//		delay(100);
+//	//	Serial2.println("Files end");
+//	//	Serial.println("Files end");
+//  regBank.set(adr_control_command,0);
+//}
+//
+//void file_print_date()  //программа  записи даты в файл
+//{
+//	DateTime now = RTC.now();
+//	myFile.print(now.day(), DEC);
+//	myFile.print('/');
+//	myFile.print(now.month(), DEC);
+//	myFile.print('/');
+//	myFile.print(now.year(), DEC);//Serial display time
+//	myFile.print(' ');
+//	myFile.print(now.hour(), DEC);
+//	myFile.print(':');
+//	myFile.print(now.minute(), DEC);
+//	myFile.print(':');
+//	myFile.print(now.second(), DEC);
+//}
+
+
 
 void setup()
 {
