@@ -34,8 +34,7 @@ extern "C" {
 }
 
 //------------------------------------------------------------------------------------------------------
-const int chipSelect = 53;              //
-//#define  alarmInPin    44             // 44
+
 int deviceaddress =    0x50;
 unsigned int eeaddress = 0;
 
@@ -64,11 +63,11 @@ char* str_mon[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"
 char start[80], *end;
 //++++++++++++++++++++++ Работа с файлами +++++++++++++++++++++++++++++++++++++++
 
-
+//const int chipSelect = 53;              //
 //SdVolume volume;
 ////SdFile root;
-//#define chipSelect SS
-////#define chipSelect 49                                              // Настройка выбора SD
+#define chipSelect SS                     // Настройка выбора SD
+const uint8_t spiSpeed = SPI_HALF_SPEED;
 //SdFat sd;
 //File myFile;
 //SdFile file;
@@ -79,9 +78,13 @@ char start[80], *end;
 //// cache for SD block
 //cache_t cache;
 
+SdFile file;
+File root;
+SdFat sd;
+//SdBaseFile binFile;
+Sd2Card card;
 
-
-
+StdioStream csvStream;
 
 
 int  stCurrentLen_pass = 0;              // Длина вводимой строки
@@ -238,6 +241,7 @@ char  txt_info2[]              = "B""\x97""o""\x99"" ""\x99""a""\xA2\xA2\xAB""x"
 char  txt_info4[]              = "\x8A""c\xA4""a\xA2o\x97\x9F\x9D c\x9D""c\xA4""e\xA1\xAB";          //
 char  txt_info3[]              = "Hac\xA4po\x9E\x9F""a c\x9D""c\xA4""e\xA1\xAB";                     // Настройка системы
 char  txt_info5[]              = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF RADIO";                        //
+char  txt_info11[]             = "ESC->PUSH Display"; 
 char  txt_mount1[]             = "\x95\xA2\x97""ap\xAC";                                             // Январь
 char  txt_mount2[]             = "\x8B""e\x97""pa\xA0\xAC";                                          // Февраль
 char  txt_mount3[]             = "Map\xA4";                                                          // Март
@@ -2825,90 +2829,7 @@ void AnalogClock()
   }
 
 }
-//
-//void info_nomer_user()
-//{
-//  myGLCD.clrScr();   // Очистить экран CENTER
-//  myGLCD.setColor(0, 0, 255);
-//  myGLCD.fillRoundRect (2, 2, 318, 25);
-//  myGLCD.setColor(255, 255, 255);
-//  myGLCD.drawRoundRect (2, 2, 318, 25);
-//  myGLCD.setColor(255, 255, 255);
-//  myGLCD.setBackColor(0, 0, 255);
-//  myGLCD.print(txt_info_n_user, CENTER, 5);
-//
-//  stCurrentLen_user = i2c_eeprom_read_byte( deviceaddress, adr_n_user - 2); // Чтение номера пользователя
-//  if (stCurrentLen_user > 20)
-//  {
-//    stCurrentLen_user = 0;
-//  }
-//  for (int z = 0; z < stCurrentLen_user + 1; z++)
-//  {
-//    n_user[z] = 0;
-//  }
-//  for (int z = 0; z < stCurrentLen_user; z++)
-//  {
-//    n_user[z] = i2c_eeprom_read_byte( deviceaddress, adr_n_user + z);
-//  }
-//
-//  myGLCD.setBackColor(0, 0, 0);
-//  myGLCD.print(txt_info_n_user1, CENTER, 30);
-//  myGLCD.print(n_user, CENTER, 50);//
-//
-//  stCurrentLen_telef = i2c_eeprom_read_byte( deviceaddress, adr_n_telef - 2); // Чтение номера пользователя
-//  if (stCurrentLen_telef > 11)
-//  {
-//    stCurrentLen_telef = 0;
-//  }
-//
-//  for (int z = 0; z < stCurrentLen_telef + 1; z++)
-//  {
-//    n_telefon[z] = 0;
-//  }
-//
-//  for (int z = 0; z < stCurrentLen_telef; z++)
-//  {
-//    n_telefon[z] = i2c_eeprom_read_byte( deviceaddress, adr_n_telef + z);
-//  }
-//
-//  myGLCD.setBackColor(0, 0, 0);
-////  myGLCD.print(txt_info_n_telef, CENTER, 70);
-//  myGLCD.print(n_telefon, CENTER, 90);//
-//  myGLCD.setColor(255, 255, 255);
-//
-//  myGLCD.setColor(0, 0, 255);
-//  myGLCD.fillRoundRect (2, 216, 318, 238);
-//  myGLCD.setColor(255, 255, 255);
-//  myGLCD.drawRoundRect (2, 216, 318, 238);
-//  myGLCD.setBackColor(0, 0, 255);
-//  myGLCD.setColor(255, 255, 255);
-//  myGLCD.print(txt_return, CENTER, 218);// Завершить просмотр
-//
-//  while (true)
-//  {
-//    delay(10);
-//    myGLCD.setColor(255, 255, 255);//
-//    myGLCD.setBackColor(0, 0, 0);
-//    myGLCD.print("      ", CENTER, 120);//
-//
-//    if (myTouch.dataAvailable())
-//    {
-//      myTouch.read();
-//      x = myTouch.getX();
-//      y = myTouch.getY();
-//
-//      if ((y >= 2) && (y <= 240)) // Upper row
-//      {
-//        if ((x >= 2) && (x <= 319)) // Выход
-//        {
-//
-//          waitForIt(10, 10, 60, 60);
-//          return;
-//        }
-//      }
-//    }
-//  }
-//}
+
 void time_flag_start()
 {
   timeF = millis();
@@ -3164,56 +3085,81 @@ void radio_send(int command_rf)
   if (myTouch.dataAvailable()) return;
 }
 
+
+//+++++++++++++++++++++++++++++++ Работа с файлами +++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
 void setup()
 {
-  Serial.begin(9600);
-  Serial2.begin(9600);
-  Serial1.end();
-  myGLCD.InitLCD();
-  myGLCD.clrScr();
-  myGLCD.setFont(BigFont);
-  myTouch.InitTouch();
-  // myTouch.setPrecision(PREC_MEDIUM);
-  myTouch.setPrecision(PREC_HI);
-  myButtons.setTextFont(BigFont);
-  myButtons.setSymbolFont(Dingbats1_XL);
-  myGLCD.fillScr(255, 255, 255);
-  myGLCD.drawBitmap(60, 20, 100, 100, rvsn2, 2);
-  Wire.begin();
-  if (!RTC.begin())
-  {
-    Serial.println("RTC failed");
-    while (1);
-  };
-  // set date time callback function
-  SdFile::dateTimeCallback(dateTime);
-  // Запускает таймер и получает загружаемое значение таймера.
-  // timerLoadValue=SetupTimer2(44100);
-  // timerLoadValue=SetupTimer2(10100);
-  flag_time = 0;
-  format_memory();
-  myGLCD.setBackColor(0, 0, 255);
-  pinMode(53, OUTPUT);     // SD Card change this to 53 on a mega
-  pinMode(48, OUTPUT);
-  pinMode(49, OUTPUT);
-  digitalWrite(48, HIGH);
-  digitalWrite(49, HIGH);
+	Serial.begin(9600);
+	Serial2.begin(9600);
+	Serial1.end();
+	myGLCD.InitLCD();
+	myGLCD.clrScr();
+	myGLCD.setFont(BigFont);
+	myTouch.InitTouch();
+	// myTouch.setPrecision(PREC_MEDIUM);
+	myTouch.setPrecision(PREC_HI);
+	myButtons.setTextFont(BigFont);
+	myButtons.setSymbolFont(Dingbats1_XL);
+	myGLCD.fillScr(255, 255, 255);
+	myGLCD.drawBitmap(60, 20, 100, 100, rvsn2, 2);
+	Wire.begin();
+	if (!RTC.begin())
+	{
+	Serial.println("RTC failed");
+	while (1);
+	};
+	// Запускает таймер и получает загружаемое значение таймера.
+	// timerLoadValue=SetupTimer2(44100);
+	// timerLoadValue=SetupTimer2(10100);
+	flag_time = 0;
+	format_memory();
+	myGLCD.setBackColor(0, 0, 255);
+	pinMode(53, OUTPUT);     // SD Card change this to 53 on a mega
+	pinMode(48, OUTPUT);
+	pinMode(49, OUTPUT);
+	digitalWrite(48, HIGH);
+	digitalWrite(49, HIGH);
 
- 
-  //if (!SD.begin(53))
-  //{
-  //  Serial.println("initialization failed ReadWrite!");
-  //}
-  //Serial.println("initialization done.");
-  // Настройка радиоканала
-  Mirf.cePin = 8;
-  Mirf.csnPin = 9;
-  Mirf.spi = &MirfHardwareSpi;
-  Mirf.init();
+  //	if (!sd.begin(chipSelect, SPI_FULL_SPEED)) 
+	 // {
+		//sd.initErrorPrint();
+		//myGLCD.setBackColor(0, 0, 0);
+		//myGLCD.setColor(255, 100, 0);
+		//myGLCD.print("Can't access SD card",CENTER, 40);
+		//myGLCD.print("Do not reformat",CENTER, 70);
+		//myGLCD.print("SD card problem?",CENTER, 100);
+		//myGLCD.setColor(VGA_LIME);
+		//myGLCD.print(txt_info11,CENTER, 200);
+		//myGLCD.setColor(255, 255, 255);
+		//while (myTouch.dataAvailable()){}
+		//delay(50);
+		//while (!myTouch.dataAvailable()){}
+		//delay(50);
+		//myGLCD.clrScr();
+		//myGLCD.print("Run Setup", CENTER,120);
+	 // }
+	SdFile::dateTimeCallback(dateTime); 
+	//if (!SD.begin(53))
+	//{
+	//  Serial.println("initialization failed ReadWrite!");
+	//}
+	//Serial.println("initialization done.");
+	// Настройка радиоканала
+	Mirf.cePin = 8;
+	Mirf.csnPin = 9;
+	Mirf.spi = &MirfHardwareSpi;
+	Mirf.init();
 
-  Mirf.setRADDR((byte*)ADDR);
-  Mirf.payload = sizeof(unsigned long);
-  Mirf.config();
+	Mirf.setRADDR((byte*)ADDR);
+	Mirf.payload = sizeof(unsigned long);
+	Mirf.config();
   //radio_send(12);
   //delay(1500);
   //Serial.println(st_Power_gaz);
