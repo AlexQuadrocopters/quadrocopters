@@ -285,11 +285,9 @@ char  txt_info_n_user1[]       = "Ho\xA1""ep ""\xA3o\xA0\xAC\x9Co\x97""a""\xA4""
 //=====================================================================
 void dateTime(uint16_t* date, uint16_t* time)                                                 // Программа записи времени и даты файла
 {
-  DateTime now = RTC.now();
-  // return date using FAT_DATE macro to format fields
-  *date = FAT_DATE(now.year(), now.month(), now.day());
-  // return time using FAT_TIME macro to format fields
-  *time = FAT_TIME(now.hour(), now.minute(), now.second());
+	DateTime now = RTC.now();
+	*date        = FAT_DATE(now.year(), now.month(), now.day());
+	*time        = FAT_TIME(now.hour(), now.minute(), now.second());
 }
 void draw_Glav_Menu()
 {
@@ -2411,18 +2409,29 @@ int bcd2bin(int temp)//BCD  to decimal
 */
 void clock_read()
 {
-  Wire.beginTransmission(0x68);//Send the address of DS1307
-  Wire.write(0);//Sending address
-  Wire.endTransmission();//The end of the IIC communication
-  Wire.requestFrom(0x68, 7);//IIC communication is started, you can continue to access another address (address auto increase) and the number of visits
-  sec = bcd2bin(Wire.read());//read time
-  min = bcd2bin(Wire.read());
-  hour = bcd2bin(Wire.read());
-  dow = Wire.read();
-  date = bcd2bin(Wire.read());
-  mon = bcd2bin(Wire.read());
-  year = bcd2bin(Wire.read()) + 2000;
-  delay(10);
+	DateTime now = RTC.now();
+	dow          = now.dayOfWeek();
+	sec          = now.second();       //Initialization time
+	min          = now.minute();
+	hour         = now.hour();
+	date         = now.day();
+	mon          = now.month();
+	year         = now.year();
+
+
+
+  //Wire.beginTransmission(0x68);//Send the address of DS1307
+  //Wire.write(0);//Sending address
+  //Wire.endTransmission();//The end of the IIC communication
+  //Wire.requestFrom(0x68, 7);//IIC communication is started, you can continue to access another address (address auto increase) and the number of visits
+  //sec = bcd2bin(Wire.read());//read time
+  //min = bcd2bin(Wire.read());
+  //hour = bcd2bin(Wire.read());
+  //dow = Wire.read();
+  //date = bcd2bin(Wire.read());
+  //mon = bcd2bin(Wire.read());
+  //year = bcd2bin(Wire.read()) + 2000;
+  //delay(10);
   //  Wire.endTransmission();//The end of the IIC communication
 }
 void clock_print_serial()
@@ -3088,7 +3097,7 @@ void radio_send(int command_rf)
 
 //+++++++++++++++++++++++++++++++ Работа с файлами +++++++++++++++++++++++++++++++++++++
 
-
+//  DateTime now = RTC.now();
 
 
 
@@ -3115,9 +3124,7 @@ void setup()
 	Serial.println("RTC failed");
 	while (1);
 	};
-	// Запускает таймер и получает загружаемое значение таймера.
-	// timerLoadValue=SetupTimer2(44100);
-	// timerLoadValue=SetupTimer2(10100);
+
 	flag_time = 0;
 	format_memory();
 	myGLCD.setBackColor(0, 0, 255);
