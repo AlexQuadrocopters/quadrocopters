@@ -10,7 +10,6 @@
 
 */
 
-
 #include <avr/pgmspace.h>
 #include <avr/io.h>
 #include "Wire.h"
@@ -52,7 +51,6 @@ int flag_time = 0;
 // MsTimer2::TimerInterrupt
 
 RTC_DS1307 RTC;  // define the Real Time Clock object
-
 
 int clockCenterX = 119;
 int clockCenterY = 119;
@@ -2222,7 +2220,6 @@ void format_memory()
   }
 
 }
-
 
 int bcd2bin(int temp)//BCD  to decimal
 {
@@ -4414,4 +4411,3 @@ void loop()
   draw_Glav_Menu();
   swichMenu();
 }
-
