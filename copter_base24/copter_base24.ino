@@ -4152,18 +4152,18 @@ void clearFatDir(uint32_t bgn, uint32_t count)
 {
   clearCache(false);
   if (!card.writeStart(bgn, count)) {
-	sdError("Clear FAT/DIR writeStart failed");
+	//sdError("Clear FAT/DIR writeStart failed");
   }
   for (uint32_t i = 0; i < count; i++) {
 	if ((i & 0XFF) == 0) {
 	  cout << '.';
 	}
 	if (!card.writeData(cache.data)) {
-	  sdError("Clear FAT/DIR writeData failed");
+	 // sdError("Clear FAT/DIR writeData failed");
 	}
   }
   if (!card.writeStop()) {
-	sdError("Clear FAT/DIR writeStop failed");
+	//sdError("Clear FAT/DIR writeStop failed");
   }
   cout << endl;
 }
@@ -4589,10 +4589,9 @@ void volDmp()
   }
 }
 
-
 void FileOpen()
 {
-  Serial.println("FileOpen");
+ // Serial.println("FileOpen");
   int temp_file_name = 0;
   preob_num_str();
   while (sd.exists(fileName))
@@ -4611,8 +4610,6 @@ void FileOpen()
                                   // Флаг ошибки  открытия файла
     }
   }
-
-
   if (!myFile.open(fileName, O_CREAT | O_WRITE | O_EXCL)) //sdError("file.open");
   {
                                // Флаг ошибки  открытия файла
@@ -4620,8 +4617,7 @@ void FileOpen()
   else
   {
     Serial.print(fileName);
-    Serial.println(F("  Open Ok!"));
-    DateTime now = RTC.now();
+   // Serial.println(F("  Open Ok!"));
     myFile.print ("Start measure  ");
     file_print_date();
     myFile.println ("");
@@ -4642,90 +4638,16 @@ void FileClose()
   {
     Serial.println();
     Serial.print(fileName);
-    Serial.println("  Close  OK!.");
+    //Serial.println("  Close  OK!.");
   }
   else
   {
     Serial.println();
     Serial.print(fileName);
-    Serial.println(" doesn't exist.");
+    //Serial.println(" doesn't exist.");
   }
 }
 
-void file_name()
-{
-  preob_num_str();
-
-  while (sd.exists(fileName))
-  {
-    if (fileName[BASE_NAME_SIZE + 1] != '9')
-    {
-      fileName[BASE_NAME_SIZE + 1]++;
-    }
-    else if (fileName[BASE_NAME_SIZE] != '9')
-    {
-      fileName[BASE_NAME_SIZE + 1] = '0';
-      fileName[BASE_NAME_SIZE]++;
-    }
-    else
-    {
-      Serial.println("Can't create file name");
-      //	  sdError("Can't create file name");
-    }
-  }
-  if (!myFile.open(fileName, O_CREAT | O_WRITE | O_EXCL)) //sdError("file.open");
-  {
-  }
-  Serial.print(F("Logging to: "));
-  Serial.println(fileName);
-  myFile.close();
-  Serial.println("done.");
-}
-
-//void list_file()
-//{
-// while (file.openNext(sd.vwd(), O_READ))
-//  {
-//	file.printName(&Serial);
-//	Serial.write(' ');
-//	file.printModifyDateTime(&Serial);
-//	Serial.write(' ');
-//	file.printFileSize(&Serial);
-//	if (file.isDir()) {
-//	  // Indicate a directory.
-//	  Serial.write('/');
-//	}
-//	Serial.println();
-//	file.close();
-//  }
-//}
-//void load_list_files()
-//{
-//
-//	if (!sd.begin(chipSelect)) 
-//		{
-//			Serial.println("initialization SD failed!");
-//		}
-//	else
-//		{
-//	
-//		while (file.openNext(sd.vwd(), O_READ))
-//		  {
-//			file.printName(&Serial2);
-//			Serial2.println();
-//			file.printName(&Serial);
-//			Serial.println();
-//
-//			file.close();
-//		  } 
-//		   Serial2.flush();
-//		 }
-//		delay(100);
-//	//	Serial2.println("Files end");
-//	//	Serial.println("Files end");
-//  regBank.set(adr_control_command,0);
-//}
-//
 void file_print_date()  //программа  записи даты в файл
 {
 	DateTime now = RTC.now();
