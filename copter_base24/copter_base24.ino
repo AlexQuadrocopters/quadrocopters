@@ -2534,7 +2534,7 @@ void exit_file_save()
 				   myGLCD.print("                  ", CENTER, 5);
 				   myGLCD.print("Save file", CENTER, 5);
 				   myGLCD.setBackColor(0, 0, 0);
-
+				   FileOpen();
 			   }
 				myGLCD.setColor(255, 0, 0);
 				myGLCD.fillRoundRect (3, 197, 317, 237);
@@ -2559,8 +2559,8 @@ void exit_file_save()
 				   myGLCD.setBackColor(0, 0, 255);
 				   myGLCD.print(txt_info_n_user, CENTER, 5);
 				   myGLCD.setBackColor(0, 0, 0);
+				   FileClose();
 				}
-
 			}
 		}
 	}
@@ -3490,7 +3490,7 @@ void preob_num_str() // Программа формирования имени �
 
   sprintf(str1, "%s%s", str_year_file, str_mon_file);                        // Сложение 2 строк
   sprintf(str2, "%s%s", str1, str_day_file);                                 // Сложение 2 строк
-  sprintf(fileName, "%s%s", str2, "00.KAM");                                 // Получение имени файла в file_name
+  sprintf(fileName, "%s%s", str2, "00.TXT");                                 // Получение имени файла в file_name
 }
 #define sdError(msg) sdError_F(F(msg))
 
@@ -4589,6 +4589,98 @@ void volDmp()
   }
 }
 
+
+void FileOpen()
+{
+  Serial.println("FileOpen");
+  int temp_file_name = 0;
+  preob_num_str();
+  while (sd.exists(fileName))
+  {
+    if (fileName[BASE_NAME_SIZE + 1] != '9')
+    {
+      fileName[BASE_NAME_SIZE + 1]++;
+    }
+    else if (fileName[BASE_NAME_SIZE] != '9')
+    {
+      fileName[BASE_NAME_SIZE + 1] = '0';
+      fileName[BASE_NAME_SIZE]++;
+    }
+    else
+    {
+                                  // Флаг ошибки  открытия файла
+    }
+  }
+
+
+  if (!myFile.open(fileName, O_CREAT | O_WRITE | O_EXCL)) //sdError("file.open");
+  {
+                               // Флаг ошибки  открытия файла
+  }
+  else
+  {
+    Serial.print(fileName);
+    Serial.println(F("  Open Ok!"));
+    DateTime now = RTC.now();
+    myFile.print ("Start measure  ");
+    file_print_date();
+    myFile.println ("");
+    myFile.println ("");
+    Serial.println(fileName);
+  }
+}
+void FileClose()
+{
+  //Serial.println(fileName);
+  myFile.println ("");
+  myFile.print ("Stop measure  ");
+  file_print_date();
+  myFile.println ("");
+  myFile.close();
+
+  if (sd.exists(fileName))
+  {
+    Serial.println();
+    Serial.print(fileName);
+    Serial.println("  Close  OK!.");
+  }
+  else
+  {
+    Serial.println();
+    Serial.print(fileName);
+    Serial.println(" doesn't exist.");
+  }
+}
+
+void file_name()
+{
+  preob_num_str();
+
+  while (sd.exists(fileName))
+  {
+    if (fileName[BASE_NAME_SIZE + 1] != '9')
+    {
+      fileName[BASE_NAME_SIZE + 1]++;
+    }
+    else if (fileName[BASE_NAME_SIZE] != '9')
+    {
+      fileName[BASE_NAME_SIZE + 1] = '0';
+      fileName[BASE_NAME_SIZE]++;
+    }
+    else
+    {
+      Serial.println("Can't create file name");
+      //	  sdError("Can't create file name");
+    }
+  }
+  if (!myFile.open(fileName, O_CREAT | O_WRITE | O_EXCL)) //sdError("file.open");
+  {
+  }
+  Serial.print(F("Logging to: "));
+  Serial.println(fileName);
+  myFile.close();
+  Serial.println("done.");
+}
 
 //void list_file()
 //{

@@ -158,6 +158,9 @@ uint8_t cidDmp();
 uint8_t csdDmp();
 uint8_t partDmp();
 void volDmp();
+void FileOpen();
+void FileClose();
+void file_name();
 void file_print_date();
 //
 //
