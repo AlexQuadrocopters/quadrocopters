@@ -198,13 +198,13 @@ void setClock()
   myGLCD.setColor(255, 255, 255);
    clock_read();
 
-    t_temp_date=date;
-    t_temp_mon=mon;
+    t_temp_date=day;
+    t_temp_mon =month;
     t_temp_year=year;
-    t_temp_dow=dow;
+    t_temp_dow =dow;
     t_temp_hour=hour;
-    t_temp_min=min;
-    t_temp_sec=sec;
+    t_temp_min =min;
+    t_temp_sec =sec;
 
 
 //  t_temp = rtc.getTime();
