@@ -136,6 +136,7 @@ void sdError_F(const __FlashStringHelper* str);
 void Draw_menu_SD();
 void menu_SD();
 void printDirectory(File dir, int numTabs);
+void file_serial();
 void Draw_menu_formatSD();
 void menu_formatSD();
 void  SD_info();

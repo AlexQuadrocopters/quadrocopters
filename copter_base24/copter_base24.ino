@@ -3845,6 +3845,7 @@ void printDirectory(File dir, int numTabs)
 						{
 						  if ((y>= 60) && (y<=120))                            //  Выбор
 							{
+								file_serial();
 								waitForIt(150, 60, 300, 120);
 							//	myGLCD.clrScr();
 								myGLCD.clrScr();
@@ -3897,7 +3898,7 @@ void printDirectory(File dir, int numTabs)
 								count_string = 0;
 								myGLCD.setColor(0, 0, 0);
 								myGLCD.fillRoundRect (3, 3, 140, 185);
-
+								myGLCD.setFont( SmallFont);
 
 					        	for( icount = min_count_files+1; icount < max_count_files+1; icount++)  // Повторить вывод списка файлов
 								   {
@@ -3909,11 +3910,95 @@ void printDirectory(File dir, int numTabs)
 									   count_string +=15;
 									 //  Serial.println(list_files_tab[icount]);
 								   }
+								/*file_serial();*/
 							}
 						}
 				}
 	   }
 }
+void file_serial()
+{
+		// Программа чтения данных из файла и отображения на дисплее
+	int data;                    // Дата для сиволов
+	uint32_t step_file = 0;      // Не применяется
+	uint32_t  File_size;         // переменная хранения размера файла 
+
+	myGLCD.clrScr();
+	myGLCD.setColor(255, 255, 255);
+	myGLCD.drawRoundRect (2, 2, 318, 186);
+	myGLCD.setBackColor(0, 0, 0);
+
+	myFile = sd.open(list_files_tab[set_files]);                                                     // Открыть выбранный файл
+	File_size = myFile.fileSize();                                                                   // Получить размер файла 
+
+	myGLCD.setFont( SmallFont);
+	myGLCD.print("Pa\x9C\xA1""ep \xA5""a\x9E\xA0""a", 8, 138);                                     // "Размер файла"
+	myGLCD.print("\x89o\x9C. \x97 \xA5""a\x9E\xA0""e             ", 8, 153);                       // "Поз. в файле"
+	myGLCD.setFont(BigFont);
+	myGLCD.print("\x89""epe\x99""a\xA7""a \xA5""a\x9E\xA0""a", CENTER, 60);                        // "Передача файла"
+	myGLCD.print("\x97 COM \xA3op\xA4", CENTER, 80);                                               // "в СОМ порт"
+	myGLCD.printNumI(File_size, 105, 135);                                                         //  Отобразить размер файла
+	myGLCD.setColor(VGA_LIME);
+	myGLCD.print(txt_info11,CENTER, 200);
+	myGLCD.setColor(255,255,255);
+	if (!myFile.isOpen())                                                                            // Прверка на ошибку открытия файла
+		{
+			Serial.println(F("No current root file"));
+			myGLCD.print("No current file",CENTER, 100);
+			return;
+		}
+
+  //char line[25];
+  //int n;
+ 
+  //// read lines from the file
+  //while ((n = myFile.fgets(line, sizeof(line))) > 0) 
+  //{
+  //     cout << line;
+  // 
+  //}
+
+
+
+
+
+
+
+
+
+
+	myFile.rewind();       
+	
+ while (myFile.available())
+  {
+	//  delayMicroseconds(50);
+	
+    Serial.write(myFile.read());
+	Serial.flush();
+	//delayMicroseconds(50);
+
+  }
+  delay(100);
+
+
+
+
+	//while ((data = myFile.read()) >= 0 && !myTouch.dataAvailable())      
+	//{
+	//	Serial.write(data);
+	//	myGLCD.printNumI(step_file, 105, 150);  
+	//	//Serial.flush();
+	//	step_file = myFile.position();  
+	//	//myGLCD.printNumI(step_file, 105, 150);  
+	//}
+   if ((data = myFile.read()) >= 0)
+	   {
+		   while (!myTouch.dataAvailable()) {};  
+		   while (myTouch.dataAvailable()) {};
+       }
+   delay(500);
+ }
+
 void Draw_menu_formatSD()
 {
 	myGLCD.clrScr();
@@ -4666,11 +4751,9 @@ void file_print_date()  //программа  записи даты в файл
 	myFile.print(now.second(), DEC);
 }
 
-
-
 void setup()
 {
-	Serial.begin(9600);
+	Serial.begin(57600);
 	Serial2.begin(9600);
 	Serial1.end();
 	myGLCD.InitLCD();
@@ -4702,7 +4785,8 @@ void setup()
 	pinMode(49, OUTPUT);
 	digitalWrite(48, HIGH);
 	digitalWrite(49, HIGH);
-	if (!sd.begin(chipSelect, SPI_FULL_SPEED)) 
+   //if (!sd.begin(chipSelect, SPI_FULL_SPEED)) 
+	if (!sd.begin(chipSelect, SPI_HALF_SPEED)) 
 		{
 		sd.initErrorPrint();
 		myGLCD.clrScr();
