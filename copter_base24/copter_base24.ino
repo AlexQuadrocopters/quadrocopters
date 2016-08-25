@@ -92,10 +92,6 @@ const uint8_t spiSpeed = SPI_HALF_SPEED;
 #define FILE_BASE_NAME "160101"
 const uint8_t BASE_NAME_SIZE = sizeof(FILE_BASE_NAME) - 1;
 char fileName[13]            = FILE_BASE_NAME "00.TXT";
-char fileName_p[13];
-char fileName_F[13];
-//char fileNameSerial[1][13] = "";
-//------------------------------------------------------------------------------
 
 //*********************Работа с именем файла ******************************
 
@@ -111,8 +107,8 @@ char str_year_file[3];
 char str0[10];
 char str1[10];
 char str2[10];
-char list_files_tab[200][13];        // Структура = list_files_tab[номер файла в списке][имя файла]
-uint32_t size_files_tab[200] ;
+char list_files_tab[100][13];        // Структура = list_files_tab[номер файла в списке][имя файла]
+uint32_t size_files_tab[100] ;
 int set_files = 0;
 uint32_t const ERASE_SIZE = 262144L;
 #define sdErrorMsg(msg) sdErrorMsg_P(PSTR(msg));
@@ -157,13 +153,11 @@ int pass2 = 0;                            // Признак правильнос
 int pass3 = 0;                            // Признак правильности введенного пароля Супер Админ
 int eeprom_clear = 0;
 int adr_variant_sys          = 241;       //
-//unsigned int eeaddress1 = 0;
 
-byte hi;                                  // Старший байт для преобразования числа
-byte low;                                 // Младший байт для преобразования числа
+//byte hi;                                  // Старший байт для преобразования числа
+//byte low;                                 // Младший байт для преобразования числа
 
 char n_user[20];                          // Переменная хранения № пользователя
-char n_telefon[20];                       // Переменная хранения № пользователя
 char temp_stLast[20];                     // Переменная для временного хранения содержания строки= stLast
 
 unsigned long count_preobr_str = 0;       // Переменная для преобразования строк в число
@@ -213,10 +207,8 @@ char stCurrent1[20];               // Переменная хранения вв
 int stCurrentLen = 0;              // Переменная хранения длины введенной строки
 int stCurrentLen1 = 0;             // Переменная временного хранения длины введенной строки
 int stCurrentLen_user = 0;         // Переменная  хранения длины введенной строки пароля пользователя
-int stCurrentLen_telef = 0;        // Переменная  хранения длины введенной строки пароля пользователя
 int stCurrentLen_admin = 0;        // Переменная  хранения длины введенной строки пароля администратора
 char stLast[20] = "";              // Данные в введенной строке строке.
-char stLast1[20] = "";             // Данные в введенной строке строке.
 int ret = 0;                       // Признак прерывания операции
 int lenStr = 0;                    // Длина строки
 
@@ -274,8 +266,6 @@ char  txt_menu5_1[]            = "CKAH.PA""\x82\x86""O""\x93\x8B\x86""PA";      
 char  txt_menu5_2[]            = "B""\x91\x80""OP KAHA""\x88""A";                   // ВЫБОР КАНАЛА
 char  txt_menu5_3[]            = "B""\x91\x80""OP MO""\x8F""HOCT""\x86";            // ВЫБОР МОЩНОСТИ
 char  txt_menu5_4[]            = "PE""\x84\x86""M ""\x89""APO""\x88\x95";           // РЕЖИМ ПАРОЛЯ
-char  txt9[6]                  = "B\x97o\x99";                                      // Ввод
-char  txt10[8]                 = "O""\xA4\xA1""e""\xA2""a";                         // "Отмена"
 char  txt12[]                  = "B\x97""e\x99\x9D\xA4""e \xA3""apo\xA0\xAC!";      // "Введите пароль"
 char  txt_pass_ok[]            = "\xA3""apo\xA0\xAC OK!";                           // Пароль ОК!
 char  txt_pass_no[]            = "\xA3""apo\xA0\xAC NO!";                           // Пароль NO!
@@ -301,18 +291,6 @@ char  txt_info4[]              = "\x8A""c\xA4""a\xA2o\x97\x9F\x9D c\x9D""c\xA4""
 char  txt_info3[]              = "Hac\xA4po\x9E\x9F""a c\x9D""c\xA4""e\xA1\xAB";                     // Настройка системы
 char  txt_info5[]              = "\x86\xA2\xA5op\xA1""a""\xA6\x9D\xAF RADIO";                        //
 char  txt_info11[]             = "ESC->PUSH Display"; 
-char  txt_mount1[]             = "\x95\xA2\x97""ap\xAC";                                             // Январь
-char  txt_mount2[]             = "\x8B""e\x97""pa\xA0\xAC";                                          // Февраль
-char  txt_mount3[]             = "Map\xA4";                                                          // Март
-char  txt_mount4[]             = "A\xA3pe\xA0\xAC";                                                  // Апрель
-char  txt_mount5[]             = "Ma\x9E";                                                           // Май
-char  txt_mount6[]             = "\x86\xAE\xA2\xAC";                                                 // Июнь
-char  txt_mount7[]             = "\x86\xAE\xA0\xAC";                                                 // Июль
-char  txt_mount8[]             = "A\x97\x98yc\xA4";                                                  // Август
-char  txt_mount9[]             = "Ce\xA2\xA4\xAF\x96p\xAC";                                          // Сентябрь
-char  txt_mount10[]            = "O\x9F\xA4\xAF\x96p\xAC";                                           // Октябрь
-char  txt_mount11[]            = "Ho\xAF\x96p\xAC";                                                  // Ноябрь
-char  txt_mount12[]            = "\x82""e\x9F""a\x96p\xAC";                                          // Декабрь
 char  txt_radiacia[]           = " ***** "; //
 char  txt_gaz[]                = "\x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a";                   // Датчик газа
 char  txt_gazOn[]              = " \x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a BK""\x88"".";      // Датчик газа ВКЛ.
@@ -327,20 +305,13 @@ char  txt_geigerOff[]          = "\x82""a""\xA4\xA7\x9D\x9F"" ""\x81""e""\x9E\x9
 char  txt_pressure[]           = " ***** "; //
 char  txt_elevation[]          = " ***** "; //
 char  txt_altitude[]           = " ***** "; //
-char  txt_data[]               = "\x82""a\xA4""a";                                                   // Data
-char  txt_pred[]               = "\x89pe\x99.";                                                      // Пред.
 char  txt_file_save[]          = "\x85""a""\xA3\x9D""ca""\xA4\xAC"" ""\x97"" ""\xA5""a""\x9E\xA0";   // Записать в файл
 char  txt_file_stop[]          = "Oc""\xA4""a""\xA2""o""\x97\x9D\xA4\xAC"" ""\x9C""a""\xA3\x9D""c""\xAC"; // Остановить запись
-char  txt_return[]             = "\x85""a\x97""ep\xA8\xA2\xA4\xAC \xA3poc\xA1o\xA4p";                // Завершить просмотр
-char  txt_info_count[]         = "\x86H\x8BO C\x8D""ET\x8D\x86KOB";                                  //
 char  txt_info_n_user[]        = "\x89""p""\x9D""e""\xA1"" ""\x9D\xA2\xA5""op""\xA1""a""\xA6\x9D\x9D"; // Прием информации
-char  txt_info_n_user1[]       = "Ho\xA1""ep ""\xA3o\xA0\xAC\x9Co\x97""a""\xA4""e""\xA0\xAF";         // Номер пользователя
 char  txt_SD_menu1[]           = "\x89poc\xA1o\xA4p \xA5""a\x9E\xA0""a";                                                                 //
 char  txt_SD_menu2[]           = "\x86\xA2\xA5o SD";                                                                   //
 char  txt_SD_menu3[]           = "\x8Bop\xA1""a\xA4 SD";                                                                 //
 char  txt_SD_menu4[]           = "B\x91XO\x82";           
-
-
 
 
 
@@ -1831,167 +1802,6 @@ void set_pass_admin_start()
 }
 
 
-void print_info()                  // Вывод информации со счетчиков
-{
-  int x = 115;
-  int y = 15;
-  int i = x + 145;
-  int z = 16;
-
-  myGLCD.clrScr();   // Очистить экран CENTER
-
-  read_data_eeprom();
-
-  myGLCD.setColor(0, 0, 255);
-  myGLCD.fillRoundRect (2, 2, 318, 25);
-  myGLCD.setColor(255, 255, 255);
-  myGLCD.drawRoundRect (2, 2, 318, 25);
-  myGLCD.setBackColor(0, 0, 255);
-
-  clock_read();
-  myGLCD.setColor(255, 255, 255);
-  myGLCD.print(txt_data, CENTER, y - 10);
-
-
-  if (day < 10)
-  {
-    myGLCD.printNumI(day, x - 20, y - 10);
-  }
-  else
-  {
-    myGLCD.printNumI(day, x - 35, y - 10);
-  }
-
-
-  switch (month)
-  {
-    case 1:
-      myGLCD.print (txt_mount1, x, y - 10);
-      i = x + 5 + (6 * z);
-      break;
-    case 2:
-      myGLCD.print (txt_mount2, x, y - 10);
-      i = x + 5 + (7 * z);
-      break;
-    case 3:
-      myGLCD.print (txt_mount3, x, y - 10);
-      i = x + 5 + (5 * z);
-      break;
-    case 4:
-      myGLCD.print (txt_mount4, x, y - 10);
-      i = x + 5 + (6 * z);
-      break;
-    case 5:
-      myGLCD.print (txt_mount5, x, y - 10);
-      i = x + 5 + (3 * z);
-      break;
-    case 6:
-      myGLCD.print (txt_mount6, x, y - 10);
-      i = x + 5 + (4 * z);
-      break;
-    case 7:
-      myGLCD.print (txt_mount7, x, y - 10);
-      i = x + 5 + (4 * z);
-      break;
-    case 8:
-      myGLCD.print (txt_mount8, x, y - 10);
-      i = x + 5 + (6 * z);
-      break;
-    case 9:
-      myGLCD.print (txt_mount9, x, y - 10);
-      i = x + 5 + (8 * z);
-      break;
-    case 10:
-      myGLCD.print (txt_mount10, x, y - 10);
-      i = x + 5 + (7 * z);
-      break;
-    case 11:
-      myGLCD.print (txt_mount11, x, y - 10);
-      i = x + 5 + (6 * z);
-      break;
-    case 12:
-      myGLCD.print (txt_mount12, x, y - 10);
-      i = x + 5 + (7 * z);
-      break;
-  }
-  myGLCD.printNumI(year, i, y - 10);
-
-  myGLCD.setBackColor(0, 0, 0);
-  myGLCD.setColor(0, 255, 0);
-  myGLCD.print(txt_pred, LEFT, y + 20);
-//  myGLCD.print(txt_tek, CENTER, y + 20);
-//  myGLCD.print(txt_summa , RIGHT, y + 20);
-
-  myGLCD.setColor(255, 127, 0);
-  myGLCD.drawLine(1, y + 38, 319, y + 38);
-  myGLCD.setColor(255, 255, 0);
-  myGLCD.print(txt_radiacia, LEFT, y + 40);
-  myGLCD.setColor(255, 255, 255);
-  /*				myGLCD.printNumI(count_electro_old, LEFT, y+60);
-  				myGLCD.printNumI(count_electro_ok, CENTER, y+60);
-  				myGLCD.printNumI(count_electro_ok - count_electro_old , RIGHT, y+60);
-  */
-  myGLCD.setColor(255, 127, 0);
-  myGLCD.drawLine(1, y + 78, 319, y + 78);
-
-  myGLCD.setColor(150, 150, 255);
-  //	myGLCD.setColor(VGA_BLUE);
-  myGLCD.print(txt_gaz, LEFT, y + 80);
-  myGLCD.setColor(255, 255, 255);
-  /*			myGLCD.printNumI(count_gaz_old, LEFT, y+100);
-  			myGLCD.printNumI(count_gaz_ok, CENTER, y+100);
-  			myGLCD.printNumI(count_gaz_ok - count_gaz_old , RIGHT, y+100);*/
-
-  myGLCD.setColor(255, 127, 0);
-  myGLCD.drawLine(1, y + 118, 319, y + 118);
-
-  myGLCD.setColor(0, 255, 0);
-  myGLCD.print(txt_pressure, LEFT, y + 120);
-  myGLCD.setColor(255, 255, 255);
-  /*					myGLCD.printNumI(count_colwater_old, LEFT, y+140);
-  					myGLCD.printNumI(count_colwater_ok, CENTER, y+140);
-  					myGLCD.printNumI(count_colwater_ok - count_colwater_old , RIGHT, y+140);*/
-
-  myGLCD.setColor(255, 127, 0);
-  myGLCD.drawLine(1, y + 158, 319, y + 158);
-
-  //myGLCD.setColor(255, 0, 0);
-  myGLCD.setColor(VGA_RED);
-  myGLCD.print(txt_elevation, LEFT, y + 160);
-  myGLCD.setColor(255, 255, 255);
-  /*					myGLCD.printNumI(count_hotwater_old, LEFT, y+180);
-  					myGLCD.printNumI(count_hotwater_ok, CENTER, y+180);
-  					myGLCD.printNumI(count_hotwater_ok - count_hotwater_old , RIGHT, y+180);
-  */
-  myGLCD.setColor(0, 0, 255);
-  myGLCD.fillRoundRect (2, 216, 318, 238);
-  myGLCD.setColor(255, 255, 255);
-  myGLCD.drawRoundRect (2, 216, 318, 238);
-  myGLCD.setBackColor(0, 0, 255);
-  myGLCD.setColor(255, 255, 255);
-  myGLCD.print(txt_return, CENTER, 218);// Завершить просмотр
-
-  while (true)
-  {
-    all_alarm();
-    if (myTouch.dataAvailable())
-    {
-      myTouch.read();
-      x = myTouch.getX();
-      y = myTouch.getY();
-
-      if ((y >= 2) && (y <= 240)) // Upper row
-        //if ((y>=216) && (y<=240))  // Upper row
-      {
-        if ((x >= 2) && (x <= 319)) // Выход
-        {
-          waitForIt(10, 10, 60, 60);
-          return;
-        }
-      }
-    }
-  }
-}
 
 void print_up() // Печать верхней строчки над меню
 {
@@ -4753,7 +4563,7 @@ void file_print_date()  //программа  записи даты в файл
 
 void setup()
 {
-	Serial.begin(57600);
+	Serial.begin(115200);
 	Serial2.begin(9600);
 	Serial1.end();
 	myGLCD.InitLCD();

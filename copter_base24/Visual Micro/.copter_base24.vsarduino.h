@@ -100,7 +100,6 @@ void set_n_user_start();
 void set_n_telef();
 void set_pass_user_start();
 void set_pass_admin_start();
-void print_info();
 void print_up();
 void radiotraffic();
 void waitanswer();
