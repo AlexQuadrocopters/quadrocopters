@@ -812,7 +812,6 @@ bailout45:
 
 }
 
-
 void all_alarm()
 {
   time_flag_start();
@@ -2891,7 +2890,6 @@ void menu_gaz()
   }
 }
 
-
 void info_power_gaz()
 {
   myGLCD.setBackColor(0, 0, 0);
@@ -3148,7 +3146,6 @@ void menu_SD()
 			}
 		}
 }
-
 
 void printDirectory(File dir, int numTabs) 
 {
