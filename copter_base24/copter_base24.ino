@@ -19,7 +19,6 @@
 #include <UTFT_Buttons.h>
 #include <EEPROM.h>
 #include <SPI.h>
-//#include <SD.h>
 #include <OneWire.h>
 #include <RTClib.h>
 #include "I2Cdev.h"
@@ -95,6 +94,7 @@ const uint8_t BASE_NAME_SIZE = sizeof(FILE_BASE_NAME) - 1;
 char fileName[13]            = FILE_BASE_NAME "00.TXT";
 char fileName_p[13];
 char fileName_F[13];
+//char fileNameSerial[1][13] = "";
 //------------------------------------------------------------------------------
 
 //*********************Работа с именем файла ******************************
@@ -111,7 +111,7 @@ char str_year_file[3];
 char str0[10];
 char str1[10];
 char str2[10];
-char list_files_tab[200][13];
+char list_files_tab[200][13];        // Структура = list_files_tab[номер файла в списке][имя файла]
 uint32_t size_files_tab[200] ;
 int set_files = 0;
 uint32_t const ERASE_SIZE = 262144L;
@@ -344,12 +344,6 @@ char  txt_SD_menu4[]           = "B\x91XO\x82";
 
 
 
-
-
-//char  txt_info_n_telef[]       = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
-//char  txt_info_n_device[]      = "Ho\xA1""ep ""\xA4""e\xA0""e\xA5o\xA2""a";// Номер телефона
-//char  txt_info_n_device1[]     = "B\x97""e\x99\x9D\xA4""e N ""\xA4""e\xA0""e\xA5o\xA2""a";// Введите N телеф.
-//char  txt_info_n_device2[]     = "\x89o\x97\xA4op\x9D\xA4""e N ""\xA4""e\xA0""e\xA5o\xA2""a";// Повторите N телеф.
 //=====================================================================
 void dateTime(uint16_t* date, uint16_t* time)                                                 // Программа записи времени и даты файла
 {
@@ -3801,9 +3795,9 @@ void printDirectory(File dir, int numTabs)
 									y_fcount_stop = 11- ( (max_count_page1 * 12) - max_count_files1);
 								}
 							else
-							{
-								y_fcount_stop = 12;
-							}
+								{
+									y_fcount_stop = 12;
+								}
 
 							for(y_fcount_step = 0; y_fcount_step < y_fcount_stop; y_fcount_step++)
 								{
@@ -3817,6 +3811,11 @@ void printDirectory(File dir, int numTabs)
 											set_files = ((count_page-1) * 12)+y_fcount_step+1;
 											myGLCD.setColor(VGA_YELLOW);
 											myGLCD.print(list_files_tab[set_files],170, 30);     // номер файла в позиции "set_files"
+											  for(int i=0;i<13;i++)
+											  {
+												  fileName[i] = list_files_tab[set_files][i];
+											  }
+											Serial.println(fileName);           // Структура = list_files_tab[номер файла в списке][имя файла]
 
 											ext_files[0] = list_files_tab[set_files][9];         // Исключить просмотр BIN файлов
 											ext_files[1] = list_files_tab[set_files][10];
@@ -3847,7 +3846,7 @@ void printDirectory(File dir, int numTabs)
 						  if ((y>= 60) && (y<=120))                            //  Выбор
 							{
 								waitForIt(150, 60, 300, 120);
-								myGLCD.clrScr();
+							//	myGLCD.clrScr();
 								myGLCD.clrScr();
 								myGLCD.setFont( SmallFont);
 								myGLCD.setColor(0, 0, 255);
@@ -3898,7 +3897,9 @@ void printDirectory(File dir, int numTabs)
 								count_string = 0;
 								myGLCD.setColor(0, 0, 0);
 								myGLCD.fillRoundRect (3, 3, 140, 185);
-								for( icount = min_count_files+1; icount < max_count_files+1; icount++)
+
+
+					        	for( icount = min_count_files+1; icount < max_count_files+1; icount++)  // Повторить вывод списка файлов
 								   {
 									   myGLCD.setBackColor(0, 0, 0);
 									   myGLCD.setColor(255, 255, 255);
@@ -3906,6 +3907,7 @@ void printDirectory(File dir, int numTabs)
 									   myGLCD.printNumI(icount,7, count_string+5);
 									   myGLCD.print(list_files_tab[icount],35, count_string+5);
 									   count_string +=15;
+									 //  Serial.println(list_files_tab[icount]);
 								   }
 							}
 						}
