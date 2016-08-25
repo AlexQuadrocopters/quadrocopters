@@ -158,6 +158,7 @@ uint8_t cidDmp();
 uint8_t csdDmp();
 uint8_t partDmp();
 void volDmp();
+void file_print_date();
 //
 //
 void drawUpButton(int x, int y);

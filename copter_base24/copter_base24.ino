@@ -4634,21 +4634,21 @@ void volDmp()
 //  regBank.set(adr_control_command,0);
 //}
 //
-//void file_print_date()  //программа  записи даты в файл
-//{
-//	DateTime now = RTC.now();
-//	myFile.print(now.day(), DEC);
-//	myFile.print('/');
-//	myFile.print(now.month(), DEC);
-//	myFile.print('/');
-//	myFile.print(now.year(), DEC);//Serial display time
-//	myFile.print(' ');
-//	myFile.print(now.hour(), DEC);
-//	myFile.print(':');
-//	myFile.print(now.minute(), DEC);
-//	myFile.print(':');
-//	myFile.print(now.second(), DEC);
-//}
+void file_print_date()  //программа  записи даты в файл
+{
+	DateTime now = RTC.now();
+	myFile.print(now.day(), DEC);
+	myFile.print('/');
+	myFile.print(now.month(), DEC);
+	myFile.print('/');
+	myFile.print(now.year(), DEC);//Serial display time
+	myFile.print(' ');
+	myFile.print(now.hour(), DEC);
+	myFile.print(':');
+	myFile.print(now.minute(), DEC);
+	myFile.print(':');
+	myFile.print(now.second(), DEC);
+}
 
 
 
