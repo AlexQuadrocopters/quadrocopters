@@ -19,7 +19,7 @@
 #include <UTFT_Buttons.h>
 #include <EEPROM.h>
 #include <SPI.h>
-#include <SD.h>
+//#include <SD.h>
 #include <OneWire.h>
 #include <RTClib.h>
 #include "I2Cdev.h"
@@ -65,19 +65,19 @@ char start[80], *end;
 //++++++++++++++++++++++ Работа с файлами +++++++++++++++++++++++++++++++++++++++
 
 
-SdVolume volume;
-//SdFile root;
-#define chipSelect SS
-//#define chipSelect 49                                              // Настройка выбора SD
-SdFat sd;
-File myFile;
-SdFile file;
-Sd2Card card;
-uint32_t cardSizeBlocks;
-uint16_t cardCapacityMB;
-
-// cache for SD block
-cache_t cache;
+//SdVolume volume;
+////SdFile root;
+//#define chipSelect SS
+////#define chipSelect 49                                              // Настройка выбора SD
+//SdFat sd;
+//File myFile;
+//SdFile file;
+//Sd2Card card;
+//uint32_t cardSizeBlocks;
+//uint16_t cardCapacityMB;
+//
+//// cache for SD block
+//cache_t cache;
 
 
 
@@ -1053,233 +1053,6 @@ void waitForIt(int x1, int y1, int x2, int y2)
   myGLCD.drawRoundRect (x1, y1, x2, y2);
 }
 
-void InitializingSD()
-{
-  Serial.println("\nInitializing SD card...");
-  if (!card.init(SPI_HALF_SPEED, chipSelect))
-  {
-    Serial.println("initialization failed. Things to check:");
-    Serial.println("* is a card is inserted?");
-    Serial.println("* Is your wiring correct?");
-    Serial.println("* did you change the chipSelect pin to match your shield or module?");
-    return;
-  }
-  else
-  {
-    Serial.println("Wiring is correct and a card is present.");
-  }
-  Serial.print("\nCard type: ");
-  switch (card.type()) {
-    case SD_CARD_TYPE_SD1:
-      Serial.println("SD1");
-      break;
-    case SD_CARD_TYPE_SD2:
-      Serial.println("SD2");
-      break;
-    case SD_CARD_TYPE_SDHC:
-      Serial.println("SDHC");
-      break;
-    default:
-      Serial.println("Unknown");
-  }
-
-  // Now we will try to open the 'volume'/'partition' - it should be FAT16 or FAT32
-  if (!volume.init(card)) 
-  {
-    Serial.println("Could not find FAT16/FAT32 partition.\nMake sure you've formatted the card");
-    return;
-  }
-
-
-  // print the type and size of the first FAT-type volume
-  uint32_t volumesize;
-  Serial.print("\nVolume type is FAT");
-  Serial.println(volume.fatType(), DEC);
-  Serial.println();
-
-  volumesize = volume.blocksPerCluster();    // clusters are collections of blocks
-  volumesize *= volume.clusterCount();       // we'll have a lot of clusters
-  volumesize *= 512;                            // SD card blocks are always 512 bytes
-  Serial.print("Volume size (bytes): ");
-  Serial.println(volumesize);
-  Serial.print("Volume size (Kbytes): ");
-  volumesize /= 1024;
-  Serial.println(volumesize);
-  Serial.print("Volume size (Mbytes): ");
-  volumesize /= 1024;
-  Serial.println(volumesize);
-
-  Serial.println("\nFiles found on the card (name, date and size in bytes): ");
-  file.openRoot(volume);
-
-  // list all files in the card with date and size
-  file.ls(LS_R | LS_DATE | LS_SIZE);
-}
-// Примеры работы с SD
-void DumpFileSD()
-{
-  /*
-    // see if the card is present and can be initialized:
-    if (!SD.begin(chipSelect)) {
-    Serial.println("Card failed, or not present");
-    // don't do anything more:
-    return;
-    }
-    Serial.println("card initialized.");
-
-    // open the file. note that only one file can be open at a time,
-    // so you have to close this one before opening another.
-    File dataFile = SD.open("datalog.txt");
-
-    // if the file is available, write to it:
-    if (dataFile) {
-    while (dataFile.available()) {
-    Serial.write(dataFile.read());
-    }
-    dataFile.close();
-    }
-    // if the file isn't open, pop up an error:
-    else {
-    Serial.println("error opening datalog.txt");
-    }
-  */
-}
-void FilesSD()
-{
-  /*
-    if (!SD.begin(53)) {
-    Serial.println("initialization failed!");
-    return;
-    }
-    Serial.println("initialization done.");
-
-    if (SD.exists("example.txt")) {
-    Serial.println("example.txt exists.");
-    }
-    else {
-    Serial.println("example.txt doesn't exist.");
-    }
-
-    // open a new file and immediately close it:
-    Serial.println("Creating example.txt...");
-    myFile = SD.open("example.txt", FILE_WRITE);
-    myFile.close();
-
-    // Check to see if the file exists:
-    if (SD.exists("example.txt")) {
-    Serial.println("example.txt exists.");
-    }
-    else {
-    Serial.println("example.txt doesn't exist.");
-    }
-
-    // delete the file:
-    Serial.println("Removing example.txt...");
-    SD.remove("example.txt");
-
-    if (SD.exists("example.txt")){
-    Serial.println("example.txt exists.");
-    }
-    else {
-    Serial.println("example.txt doesn't exist.");
-    }
-  */
-}
-void setup_printDirectorySD()
-{
-  /*
-    if (!SD.begin(53)) {
-  	Serial.println("initialization failed!");
-  	return;
-    }
-    Serial.println("initialization done.");
-
-    // root = SD.open("/");
-
-    myFile = SD.open("/");
-
-    printDirectory(myFile, 0);
-
-    Serial.println("done!");
-  */
-}
-void printDirectory(File dir, int numTabs)
-{
-  /*
-    while(true) {
-
-    File entry =  dir.openNextFile();
-    if (! entry) {
-     // no more files
-     //Serial.println("**nomorefiles**");
-     break;
-    }
-    for (uint8_t i=0; i<numTabs; i++) {
-     Serial.print('\t');
-    }
-    Serial.print(entry.name());
-    if (entry.isDirectory()) {
-     Serial.println("/");
-     printDirectory(entry, numTabs+1);
-    } else {
-     // files have sizes, directories do not
-     Serial.print("\t\t");
-     Serial.println(entry.size(), DEC);
-    }
-    }
-  */
-}
-//void ReadWriteSD()
-//{
-//  //
-//  // if (!SD.begin(53))
-//  // {
-//  //Serial.println("initialization failed ReadWrite!");
-//  //return;
-//  // }
-//  // Serial.println("initialization done.");
-//
-//  // open the file. note that only one file can be open at a time,
-//  // so you have to close this one before opening another.
-//  myFile = SD.open("test.txt", FILE_WRITE);
-//
-//  // if the file opened okay, write to it:
-//  if (myFile) {
-//    Serial.print("Writing to test.txt...");
-//    myFile.println("testing 1, 2, 3.");
-//    // close the file:
-//    myFile.close();
-//    Serial.println("done.");
-//  } else {
-//    // if the file didn't open, print an error:
-//    Serial.println("error opening test.txt");
-//  }
-//
-//  // re-open the file for reading:
-//  myFile = SD.open("test.txt");
-//  if (myFile) {
-//    Serial.println("test.txt:");
-//
-//    // read from the file until there's nothing else in it:
-//    while (myFile.available()) {
-//      Serial.write(myFile.read());
-//    }
-//    // close the file:
-//    myFile.close();
-//  } else {
-//    // if the file didn't open, print an error:
-//    Serial.println("error opening test.txt");
-//  }
-//
-//}
-void create_fileSD()
-{
-  if (!SD.begin(53))
-  {
-    Serial.println("initialization failed ReadWrite!");
-    return;
-  }
-}
 
 void pass_test_start() // Начало проверки пароля
 {
@@ -1467,17 +1240,7 @@ void system_clear_start()
             }
 
           }
-          Serial.println("Removing elektro.txt...");
-          SD.remove("elektro.txt");
 
-          if (SD.exists("elektro.txt"))
-          {
-            Serial.println("elektro.txt exists.");
-          }
-          else
-          {
-            Serial.println("elektro.txt doesn't exist.");
-          }
           //	 n_str_electro = 0; // Устанавливаем № строки 1
           // разбираем
           //hi=highByte(n_str_electro);
@@ -1488,17 +1251,7 @@ void system_clear_start()
 
           // gaz.txt
 
-          Serial.println("Removing gaz.txt...");
-          SD.remove("gaz.txt");
 
-          if (SD.exists("gaz.txt"))
-          {
-            Serial.println("gaz.txt exists.");
-          }
-          else
-          {
-            Serial.println("gaz.txt doesn't exist.");
-          }
 
           //   n_str_gaz = 0; // Устанавливаем № строки 1
           //  // разбираем
@@ -1509,17 +1262,7 @@ void system_clear_start()
           //i2c_eeprom_write_byte(deviceaddress,adr_n_str_gaz+1, low);
 
           // colwater.txt
-          Serial.println("Removing colwater.txt...");
-          SD.remove("colwater.txt");
 
-          if (SD.exists("colwater.txt"))
-          {
-            Serial.println("colwater.txt exists.");
-          }
-          else
-          {
-            Serial.println("colwater.txt doesn't exist.");
-          }
 
           //   n_str_colwater = 0; // Устанавливаем № строки 1
           //  // разбираем
@@ -1531,17 +1274,7 @@ void system_clear_start()
 
 
           // hotwater.txt
-          Serial.println("Removing hotwater.txt...");
-          SD.remove("hotwater.txt");
-
-          if (SD.exists("hotwater.txt"))
-          {
-            Serial.println("hotwater.txt exists.");
-          }
-          else
-          {
-            Serial.println("hotwater.txt doesn't exist.");
-          }
+ 
 
           //   n_str_hotwater = 0; // Устанавливаем № строки 1
           //  // разбираем
@@ -3431,68 +3164,6 @@ void radio_send(int command_rf)
   if (myTouch.dataAvailable()) return;
 }
 
-//void list_file()
-//{
-// while (file.openNext(sd.vwd(), O_READ))
-//  {
-//	file.printName(&Serial);
-//	Serial.write(' ');
-//	file.printModifyDateTime(&Serial);
-//	Serial.write(' ');
-//	file.printFileSize(&Serial);
-//	if (file.isDir()) {
-//	  // Indicate a directory.
-//	  Serial.write('/');
-//	}
-//	Serial.println();
-//	file.close();
-//  }
-//}
-//void load_list_files()
-//{
-//
-//	if (!sd.begin(chipSelect)) 
-//		{
-//			Serial.println("initialization SD failed!");
-//		}
-//	else
-//		{
-//	
-//		while (file.openNext(sd.vwd(), O_READ))
-//		  {
-//			file.printName(&Serial2);
-//			Serial2.println();
-//			file.printName(&Serial);
-//			Serial.println();
-//
-//			file.close();
-//		  } 
-//		   Serial2.flush();
-//		 }
-//		delay(100);
-//	//	Serial2.println("Files end");
-//	//	Serial.println("Files end");
-//  regBank.set(adr_control_command,0);
-//}
-//
-//void file_print_date()  //программа  записи даты в файл
-//{
-//	DateTime now = RTC.now();
-//	myFile.print(now.day(), DEC);
-//	myFile.print('/');
-//	myFile.print(now.month(), DEC);
-//	myFile.print('/');
-//	myFile.print(now.year(), DEC);//Serial display time
-//	myFile.print(' ');
-//	myFile.print(now.hour(), DEC);
-//	myFile.print(':');
-//	myFile.print(now.minute(), DEC);
-//	myFile.print(':');
-//	myFile.print(now.second(), DEC);
-//}
-
-
-
 void setup()
 {
   Serial.begin(9600);
@@ -3528,13 +3199,12 @@ void setup()
   digitalWrite(48, HIGH);
   digitalWrite(49, HIGH);
 
-  InitializingSD();
-
-  if (!SD.begin(53))
-  {
-    Serial.println("initialization failed ReadWrite!");
-  }
-  Serial.println("initialization done.");
+ 
+  //if (!SD.begin(53))
+  //{
+  //  Serial.println("initialization failed ReadWrite!");
+  //}
+  //Serial.println("initialization done.");
   // Настройка радиоканала
   Mirf.cePin = 8;
   Mirf.csnPin = 9;
