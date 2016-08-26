@@ -231,8 +231,8 @@ int f_course              = 0;               // Направление на об
 int speed_kmph            = 0;               // Скорость движения
 float fact_LAT            = 1.0;             // Координата фактическая
 float fact_LON            = 1.0;             // Координата фактическая
-double DOM_LAT            = 55.954994;       // Координата домашняя
-double DOM_LON            = 37.231121;       // Координата домашняя
+float DOM_LAT             = 55.954994;       // Координата домашняя
+float DOM_LON             = 37.231121;       // Координата домашняя
 float data_f              = 0;
 int gound_m               = 218;             // Высота местности над уровнем моря
 int satellites            = 0;               // Количество спутников
@@ -1643,14 +1643,14 @@ void radiotraffic()
     Mirf.setTADDR((byte *)&"fly10");                // Устанавливаем адрес передачи
     myGLCD.print("fly10", LEFT, 40);
   //  Serial.println("Request millis()");            // Запрашиваем число милисекунд, прошедших с последней перезагрузки сервера:
-
-    command = 1;
-    myGLCD.printNumI(command, 226, 40);
-    myGLCD.print("->", 240, 40);
-    Mirf.send((byte *)&command);
-    delay(100);
-    myGLCD.print("    ", 210, 40);
-    timestamp = millis();                          // Запомнили время отправки:
+	send_command(1);
+    //command = 1;
+    //myGLCD.printNumI(command, 226, 40);
+    //myGLCD.print("->", 240, 40);
+    //Mirf.send((byte *)&command);
+    //delay(100);
+    //myGLCD.print("    ", 210, 40);
+    //timestamp = millis();                          // Запомнили время отправки:
     waitanswer();                                  // Запускаем профедуру ожидания ответа
     exit_file_save();                              // Проверка состояния кнопок
 	if(stop_info == true)
@@ -1658,28 +1658,29 @@ void radiotraffic()
 		stop_info = false;
 		return;
 	}
-    command = 2;
-    myGLCD.printNumI(command, 226, 40);
-    myGLCD.print("->", 240, 40);
-    Mirf.send((byte *)&command);
-    delay(100);
-    myGLCD.print("    ", 210, 40);
-    // Запомнили время отправки:
-    timestamp = millis();
+	send_command(2);
+    //command = 2;
+    //myGLCD.printNumI(command, 226, 40);
+    //myGLCD.print("->", 240, 40);
+    //Mirf.send((byte *)&command);
+    //delay(100);
+    //myGLCD.print("    ", 210, 40);
+    //// Запомнили время отправки:
+    //timestamp = millis();
     // Запускаем профедуру ожидания ответа
     waitanswer();
 
     if (geiger_ready == true)
     {
-      Serial.print("cpm = ");
-
-      command = 3;
-      myGLCD.printNumI(command, 226, 40);
-      myGLCD.print("->", 240, 40);
-      Mirf.send((byte *)&command);
-      delay(100);
-      myGLCD.print("    ", 210, 40);
-      timestamp = millis();                      // Запомнили время отправки:
+    Serial.print("cpm = ");
+	send_command(3);
+      //command = 3;
+      //myGLCD.printNumI(command, 226, 40);
+      //myGLCD.print("->", 240, 40);
+      //Mirf.send((byte *)&command);
+      //delay(100);
+      //myGLCD.print("    ", 210, 40);
+      //timestamp = millis();                      // Запомнили время отправки:
       waitanswer();                              // Запускаем процедуру ожидания ответа
       exit_file_save();                              // Проверка состояния кнопок
 	  if(stop_info == true)
@@ -1688,16 +1689,16 @@ void radiotraffic()
 		 return;
 	   }
       Serial.print("uSv/h = ");
-
-      command = 4;
-      myGLCD.printNumI(command, 226, 40);
-      myGLCD.print("->", 240, 40);
-      Mirf.send((byte *)&command);
-      delay(100);
-      myGLCD.print("    ", 210, 40);
-      // Запомнили время отправки:
-      timestamp = millis();
-      // Запускаем профедуру ожидания ответа
+	  send_command(4);
+      //command = 4;
+      //myGLCD.printNumI(command, 226, 40);
+      //myGLCD.print("->", 240, 40);
+      //Mirf.send((byte *)&command);
+      //delay(100);
+      //myGLCD.print("    ", 210, 40);
+      //// Запомнили время отправки:
+      //timestamp = millis();
+      //// Запускаем профедуру ожидания ответа
       waitanswer();
       exit_file_save();                              // Проверка состояния кнопок
 	  if(stop_info == true)
@@ -1882,6 +1883,28 @@ void radiotraffic()
 	    myGLCD.fillRoundRect  (300, 60, 312, 72);     // Индикатор питания счетчика Гейгера
 		myGLCD.setColor(255, 255, 255);
 	}
+
+	command = 22;
+    myGLCD.printNumI(command, 226, 40);
+    myGLCD.print("->", 240, 40);
+    Mirf.send((byte *)&command);
+    delay(100);
+    myGLCD.print("    ", 210, 40);
+    // Запомнили время отправки:
+    timestamp = millis();
+    // Запускаем профедуру ожидания ответа
+    waitanswer();
+	exit_file_save();                                // Проверка состояния кнопок
+	if(stop_info == true)
+    {
+	   	stop_info = false;
+		return;
+	}
+
+
+
+
+
 
     delay(10);
   }
@@ -2079,6 +2102,24 @@ void waitanswer()
         case 20:
           DOM_LON = data * 1000000;
           break;
+
+		case 21:
+		  break;
+		case 22:
+		  f_altitude = data;
+		  myGLCD.setFont(SmallFont);
+          myGLCD.print("Alt =      ", 170, 175);                              // Количество спутников
+		  myGLCD.printNumI(f_altitude, 240, 175);
+		  myGLCD.setFont(BigFont);
+		  break;
+		case 23:
+		  break;
+		case 24:
+		  break;
+
+
+
+
       }
       data = 0;
     }
@@ -2095,6 +2136,17 @@ void waitanswer()
     }
     Serial.println("Timeout");
   }
+}
+void send_command(int _command)
+{
+    command = _command;
+    myGLCD.printNumI(command, 226, 40);
+    myGLCD.print("->", 240, 40);
+    Mirf.send((byte *)&command);
+    delay(100);
+    myGLCD.print("    ", 210, 40);
+    timestamp = millis();                          // Запомнили время отправки:
+  //  waitanswer();                                  // Запускаем профедуру ожидания ответа
 }
 
 void exit_file_save()

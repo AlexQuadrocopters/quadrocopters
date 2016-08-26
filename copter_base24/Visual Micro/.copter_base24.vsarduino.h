@@ -103,6 +103,7 @@ void set_pass_admin_start();
 void print_up();
 void radiotraffic();
 void waitanswer();
+void send_command(int _command);
 void exit_file_save();
 void read_data_eeprom();
 void format_memory();

@@ -107,8 +107,8 @@ unsigned short sentences             = 0, failed = 0;
 static const double LONDON_LAT       = 51.508131, LONDON_LON = -0.128002;
 
 
-double DOM_LAT                       = 55.954994;
-double DOM_LON                       = 37.231121;
+float DOM_LAT                        = 55.954994;
+float DOM_LON                        = 37.231121;
 int gps_satellites                   = 0;
 float gps_lat                        = 0;
 float gps_lon                        = 0;
@@ -466,7 +466,7 @@ void run_nRF24L01()
 	case 18:                                   // Зафиксировать местные координаты
 		DOM_LAT = flat;
 		DOM_LON = flon;
-		data=1;
+		data = 1;
 		break;
 	case 19:                                   // Передать местные координаты DOM_LAT
 		data = DOM_LAT*1000000;
