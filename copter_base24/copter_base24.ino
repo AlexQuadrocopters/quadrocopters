@@ -217,8 +217,25 @@ bool save_file         = false;    // Записать данные в файл
 bool start_save_file   = false;    // Открыть файл для записи    
 bool stop_save_file    = false;    // Закрыть файл для записи  
 
-double DOM_LAT         = 55.954994;
-double DOM_LON         = 37.231121;
+// ++++++++++++++++++  Переменные измерений +++++++++++++++++++++++++++++++++
+unsigned long count_strok = 0;               // Счетчик строк в файле
+int cpm                   = 0;               // Счетчик Гейгера               
+int uSv_h                 = 0;               // Счетчик Гейгера 
+int temp_C                = 0;               // Температура С 
+int gaz_measure           = 0;               // Величина измеренной загазованности
+int gaz_porog             = 0;               // Уровень порога газа
+int P_mmHq                = 0;               // Давление
+int dist                  = 0;               // Дистанция
+int altitudeP             = 0;               // Высота по давлению
+int altitudeSat           = 0;               // Высота по GPS
+int altitudeDom           = 0;               // Высота местности
+int gradus                = 0;               // Направление на объект
+int speed_SAT             = 0;               // Скорость движения
+double fact_LAT           = 1.0;             // Координата фактическая
+double fact_LON           = 1.0;             // Координата фактическая
+double DOM_LAT            = 55.954994;       // Координата домашняя
+double DOM_LON            = 37.231121;       // Координата домашняя
+
 //----------------------------
 
 //Назначение переменных для хранения № опций меню (клавиш)
@@ -1942,14 +1959,12 @@ void waitanswer()
         case 9:
           myGLCD.setFont(SmallFont);
           myGLCD.print("B""\xAB""co""\xA4""a =     ", 5, 143);              //Высота =
-		  data = 1000;
           myGLCD.printNumI(data, 75, 143);
 		  myGLCD.setFont(BigFont);
           break;
         case 10:
           myGLCD.setFont(SmallFont);
           myGLCD.print("\x82\x9D""c""\xA4"". =     ", 140, 143);            //Дист. =
-		  data = 1000;
           myGLCD.printNumI(data, 205, 143);
 		  myGLCD.setFont(BigFont);
           break;
