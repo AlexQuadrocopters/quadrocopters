@@ -403,26 +403,25 @@ void run_nRF24L01()
 		break;
 	case 5:
 		dps.getTemperature(&Temperature); 
-		data = Temperature;                      // Паказания температуры
+		data = Temperature;                      // Паказания температуры от BMP085
 		break;
 	case 6:
 		dps.getPressure(&Pressure); 
-		data = Pressure/133.3;                   // Показания давления 
+		data = Pressure/133.3;                   // Показания давления от BMP085
 		break;  
 	case 7:
 		gps.f_get_position(&flat, &flon, &age); 
 		data = flat*1000000;
 		break;
 	case 8:
-		//gps.f_get_position(&flat, &flon, &age);
 		data = flon*1000000;
 		break;
 	case 9:
 		dps.getAltitude(&Altitude); 
-		data =Altitude/100;                    // Показания Высота
+		data =Altitude/100;                    // Показания Высота от датчика давления BMP085
 		break;
 	case 10:
-		 data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, DOM_LAT, DOM_LON) / 1000, 0xFFFFFFFF, 9);  // Показания Дистанция м. =      
+		 data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, DOM_LAT, DOM_LON), 0xFFFFFFFF, 9);  // Показания Дистанция м. =      
 		break;
 	case 11:
 		gps_satellites = gps.satellites();
@@ -476,8 +475,20 @@ void run_nRF24L01()
 		data = DOM_LON*1000000;                // Передать местные координаты DOM_LON
 		break;
 	case 21:
-	  
+	    data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? TinyGPS::GPS_INVALID_F_ANGLE : TinyGPS::course_to(flat, flon, DOM_LAT, DOM_LON), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
 		break;
+	case 22:
+		data = (gps.f_altitude(), TinyGPS::GPS_INVALID_F_ALTITUDE, 7, 2);  // Высота GPS
+	    break;
+	case 23:
+		data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? TinyGPS::GPS_INVALID_F_ANGLE : TinyGPS::course_to(flat, flon, LONDON_LAT, LONDON_LON), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
+	    break;
+	case 24:
+		data = (gps.f_speed_kmph(), TinyGPS::GPS_INVALID_F_SPEED, 6, 2);
+	    break;
+	case 25:
+        break;
+
 	  default:
 		// Нераспознанная команда.
 		// жалуемся в последовательный порт

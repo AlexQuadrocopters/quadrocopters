@@ -178,8 +178,6 @@ unsigned long currentTime;
 unsigned long loopTime;
 int time_power    = 1000;
 bool geiger_ready = false;               // Готовность информации со счетчика Гейгера
-float data_f      = 0;
-int gound_m       = 218;                 // Высота местности над уровнем моря
 
 // Настройка монитора
 UTFT          myGLCD(ITDB32S, 38, 39, 40, 41);
@@ -225,7 +223,7 @@ int temp_C                = 0;               // Температура С
 int gaz_measure           = 0;               // Величина измеренной загазованности
 int gaz_porog             = 0;               // Уровень порога газа
 int P_mmHq                = 0;               // Давление
-int dist                  = 0;               // Дистанция
+int distance              = 0;               // Дистанция до объекта
 int altitudeP             = 0;               // Высота по давлению
 int f_altitude            = 0;               // Высота по GPS
 int altitudeDom           = 0;               // Высота местности
@@ -237,7 +235,7 @@ double DOM_LAT            = 55.954994;       // Координата домаш�
 double DOM_LON            = 37.231121;       // Координата домашняя
 float data_f              = 0;
 int gound_m               = 218;             // Высота местности над уровнем моря
-
+int satellites            = 0;               // Количество спутников
 
 
 
@@ -1939,13 +1937,13 @@ void waitanswer()
           myGLCD.printNumF(uSv_h, 4, 120, 80);
           break;
         case 5:
-          temp_C = data;
-          myGLCD.print("Te""\xA1\xA3"".C=   ", LEFT, 120);                 //Темп.С =
+          temp_C = data;                                                   // от датчика давления BMP085
+          myGLCD.print("Te""\xA1\xA3"".C=   ", LEFT, 120);                 // Темп.С =
           myGLCD.printNumF(temp_C * 0.1, 1, 120, 120);
           break;
         case 6:
-          P_mmHq = data;
-          myGLCD.print("P   mmHq", 190, 120);                              //Давл.Ра =
+          P_mmHq = data;                                                   // от датчика давления BMP085
+          myGLCD.print("P   mmHq", 190, 120);                              // Давл.Ра = 
           myGLCD.printNumI(data, 204, 120);
           break;
         case 7:
@@ -1965,29 +1963,28 @@ void waitanswer()
           myGLCD.setFont(BigFont);
           break;
         case 9:
-
+          altitudeP = data;
           myGLCD.setFont(SmallFont);
-          myGLCD.print("B""\xAB""co""\xA4""a =     ", 5, 143);              //Высота =
-          myGLCD.printNumI(data, 75, 143);
+          myGLCD.print("B""\xAB""co""\xA4""a =     ", 5, 143);              // Высота =
+          myGLCD.printNumI(altitudeP, 75, 143);                             // Высота от датчика давления BMP085
 		  myGLCD.setFont(BigFont);
           break;
         case 10:
+          distance = data;
           myGLCD.setFont(SmallFont);
-          myGLCD.print("\x82\x9D""c""\xA4"". =     ", 140, 143);            //Дист. =
-          myGLCD.printNumI(data, 205, 143);
+          myGLCD.print("\x82\x9D""c""\xA4"". =     ", 140, 143);            // Дист. =
+          myGLCD.printNumI(distance, 205, 143);
 		  myGLCD.setFont(BigFont);
           break;
         case 11:
+		  satellites = data;
 		  myGLCD.setFont(SmallFont);
-          myGLCD.print("Sat =      ", 5, 175); //Дист. =
-          if (data == 255)
+          myGLCD.print("Sat =      ", 5, 175);                              // Количество спутников
+          if (satellites == 255)
           {
-            myGLCD.printNumI(0, 50, 175);
+			satellites = 0;
           }
-          else
-          {
-            myGLCD.printNumI(data, 50, 175);
-          }
+       	  myGLCD.printNumI(satellites, 50, 175);
           myGLCD.setFont(BigFont);
           break;
         case 12:
