@@ -220,21 +220,26 @@ bool stop_save_file    = false;    // Закрыть файл для запис�
 // ++++++++++++++++++  Переменные измерений +++++++++++++++++++++++++++++++++
 unsigned long count_strok = 0;               // Счетчик строк в файле
 int cpm                   = 0;               // Счетчик Гейгера               
-int uSv_h                 = 0;               // Счетчик Гейгера 
+float uSv_h               = 0;               // Счетчик Гейгера 
 int temp_C                = 0;               // Температура С 
 int gaz_measure           = 0;               // Величина измеренной загазованности
 int gaz_porog             = 0;               // Уровень порога газа
 int P_mmHq                = 0;               // Давление
 int dist                  = 0;               // Дистанция
 int altitudeP             = 0;               // Высота по давлению
-int altitudeSat           = 0;               // Высота по GPS
+int f_altitude            = 0;               // Высота по GPS
 int altitudeDom           = 0;               // Высота местности
-int gradus                = 0;               // Направление на объект
-int speed_SAT             = 0;               // Скорость движения
-double fact_LAT           = 1.0;             // Координата фактическая
-double fact_LON           = 1.0;             // Координата фактическая
+int f_course              = 0;               // Направление на объект
+int speed_kmph            = 0;               // Скорость движения
+float fact_LAT            = 1.0;             // Координата фактическая
+float fact_LON            = 1.0;             // Координата фактическая
 double DOM_LAT            = 55.954994;       // Координата домашняя
 double DOM_LON            = 37.231121;       // Координата домашняя
+float data_f              = 0;
+int gound_m               = 218;             // Высота местности над уровнем моря
+
+
+
 
 //----------------------------
 
@@ -1921,42 +1926,46 @@ void waitanswer()
           }
           break;
         case 3:
-          Serial.println(data);
+		  cpm = data;
+          Serial.println(cpm);
           myGLCD.print("cpm   =        ", LEFT, 60);      
-          myGLCD.printNumI(data, 120, 60);
+          myGLCD.printNumI(cpm, 120, 60);
           break;
         case 4:
-          data_f = data;
-          data_f = data_f / 10000;
-          Serial.println(data_f , 4);
+          uSv_h = data;
+          uSv_h = uSv_h / 10000;
+          Serial.println(uSv_h , 4);
           myGLCD.print("uSv/h =        ", LEFT, 80);
-          myGLCD.printNumF(data_f, 4, 120, 80);
+          myGLCD.printNumF(uSv_h, 4, 120, 80);
           break;
         case 5:
+          temp_C = data;
           myGLCD.print("Te""\xA1\xA3"".C=   ", LEFT, 120);                 //Темп.С =
-          myGLCD.printNumF(data * 0.1, 1, 120, 120);
+          myGLCD.printNumF(temp_C * 0.1, 1, 120, 120);
           break;
         case 6:
+          P_mmHq = data;
           myGLCD.print("P   mmHq", 190, 120);                              //Давл.Ра =
           myGLCD.printNumI(data, 204, 120);
           break;
         case 7:
-          data_f = data;
-          data_f = data_f / 1000000;
+          fact_LAT = data;
+          fact_LAT = fact_LAT / 1000000;
           myGLCD.setFont(SmallFont);
           myGLCD.print("LAT =           ", 5, 160);                         // 
-          myGLCD.printNumF(data_f, 6, 50, 160);
+          myGLCD.printNumF(fact_LAT, 6, 50, 160);
           myGLCD.setFont(BigFont);
           break;
         case 8:
-          data_f = data;
-          data_f = data_f / 1000000;
+          fact_LON = data;
+          fact_LON = fact_LON / 1000000;
           myGLCD.setFont(SmallFont);
           myGLCD.print("LON =           ", 140, 160);                       // 
-          myGLCD.printNumF(data_f, 6, 190, 160);
+          myGLCD.printNumF(fact_LON, 6, 190, 160);
           myGLCD.setFont(BigFont);
           break;
         case 9:
+
           myGLCD.setFont(SmallFont);
           myGLCD.print("B""\xAB""co""\xA4""a =     ", 5, 143);              //Высота =
           myGLCD.printNumI(data, 75, 143);
