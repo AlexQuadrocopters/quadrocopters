@@ -47,7 +47,8 @@ Arduino Nano      BMP180(BMO085)
 */
 
 #include <SoftwareSerial.h>             // Библиотека серийного порта
-#include <TinyGPS.h>                    // Библиотека GPS
+#include <TinyGPS++.h>
+//#include <TinyGPS.h>                    // Библиотека GPS
 #include <MsTimer2.h>                   // Библиотеки таймера
 #include <SPI.h>
 #include <Mirf.h>
@@ -84,35 +85,80 @@ float radiationValue      = 0.0;
 int geiger_ready          = 0;
 //---------------------------------------------------
 
-TinyGPS gps;                                  // Настройка GPS
-
+//TinyGPS gps;                                  // Настройка GPS
+TinyGPSPlus gps;
 static const int RXPin = 5, TXPin = 4;
 static const uint32_t GPSBaud = 9600;         // Скорость обмена с модулем GPS
 SoftwareSerial ss(RXPin, TXPin);              // Подключение GPS к сериал
+//
+//static void smartdelay(unsigned long ms);
+//static void print_float(float val, float invalid, int len, int prec);
+//static void print_int(unsigned long val, unsigned long invalid, int len);
+//static void print_date(TinyGPS &gps);
+//static void print_str(const char *str, int len);
 
-static void smartdelay(unsigned long ms);
-static void print_float(float val, float invalid, int len, int prec);
-static void print_int(unsigned long val, unsigned long invalid, int len);
-static void print_date(TinyGPS &gps);
-static void print_str(const char *str, int len);
+//
+//int year;
+//byte month, day, hour, minute, second, hundredths;
+//unsigned long age_t;
+//
+//float flat                 = 0, flon = 0;
+//unsigned long age, date, time, chars = 0;
+//unsigned short sentences             = 0, failed = 0;
+//static const double LONDON_LAT       = 51.508131, LONDON_LON = -0.128002;
+//
+//
+//float DOM_LAT                        = 55.954994;
+//float DOM_LON                        = 37.231121;
+//int gps_satellites                   = 0;
+//float gps_lat                        = 0;
+//float gps_lon                        = 0;
+//int gps_dist                         = 0;
+unsigned long last        = 0UL;             // For stats that happen every 5 seconds
 
-
-int year;
-byte month, day, hour, minute, second, hundredths;
-unsigned long age_t;
-
-float flat                 = 0, flon = 0;
-unsigned long age, date, time, chars = 0;
-unsigned short sentences             = 0, failed = 0;
-static const double LONDON_LAT       = 51.508131, LONDON_LON = -0.128002;
-
-
-float DOM_LAT                        = 55.954994;
-float DOM_LON                        = 37.231121;
-int gps_satellites                   = 0;
-float gps_lat                        = 0;
-float gps_lon                        = 0;
-int gps_dist                         = 0;
+int cpm                     = 0;               // Счетчик Гейгера               
+float uSv_h                 = 0;               // Счетчик Гейгера 
+int temp_C                  = 0;               // Температура С 
+int gaz_measure             = 0;               // Величина измеренной загазованности
+int gaz_porog               = 0;               // Уровень порога газа
+int P_mmHq                  = 0;               // Давление
+int distance                = 0;               // Дистанция до объекта
+int altitudeP               = 0;               // Высота по давлению
+int f_altitude              = 0;               // Высота по GPS
+int altitudeDom             = 0;               // Высота местности
+int f_course                = 0;               // Направление на объект
+int speed_kmph              = 0;               // Скорость движения
+double gps_location_lat     = 0.0;             // Координата фактическая
+double gps_location_lng     = 0.0;             // Координата фактическая
+double DOM_LAT              = 55.954994;       // Координата домашняя
+double DOM_LON              = 37.231121;       // Координата домашняя
+float data_f                = 0;
+int gound_m                 = 218;             // Высота местности над уровнем моря
+double distanceToDOM        = 0;               // Расстояние до объекта
+double courseToDOM          = 0;               // Направление на объект
+int gps_date_value          = 0;
+int gps_date_year           = 0;
+int gps_date_month          = 0;
+int gps_date_day            = 0;
+int gps_time_value          = 0;
+int gps_time_hour           = 0;
+int gps_time_minute         = 0;
+int gps_time_second         = 0;
+int gps_time_centisecond    = 0;
+int gps_speed_value         = 0;
+int gps_speed_knots         = 0;
+int gps_speed_mph           = 0;
+int gps_speed_mps           = 0;
+int gps_speed_kmph          = 0;
+int gps_course_value        = 0;
+int gps_course_deg          = 0;
+int gps_altitude_value      = 0;
+int gps_altitude_meters     = 0;
+int gps_altitude_miles      = 0;
+int gps_altitude_kilometers = 0;
+int gps_altitude_feet       = 0;
+int gps_satellites_value    = 0;               // Количество спутников
+int gps_hdop_value          = 0;
 
 unsigned long currentMillisGPS       = 0;              // Переменная для временного хранения текущего времени
 unsigned long currentMillis          = 0;              // Переменная для временного хранения текущего времени
@@ -144,13 +190,9 @@ bool st_Power_gaz    = false;
 bool st_PowerGeiger  = false;
 bool old_Power_gaz   = false;
 bool old_PowerGeiger = false;
- 
+
 int ledState = LOW;                                    // Переменная состояния светодиода
 
-void flash_time()                                      // Программа обработчик прерывания
-{
- 
-}
 
 //+++++++++++++++ Работа с GPS +++++++++++++++++++++++++++++++++++++++++++++++++
  /*----------------------------------------------------------*/
@@ -165,134 +207,18 @@ void flash_time()                                      // Программа о�
   //Speed - скорость(км/ч)
   /*----------------------------------------------------------*/
 /*
-void run_GPS()   
-{
-  print_int(gps.satellites(), TinyGPS::GPS_INVALID_SATELLITES, 5);
-  print_int(gps.hdop(), TinyGPS::GPS_INVALID_HDOP, 5);
-  gps.f_get_position(&flat, &flon, &age);
-  print_float(flat, TinyGPS::GPS_INVALID_F_ANGLE, 10, 6);
-  print_float(flon, TinyGPS::GPS_INVALID_F_ANGLE, 11, 6);
-  print_int(age, TinyGPS::GPS_INVALID_AGE, 5);
-  print_date(gps);
-  print_float(gps.f_altitude(), TinyGPS::GPS_INVALID_F_ALTITUDE, 7, 2); 
-  print_float(gps.f_course(), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
-  print_float(gps.f_speed_kmph(), TinyGPS::GPS_INVALID_F_SPEED, 6, 2);
-  print_str(gps.f_course() == TinyGPS::GPS_INVALID_F_ANGLE ? "*** " : TinyGPS::cardinal(gps.f_course()), 6);
-  print_int(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, LONDON_LAT, LONDON_LON) / 1000, 0xFFFFFFFF, 9);
-  print_float(flat == TinyGPS::GPS_INVALID_F_ANGLE ? TinyGPS::GPS_INVALID_F_ANGLE : TinyGPS::course_to(flat, flon, LONDON_LAT, LONDON_LON), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
-  print_str(flat == TinyGPS::GPS_INVALID_F_ANGLE ? "*** " : TinyGPS::cardinal(TinyGPS::course_to(flat, flon, LONDON_LAT, LONDON_LON)), 6);
 
-  gps.stats(&chars, &sentences, &failed);
-  print_int(chars, 0xFFFFFFFF, 6);
-  print_int(sentences, 0xFFFFFFFF, 10);
-  print_int(failed, 0xFFFFFFFF, 9);
-  Serial.println();
-  gps_satellites = gps.satellites();
-  Serial.println( gps_satellites);
-  gps.f_get_position(&flat, &flon, &age);
-  float sat_lat = flat;
-  Serial.println(sat_lat,6);
-	 
- // smartdelay(1000);
-}
-
-static void smartdelay(unsigned long ms)
-{
-  unsigned long start = millis();
-  do 
-  {
-	while (ss.available())
-	  gps.encode(ss.read());
-  } while (millis() - start < ms);
-}
-
-void UpdateGPS()                                   // Проверка окончания выполнения программы 
-{
-  if (currentMillis - currentMillisGPS >= timeGPS)
-  {
-	  currentMillisGPS = millis();
-	  while (ss.available())
-	  gps.encode(ss.read());
-	  run_GPS();
-	  //ButGPS_Start = false;
-	  Serial.println("**** GPS Start");
-  }
-}
-static void print_float(float val, float invalid, int len, int prec)
-{
-  if (val == invalid)
-  {
-	while (len-- > 1)
-	  Serial.print('*');
-	Serial.print(' ');
-  }
-  else
-  {
-	Serial.print(val, prec);
-	int vi = abs((int)val);
-	int flen = prec + (val < 0.0 ? 2 : 1); // . and -
-	flen += vi >= 1000 ? 4 : vi >= 100 ? 3 : vi >= 10 ? 2 : 1;
-	for (int i=flen; i<len; ++i)
-	  Serial.print(' ');
-  }
-  smartdelay(0);
-}
-static void print_int(unsigned long val, unsigned long invalid, int len)
-{
-  char sz[32];
-  if (val == invalid)
-	strcpy(sz, "*******");
-  else
-	sprintf(sz, "%ld", val);
-  sz[len] = 0;
-  for (int i=strlen(sz); i<len; ++i)
-	sz[i] = ' ';
-  if (len > 0) 
-	sz[len-1] = ' ';
-  Serial.print(sz);
-  smartdelay(0);
-}
-static void print_date(TinyGPS &gps)
-{
- // int year;
- // byte month, day, hour, minute, second, hundredths;
- // unsigned long age;
-  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age_t);
-  if (age_t == TinyGPS::GPS_INVALID_AGE)
-	Serial.print("********** ******** ");
-  else
-  {
-	char sz[32];
-	sprintf(sz, "%02d/%02d/%02d %02d:%02d:%02d ",
-		month, day, year, hour, minute, second);
-	Serial.print(sz);
-  }
-  print_int(age, TinyGPS::GPS_INVALID_AGE, 5);
-  smartdelay(0);
-}
-static void print_str(const char *str, int len)
-{
-  int slen = strlen(str);
-  for (int i=0; i<len; ++i)
-	Serial.print(i<slen ? str[i] : ' ');
-  smartdelay(0);
-}
-*/
-
+/*      // Последняя версия
 void UpdateGPS()  
 {
   bool newData = false;
-   // For one second we parse GPS data and report some key values
- /* for (unsigned long start = millis(); millis() - start < 1000;)
-  {*/
-   if (currentMillis - currentMillisGPS >= timeGPS)
+
+ if (currentMillis - currentMillisGPS >= timeGPS)
   {
 	currentMillisGPS = millis();
-//	Serial.println("LAT=");
 	while (ss.available())
 	{
 	  char c = ss.read();
-	  // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
 	  if (gps.encode(c)) // Did a new valid sentence come in?
 		newData = true;
 	}
@@ -301,27 +227,205 @@ void UpdateGPS()
   if (newData)
   {
 	gps.f_get_position(&flat, &flon, &age);
-	Serial.print("LAT=");
-	Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-	Serial.print(" LON=");
-	Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-	Serial.print(" SAT=");
-	Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-	Serial.print(" PREC=");
-	Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
+	//Serial.print("LAT=");
+	//Serial.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
+	//Serial.print(" LON=");
+	//Serial.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+	//Serial.print(" SAT=");
+	//Serial.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
+	//Serial.print(" PREC=");
+	//Serial.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
   }
-  
- /* gps.stats(&chars, &sentences, &failed);
-  Serial.print(" CHARS=");
-  Serial.print(chars);
-  Serial.print(" SENTENCES=");
-  Serial.print(sentences);
-  Serial.print(" CSUM ERR=");
-  Serial.println(failed);
-  if (chars == 0)
-	Serial.println("** No characters received from GPS: check wiring **");*/
 }
+*/
 
+void UpdateGPS() 
+{
+ if (currentMillis - currentMillisGPS >= timeGPS)
+  {
+		currentMillisGPS = millis();
+		while (ss.available() > 0)
+		gps.encode(ss.read());
+
+		if (gps.location.isUpdated())
+		{
+			//Serial.print(F("LOCATION   Fix Age="));
+			//Serial.print(gps.location.age());
+			//Serial.print(F("ms Raw Lat="));
+			//Serial.print(gps.location.rawLat().negative ? "-" : "+");
+			//Serial.print(gps.location.rawLat().deg);
+			//Serial.print("[+");
+			//Serial.print(gps.location.rawLat().billionths);
+			//Serial.print(F(" billionths],  Raw Long="));
+			//Serial.print(gps.location.rawLng().negative ? "-" : "+");
+			//Serial.print(gps.location.rawLng().deg);
+			//Serial.print("[+");
+			//Serial.print(gps.location.rawLng().billionths);
+			//Serial.print(F(" billionths],  Lat="));
+			//Serial.print(gps.location.lat(), 6);
+			//Serial.print(F(" Long="));
+			//Serial.println(gps.location.lng(), 6);
+			gps_location_lat = gps.location.lat();             // Координата фактическая
+			gps_location_lng = gps.location.lng();             // Координата фактическая
+		}
+
+		else if (gps.date.isUpdated())
+		{
+			//Serial.print(F("DATE       Fix Age="));
+			//Serial.print(gps.date.age());
+			//Serial.print(F("ms Raw="));
+			//Serial.println(gps.date.value());
+			//Serial.print(F(" Year="));
+			//Serial.print(gps.date.year());
+			//Serial.print(F(" Month="));
+			//Serial.print(gps.date.month());
+			//Serial.print(F(" Day="));
+			//Serial.println(gps.date.day());
+			gps_date_value  = gps.date.value();
+			gps_date_year   = gps.date.year();
+			gps_date_month  = gps.date.month();
+			gps_date_day    = gps.date.day();
+		}
+
+		else if (gps.time.isUpdated())
+		{
+			//Serial.print(F("TIME       Fix Age="));
+			//Serial.print(gps.time.age());
+			//Serial.print(F("ms Raw="));
+			//Serial.println(gps.time.value());
+			//Serial.print(F(" Hour="));
+			//Serial.print(gps.time.hour());
+			//Serial.print(F(" Minute="));
+			//Serial.print(gps.time.minute());
+			//Serial.print(F(" Second="));
+			//Serial.print(gps.time.second());
+			//Serial.print(F(" Hundredths="));
+			//Serial.println(gps.time.centisecond());
+			gps_time_value        = gps.time.value();
+			gps_time_hour         = gps.time.hour();
+			gps_time_minute       = gps.time.minute();
+			gps_time_second       = gps.time.second();
+		}
+
+		else if (gps.speed.isUpdated())
+		{
+			//Serial.print(F("SPEED      Fix Age="));
+			//Serial.print(gps.speed.age());
+			//Serial.print(F("ms Raw="));
+			//Serial.println(gps.speed.value());
+			//Serial.print(F(" Knots="));
+			//Serial.print(gps.speed.knots());
+			//Serial.print(F(" MPH="));
+			//Serial.print(gps.speed.mph());
+			//Serial.print(F(" m/s="));
+			//Serial.print(gps.speed.mps());
+			//Serial.print(F(" km/h="));
+			//Serial.println(gps.speed.kmph());
+			gps_speed_value = gps.speed.value();
+			//gps_speed_knots = gps.speed.knots();
+			gps_speed_mph   = gps.speed.mph();
+			gps_speed_mps   = gps.speed.mps();
+			gps_speed_kmph  = gps.speed.kmph();
+		}
+
+		else if (gps.course.isUpdated())
+		{
+			//Serial.print(F("COURSE     Fix Age="));
+			//Serial.print(gps.course.age());
+			//Serial.print(F("ms Raw="));
+			//Serial.println(gps.course.value());
+			//Serial.print(F(" Deg="));
+			//Serial.println(gps.course.deg());
+			gps_course_value = gps.course.value();
+			gps_course_deg   = gps.course.deg();
+		}
+
+		else if (gps.altitude.isUpdated())
+		{
+			//Serial.print(F("ALTITUDE   Fix Age="));
+			//Serial.print(gps.altitude.age());
+			//Serial.print(F("ms Raw="));
+			//Serial.println(gps.altitude.value());
+			//Serial.print(F(" Meters="));
+			//Serial.print(gps.altitude.meters());
+			//Serial.print(F(" Miles="));
+			//Serial.print(gps.altitude.miles());
+			//Serial.print(F(" KM="));
+			//Serial.print(gps.altitude.kilometers());
+			//Serial.print(F(" Feet="));
+			//Serial.println(gps.altitude.feet()); 
+			 gps_altitude_value      = gps.altitude.value();
+			 gps_altitude_meters     = gps.altitude.meters();
+			 gps_altitude_miles      = gps.altitude.miles();
+			 gps_altitude_kilometers = gps.altitude.kilometers();
+			 gps_altitude_feet       = gps.altitude.feet();
+
+		}
+
+		else if (gps.satellites.isUpdated())
+		{
+			//Serial.print(F("SATELLITES Fix Age="));
+			//Serial.print(gps.satellites.age());
+			//Serial.print(F("ms Value="));
+			gps_satellites_value = gps.satellites.value();
+		}
+
+		else if (gps.hdop.isUpdated())
+		{
+			//Serial.print(F("HDOP       Fix Age="));
+			//Serial.print(gps.hdop.age());
+			//Serial.print(F("ms Value="));
+			//Serial.println(gps.hdop.value());
+			gps_hdop_value = gps.hdop.value();
+		}
+
+		else if (millis() - last > 5000)
+		{
+		///	Serial.println();
+			if (gps.location.isValid())
+			{
+				distanceToDOM = 
+				TinyGPSPlus::distanceBetween(
+					gps.location.lat(),
+					gps.location.lng(),
+					DOM_LAT, 
+					DOM_LAT);
+				courseToDOM =
+				TinyGPSPlus::courseTo(
+					gps.location.lat(),
+					gps.location.lng(),
+					DOM_LAT, 
+					DOM_LAT);
+
+				//Serial.print(F("LONDON     Distance="));
+				//Serial.print(distanceToLondon/1000, 6);
+				//Serial.print(F(" km Course-to="));
+				//Serial.print(courseToLondon, 6);
+				//Serial.print(F(" degrees ["));
+				//Serial.print(TinyGPSPlus::cardinal(courseToLondon));
+				//Serial.println(F("]"));
+
+
+			}
+
+			//Serial.print(F("DIAGS      Chars="));
+			//Serial.print(gps.charsProcessed());
+			//Serial.print(F(" Sentences-with-Fix="));
+			//Serial.print(gps.sentencesWithFix());
+			//Serial.print(F(" Failed-checksum="));
+			//Serial.print(gps.failedChecksum());
+			//Serial.print(F(" Passed-checksum="));
+			//Serial.println(gps.passedChecksum());
+
+			if (gps.charsProcessed() < 10)
+			{
+			   Serial.println(F("WARNING: No GPS data.  Check wiring."));
+			}
+			last = millis();
+			//Serial.println();
+		}
+  }
+}
 
 //------------------------------------------------------------------------------
 //+++++++++++++++ Работа с датчиком давления +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -362,8 +466,6 @@ void power_on_off()
 }
 
 
-
-
 void run_nRF24L01()
 {
   // Обнуляем переменную с данными:
@@ -375,119 +477,264 @@ void run_nRF24L01()
 	 // Принимаем пакет данные в виде массива байт в переменную data:
 	Mirf.getData((byte *) &command);
 	delay(300);
-   /*  Serial.print("Get data: ");
-	Serial.println(command);*/
   }
   // Если переменная не нулевая, формируем ответ:geiger_ready = 1;
   if (command != 0)
   {
 	switch (command)
+
 	{
-	  case 1:
-		data = analogRead(A0);                     // Анализатор Газа
-		break;
-	  case 2:
-		// команда 2 - отправить значение
-		data = geiger_ready;                      // Флаг готовности Счетчика Гейгера
-		break;
-	  case 3:
-		  // команда 2 - отправить значение
-		Serial.println("cpm = ");
-		data = countPerMinute;  
-		break;
-	 case 4:
-		// команда 3 - отправить значение
-		Serial.println("uSv/h = ");
-		data = radiationValue * 10000 ;
-		geiger_ready = 0;                        // Показания Счетчика Гейгера отправлены
-		break;
-	case 5:
-		dps.getTemperature(&Temperature); 
-		data = Temperature;                      // Паказания температуры от BMP085
-		break;
-	case 6:
-		dps.getPressure(&Pressure); 
-		data = Pressure/133.3;                   // Показания давления от BMP085
-		break;  
-	case 7:
-		gps.f_get_position(&flat, &flon, &age); 
-		data = flat*1000000;
-		break;
-	case 8:
-		data = flon*1000000;
-		break;
-	case 9:
-		dps.getAltitude(&Altitude); 
-		data =Altitude/100;                    // Показания Высота от датчика давления BMP085
-		break;
-	case 10:
-		 data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, DOM_LAT, DOM_LON), 0xFFFFFFFF, 9);  // Показания Дистанция м. =      
-		break;
-	case 11:
-		gps_satellites = gps.satellites();
-		data = gps_satellites;                 // Количество спутников
-		break;
-	case 12:
-		st_Power_gaz = true;
-		data = 2;
-		break;
-	case 13:
-		st_Power_gaz = false;
-		data = 1;
-		break;
-	case 14:                                  // Состоянеи ключа включения питания датчика газа
-		if(st_Power_gaz == true)
-			{
-				data = 2;
-			}
-		else
-			{
-				data = 1;
-			}
-		break;
-	case 15:
-		st_PowerGeiger = true;
-		data = 2;
-		break;
-	case 16:
-		st_PowerGeiger = false;
-		data = 1;
-		break;
-	case 17:
-		if(st_PowerGeiger == true)             // Состоянеи ключа включения питания счетчика Гейгера
-			{
-				data = 2;
-			}
-		else
-			{
-				data = 1;
-			}
-		break; 
-	case 18:                                   // Зафиксировать местные координаты
-		DOM_LAT = flat;
-		DOM_LON = flon;
-		data = 1;
-		break;
-	case 19:                                   // Передать местные координаты DOM_LAT
-		data = DOM_LAT*1000000;
-		break;
-	case 20:
-		data = DOM_LON*1000000;                // Передать местные координаты DOM_LON
-		break;
-	case 21:
-	    data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? TinyGPS::GPS_INVALID_F_ANGLE : TinyGPS::course_to(flat, flon, DOM_LAT, DOM_LON), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
-		break;
-	case 22:
-		data = (gps.f_altitude(), TinyGPS::GPS_INVALID_F_ALTITUDE, 7, 2);  // Высота GPS
-	    break;
-	case 23:
-		data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? TinyGPS::GPS_INVALID_F_ANGLE : TinyGPS::course_to(flat, flon, LONDON_LAT, LONDON_LON), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
-	    break;
-	case 24:
-		data = (gps.f_speed_kmph(), TinyGPS::GPS_INVALID_F_SPEED, 6, 2);
-	    break;
-	case 25:
-        break;
+		case 1:
+			data = geiger_ready;                      // Флаг готовности Счетчика Гейгера
+			break;
+		case 2:
+			// команда 2 - отправить значение
+			data = countPerMinute;                   // "cpm = "
+			break;
+		case 3:
+			data = radiationValue * 10000 ;          // "uSv/h = "
+			geiger_ready = 0;                        // Показания Счетчика Гейгера отправлены
+			break;
+		case 4:
+			if(st_PowerGeiger == true)             // Состоянеи ключа включения питания счетчика Гейгера
+				{
+					data = 2;
+				}
+			else
+				{
+					data = 1;
+				}
+			break; 
+		case 5:
+			data = analogRead(A0);                    // Анализатор Газа
+			break;
+		case 6:                                       // Состоянеи ключа включения питания датчика газа
+			if(st_Power_gaz == true)
+				{
+					data = 2;
+				}
+			else
+				{
+					data = 1;
+				}
+			break;
+		case 7:
+			dps.getTemperature(&Temperature); 
+			data = Temperature;                      // Паказания температуры от BMP085
+			break;
+		case 8:
+			dps.getPressure(&Pressure); 
+			data = Pressure/133.3;                   // Показания давления от BMP085
+			break;  
+		case 9:
+			dps.getAltitude(&Altitude); 
+			data =Altitude/100;                      // Показания Высота от датчика давления BMP085
+			break;
+		case 10:
+		   data = gps_altitude_meters;                // Высота в метрах со спутника
+			break;
+		case 11:                                     // 
+			data = gps_location_lat*1000000;         // Передать  координаты LAT
+			break;
+		case 12:
+			data = gps_location_lng*1000000;         // Передать  координаты LON
+			break;
+		case 13:
+			data = DOM_LAT*1000000;                 // Передать местные координаты DOM_LAT
+			break;
+		case 14:
+			data = DOM_LON*1000000;                 // Передать местные координаты DOM_LON
+			break;
+		case 15:                                   
+		    data = gps_satellites_value;            // Количество спутников  
+			break;
+		case 16:
+		    data = distanceToDOM;                   // Расстояние до объекта
+			break;
+		case 17:
+		    data = gps_course_deg;                  // Направление на объект
+			break;
+		case 18:
+		    data =  gps_speed_mph;                  // Скорость объекта метров в час
+			break;
+		case 19:             
+			st_Power_gaz = true;                   // Включить питание датчика газа
+			data = 2;
+			break;
+		case 20:
+			st_Power_gaz = false;                  // Отключить питание датчика газа
+			data = 1;
+			break;
+		case 21:
+			st_PowerGeiger = true;                 // Включить питание датчика Гейгера
+			data = 2;
+			break;
+		case 22:
+			st_PowerGeiger = false;                // Отключить питание датчика Гейгера
+			data = 1;
+			break;
+		case 23:                                   // Зафиксировать местные координаты
+			DOM_LAT = gps_location_lat;
+			DOM_LON = gps_location_lng;
+			data = 1;
+			break;
+		case 24:                                  
+			data = gps_date_value;
+			break;
+		case 25:
+			data = gps_date_year;
+			break;                                  
+		case 26:
+			data = gps_date_month;
+			break;
+		case 27:
+			data = gps_date_day;
+			break;
+		case 28:                                  
+			data = gps_time_value;
+			break;
+		case 29:
+			data = gps_time_hour;
+			break;                                  
+		case 30:
+			data = gps_time_minute;
+			break;
+		case 31:
+			data = gps_time_second;
+			break;
+		case 32:                                  
+			data = gps_speed_value;
+			break;
+		case 33:
+			data = gps_speed_mph;
+			break;                                  
+		case 34:
+			data = gps_speed_mps;
+			break;
+		case 35:
+			data = gps_speed_kmph;
+			break;
+		case 36:                                  
+			data = gps_course_value;
+			break;
+		case 37:
+			data = gps_altitude_value;
+			break;                                  
+		case 38:
+			data = gps_altitude_kilometers;
+			break;
+		case 39:
+			data = gps_altitude_miles;
+			break;
+		case 40:
+			data = gps_altitude_feet;
+			break;
+
+//	  case 1:
+//		data = analogRead(A0);                     // Анализатор Газа
+//		break;
+//	  case 2:
+//		// команда 2 - отправить значение
+//		data = geiger_ready;                      // Флаг готовности Счетчика Гейгера
+//		break;
+//	  case 3:
+//		  // команда 3 - отправить значение
+//		Serial.println("cpm = ");
+//		data = countPerMinute;  
+//		break;
+//	 case 4:
+//		// команда 4 - отправить значение
+//		Serial.println("uSv/h = ");
+//		data = radiationValue * 10000 ;
+//		geiger_ready = 0;                        // Показания Счетчика Гейгера отправлены
+//		break;
+//	case 5:
+//		dps.getTemperature(&Temperature); 
+//		data = Temperature;                      // Паказания температуры от BMP085
+//		break;
+//	case 6:
+//		dps.getPressure(&Pressure); 
+//		data = Pressure/133.3;                   // Показания давления от BMP085
+//		break;  
+//	case 7:
+////		gps.f_get_position(&flat, &flon, &age); 
+//		//data = flat*1000000;
+//		break;
+//	case 8:
+//		//data = flon*1000000;
+//		break;
+//	case 9:
+//		dps.getAltitude(&Altitude); 
+//		data =Altitude/100;                    // Показания Высота от датчика давления BMP085
+//		break;
+//	case 10:
+//	//	 data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0xFFFFFFFF : (unsigned long)TinyGPS::distance_between(flat, flon, DOM_LAT, DOM_LON), 0xFFFFFFFF, 9);  // Показания Дистанция м. =      
+//		break;
+//	case 11:
+//		//gps_satellites = gps.satellites();
+////		data = gps_satellites;                 // Количество спутников
+//		break;
+//	case 12:
+//		st_Power_gaz = true;
+//		data = 2;
+//		break;
+//	case 13:
+//		st_Power_gaz = false;
+//		data = 1;
+//		break;
+//	case 14:                                  // Состоянеи ключа включения питания датчика газа
+//		if(st_Power_gaz == true)
+//			{
+//				data = 2;
+//			}
+//		else
+//			{
+//				data = 1;
+//			}
+//		break;
+//	case 15:
+//		st_PowerGeiger = true;
+//		data = 2;
+//		break;
+//	case 16:
+//		st_PowerGeiger = false;
+//		data = 1;
+//		break;
+//	case 17:
+//		if(st_PowerGeiger == true)             // Состоянеи ключа включения питания счетчика Гейгера
+//			{
+//				data = 2;
+//			}
+//		else
+//			{
+//				data = 1;
+//			}
+//		break; 
+//	case 18:                                   // Зафиксировать местные координаты
+//		//DOM_LAT = flat;
+//		//DOM_LON = flon;
+//		data = 1;
+//		break;
+//	case 19:                                   // Передать местные координаты DOM_LAT
+//		data = DOM_LAT*1000000;
+//		break;
+//	case 20:
+//		data = DOM_LON*1000000;                // Передать местные координаты DOM_LON
+//		break;
+//	case 21:
+//	  //  data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? TinyGPS::GPS_INVALID_F_ANGLE : TinyGPS::course_to(flat, flon, DOM_LAT, DOM_LON), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
+//		break;
+//	case 22:
+//		//data = (gps.f_altitude(), TinyGPS::GPS_INVALID_F_ALTITUDE, 7, 2);  // Высота GPS
+//	    break;
+//	case 23:
+//		//data = (flat == TinyGPS::GPS_INVALID_F_ANGLE ? TinyGPS::GPS_INVALID_F_ANGLE : TinyGPS::course_to(flat, flon, LONDON_LAT, LONDON_LON), TinyGPS::GPS_INVALID_F_ANGLE, 7, 2);
+//	    break;
+//	case 24:
+//		//data = (gps.f_speed_kmph(), TinyGPS::GPS_INVALID_F_SPEED, 6, 2);
+//	    break;
+//	case 25:
+//        break;
 
 	  default:
 		// Нераспознанная команда.
@@ -499,8 +746,6 @@ void run_nRF24L01()
 	Mirf.setTADDR((byte *)"remot");
 	Mirf.send((byte *)&data);                         //Отправляем ответ в виде массива байт:
   }
-  // Экспериментально вычисленная задержка.
-  // Позволяет избежать проблем с модулем.
   delay(20);
 }
 
@@ -592,6 +837,28 @@ void UpdatenRF24L01()
   }
 }
 
+void UpdateLed()
+{
+  if(numled == 0)
+  {
+	led1.Update();
+  }
+  if(numled == 1)
+  {
+	Pause1.Update();
+  }
+
+  if(numled == 2)
+  {
+	led2.Update();
+  }
+  if(numled == 3)
+  {
+	Pause2.Update();
+  }
+}
+
+
 void setup(void)
 {
   Serial.begin(9600);
@@ -602,7 +869,6 @@ void setup(void)
 	digitalWrite(Power_gaz,HIGH);
 	digitalWrite(PowerGeiger,HIGH);
 	digitalWrite(StatusLed,LOW);
-
 
 	pinMode(geiger_input, INPUT);
 	digitalWrite(geiger_input, HIGH);
@@ -635,49 +901,16 @@ void setup(void)
 
   // note: use zeroCal only after initialization.
   // dps.zeroCal(101800, 0);    // set zero point
-	//dps.init(MODE_ULTRA_HIGHRES, bmp_gnd, true);  // 220 meters, true = using meter units
-
 	Serial.println("Beginning ... ");
-
-	//	MsTimer2::set(500, flash_time);            // 500ms период таймера прерывания
-	//	MsTimer2::start();                         // Включить таймер прерывания
-	for(int i = 0;i < 4;i++)
-	{
-		digitalWrite(Power_gaz, HIGH);
-		delay(500);
-		digitalWrite(Power_gaz, LOW);
-		delay(500);
-	}
-	digitalWrite(Power_gaz, HIGH);
 	attachInterrupt(0, countPulse, FALLING);
 }
 
 void loop(void)
 {
-//  delay(100);
   currentMillis=millis();
   run_geiger();
- // run_GPS();
   UpdateGPS();
-
   UpdatenRF24L01();
   power_on_off();
-
-  if(numled == 0)
-  {
-	led1.Update();
-  }
-  if(numled == 1)
-  {
-	Pause1.Update();
-  }
-
-  if(numled == 2)
-  {
-	led2.Update();
-  }
-  if(numled == 3)
-  {
-	Pause2.Update();
-  }
+  UpdateLed();
 }

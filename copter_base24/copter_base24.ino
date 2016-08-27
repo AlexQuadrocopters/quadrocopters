@@ -217,26 +217,50 @@ bool stop_save_file    = false;    // Закрыть файл для запис�
 
 // ++++++++++++++++++  Переменные измерений +++++++++++++++++++++++++++++++++
 unsigned long count_strok = 0;               // Счетчик строк в файле
-int cpm                   = 0;               // Счетчик Гейгера               
-float uSv_h               = 0;               // Счетчик Гейгера 
-int temp_C                = 0;               // Температура С 
-int gaz_measure           = 0;               // Величина измеренной загазованности
-int gaz_porog             = 0;               // Уровень порога газа
-int P_mmHq                = 0;               // Давление
-int distance              = 0;               // Дистанция до объекта
-int altitudeP             = 0;               // Высота по давлению
-int f_altitude            = 0;               // Высота по GPS
-int altitudeDom           = 0;               // Высота местности
-int f_course              = 0;               // Направление на объект
-int speed_kmph            = 0;               // Скорость движения
-float fact_LAT            = 1.0;             // Координата фактическая
-float fact_LON            = 1.0;             // Координата фактическая
-float DOM_LAT             = 55.954994;       // Координата домашняя
-float DOM_LON             = 37.231121;       // Координата домашняя
-float data_f              = 0;
-int gound_m               = 218;             // Высота местности над уровнем моря
-int satellites            = 0;               // Количество спутников
-
+int cpm                     = 0;               // Счетчик Гейгера               
+float uSv_h                 = 0;               // Счетчик Гейгера 
+int temp_C                  = 0;               // Температура С 
+int gaz_measure             = 0;               // Величина измеренной загазованности
+int gaz_porog               = 0;               // Уровень порога газа
+int P_mmHq                  = 0;               // Давление
+int distance                = 0;               // Дистанция до объекта
+int altitudeP               = 0;               // Высота по давлению
+int f_altitude              = 0;               // Высота по GPS
+int altitudeDom             = 0;               // Высота местности
+int f_course                = 0;               // Направление на объект
+int speed_kmph              = 0;               // Скорость движения
+double gps_location_lat     = 0.0;             // Координата фактическая
+double gps_location_lng     = 0.0;             // Координата фактическая
+double DOM_LAT              = 55.954994;       // Координата домашняя
+double DOM_LON              = 37.231121;       // Координата домашняя
+float data_f                = 0;
+int gound_m                 = 218;             // Высота местности над уровнем моря
+int satellites              = 0;               // Количество спутников
+double distanceToDOM        = 0;               // Расстояние до объекта
+double courseToDOM          = 0;               // Направление на объект
+int gps_date_value          = 0;
+int gps_date_year           = 0;
+int gps_date_month          = 0;
+int gps_date_day            = 0;
+int gps_time_value          = 0;
+int gps_time_hour           = 0;
+int gps_time_minute         = 0;
+int gps_time_second         = 0;
+int gps_time_centisecond    = 0;
+int gps_speed_value         = 0;
+int gps_speed_knots         = 0;
+int gps_speed_mph           = 0;
+int gps_speed_mps           = 0;
+int gps_speed_kmph          = 0;
+int gps_course_value        = 0;
+int gps_course_deg          = 0;
+int gps_altitude_value      = 0;
+int gps_altitude_meters     = 0;
+int gps_altitude_miles      = 0;
+int gps_altitude_kilometers = 0;
+int gps_altitude_feet       = 0;
+int gps_satellites_value    = 0;
+int gps_hdop_value          = 0;
 
 
 //----------------------------
@@ -1970,19 +1994,19 @@ void waitanswer()
           myGLCD.printNumI(data, 204, 120);
           break;
         case 7:
-          fact_LAT = data;
-          fact_LAT = fact_LAT / 1000000;
+          //fact_LAT = data;
+          //fact_LAT = fact_LAT / 1000000;
           myGLCD.setFont(SmallFont);
           myGLCD.print("LAT =           ", 5, 160);                         // 
-          myGLCD.printNumF(fact_LAT, 6, 50, 160);
+          //myGLCD.printNumF(fact_LAT, 6, 50, 160);
           myGLCD.setFont(BigFont);
           break;
         case 8:
-          fact_LON = data;
-          fact_LON = fact_LON / 1000000;
+          //fact_LON = data;
+          //fact_LON = fact_LON / 1000000;
           myGLCD.setFont(SmallFont);
           myGLCD.print("LON =           ", 140, 160);                       // 
-          myGLCD.printNumF(fact_LON, 6, 190, 160);
+          //myGLCD.printNumF(fact_LON, 6, 190, 160);
           myGLCD.setFont(BigFont);
           break;
         case 9:
