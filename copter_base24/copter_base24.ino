@@ -1655,8 +1655,8 @@ void radiotraffic()
   myGLCD.drawRoundRect (2, 196, 318, 238);
   myGLCD.setBackColor(0, 0, 255);
   myGLCD.setColor(255, 255, 255);
-  myGLCD.drawRoundRect (299, 59, 313, 53);                 // Индикатор питания счетчика Гейгера
-  myGLCD.drawRoundRect (299, 99, 313, 87);                // Индикатор питания датчика газа
+  myGLCD.drawRoundRect (299, 70, 313, 84);                 // Индикатор питания счетчика Гейгера
+  myGLCD.drawRoundRect (299, 89, 313, 103);                // Индикатор питания датчика газа
   myGLCD.print(txt_file_save, CENTER, 207);                // Записать в файл
   stop_info = false;
 
@@ -1664,49 +1664,32 @@ void radiotraffic()
   {
     myGLCD.setBackColor(0, 0, 0);
     timeout = false;
-    Mirf.setTADDR((byte *)&"fly10");                // Устанавливаем адрес передачи
+    Mirf.setTADDR((byte *)&"fly10");            // Устанавливаем адрес передачи
     myGLCD.print("fly10", LEFT, 35);
-  //  Serial.println("Request millis()");            // Запрашиваем число милисекунд, прошедших с последней перезагрузки сервера:
-	send_command(1);
-    //command = 1;
-    //myGLCD.printNumI(command, 226, 40);
-    //myGLCD.print("->", 240, 40);
-    //Mirf.send((byte *)&command);
-    //delay(100);
-    //myGLCD.print("    ", 210, 40);
-    //timestamp = millis();                          // Запомнили время отправки:
-    waitanswer();                                  // Запускаем профедуру ожидания ответа
-    exit_file_save();                              // Проверка состояния кнопок
+
+	send_command(1);                            // Флаг готовности Счетчика Гейгера
+    waitanswer();                               // Запускаем профедуру ожидания ответа
+    exit_file_save();                           // Проверка состояния кнопок
 	if(stop_info == true)
 	{
 		stop_info = false;
 		return;
 	}
-	send_command(2);
-    //command = 2;
-    //myGLCD.printNumI(command, 226, 40);
-    //myGLCD.print("->", 240, 40);
-    //Mirf.send((byte *)&command);
-    //delay(100);
-    //myGLCD.print("    ", 210, 40);
-    //// Запомнили время отправки:
-    //timestamp = millis();
-    // Запускаем профедуру ожидания ответа
-    waitanswer();
 
-    if (geiger_ready == true)
+	if (geiger_ready == true)                   // Если данные со счетчика Гейгера готовы - запрашиваем их
     {
-    Serial.print("cpm = ");
-	send_command(3);
-      //command = 3;
-      //myGLCD.printNumI(command, 226, 40);
-      //myGLCD.print("->", 240, 40);
-      //Mirf.send((byte *)&command);
-      //delay(100);
-      //myGLCD.print("    ", 210, 40);
-      //timestamp = millis();                      // Запомнили время отправки:
-      waitanswer();                              // Запускаем процедуру ожидания ответа
-      exit_file_save();                              // Проверка состояния кнопок
+		send_command(2);                        // Показания Счетчика Гейгера отправлены
+		waitanswer(); 
+		Serial.print("cpm = ");
+		exit_file_save();                       // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+			stop_info = false;
+			return;
+		}
+		send_command(3);                        // Показания Счетчика Гейгера отправлены
+		waitanswer();                           // Запускаем процедуру ожидания ответа
+		exit_file_save();                       // Проверка состояния кнопок
 	  if(stop_info == true)
        {
 	   	 stop_info = false;
@@ -1714,208 +1697,129 @@ void radiotraffic()
 	   }
       Serial.print("uSv/h = ");
 	}
-	  send_command(4);                              // Проверка питания счетчика Гейгера 
-      waitanswer();
+
+	  send_command(4);                          // Состоянеи ключа включения питания счетчика Гейгера
+		waitanswer();
+		exit_file_save();                       // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+		stop_info = false;
+		return;
+		}
+	
+	 send_command(5);                           // Анализатор Газа
+		waitanswer(); 
+		exit_file_save();                       // Проверка состояния кнопок
 		if(stop_info == true)
 		{
 	   		stop_info = false;
 			return;
 		}
-		if (st_PowerGeiger == 2 )                           // Питание включено
+	 send_command(6);                           // Состоянеи ключа включения питания датчика газа
+		waitanswer();                           // Запускаем профедуру ожидания ответа
+		exit_file_save();                       // Проверка состояния кнопок
+		if(stop_info == true)
 		{
-			myGLCD.setColor(0, 255, 0);
-    		myGLCD.fillRoundRect  (300, 60, 312, 53);     // Индикатор питания счетчика Гейгера
-			myGLCD.setColor(255, 255, 255);
+	   		stop_info = false;
+			return;
 		}
-		else if (st_PowerGeiger == 1 )                      // Питание отключено
+	send_command(7);                            // Паказания температуры от BMP085
+		waitanswer();                           // Запускаем профедуру ожидания ответа                                     
+		exit_file_save();                       // Проверка состояния кнопок
+		if(stop_info == true)
 		{
-			myGLCD.setColor(255, 0, 0);
-			myGLCD.fillRoundRect  (300, 60, 312, 53);     // Индикатор питания счетчика Гейгера
-			myGLCD.setColor(255, 255, 255);
+	   		stop_info = false;
+			return;
 		}
-		else                                              // Данные не получены
-		{ 
-   			myGLCD.setColor(0, 0, 0);
-			myGLCD.fillRoundRect  (300, 60, 312, 53);     // Индикатор питания счетчика Гейгера
-			myGLCD.setColor(255, 255, 255);
+	send_command(8);                            // Показания давления от BMP085
+		waitanswer();                           // Запускаем профедуру ожидания ответа 
+		exit_file_save();                       // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
 		}
-      exit_file_save();                                // Проверка состояния кнопок
-	  if(stop_info == true)
-       {
-	   	 stop_info = false;
-		 return;
-	   }
-	
- send_command(5);
-    waitanswer();
-	exit_file_save();                                // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
- send_command(6);                                    // Проверка питания датчика газа
-    waitanswer();                                    // Запускаем профедуру ожидания ответа
- 	if (st_Power_gaz == 2 )                           // Питание включено
-	{
-		myGLCD.setColor(0, 255, 0);
-    	myGLCD.fillRoundRect  (300, 100, 312, 87);   // Индикатор питания датчика газа
-		myGLCD.setColor(255, 255, 255);
-	}
-	else if (st_Power_gaz == 1 )                      // Питание отключено
-	{
-		myGLCD.setColor(255, 0, 0);
-	    myGLCD.fillRoundRect  (300, 100, 312, 87);   // Индикатор питания датчика газа
-		myGLCD.setColor(255, 255, 255);
-	}
-	else                                              // Данные не получены
-	{ 
-   		myGLCD.setColor(0, 0, 0);
-	    myGLCD.fillRoundRect  (300, 100, 312, 87);   // Индикатор питания датчика газа
-		myGLCD.setColor(255, 255, 255);
-	}
-    exit_file_save();                              // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
-send_command(7);
-    waitanswer();                                   // Запускаем профедуру ожидания ответа                                     
-    exit_file_save();                              // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
-send_command(8);
-    waitanswer();                                   // Запускаем профедуру ожидания ответа 
-    exit_file_save();                              // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
-send_command(9);              // Запомнили время отправки:
-    waitanswer();                           // Запускаем профедуру ожидания ответа
-    exit_file_save();                              // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
-//send_command(10);
-//    waitanswer();                          // Запускаем профедуру ожидания ответа
-//    exit_file_save();                              // Проверка состояния кнопок
-//	if(stop_info == true)
-//    {
-//	   	stop_info = false;
-//		return;
-//	}
-send_command(11);
-    waitanswer();                          // Запускаем профедуру ожидания ответа
-    exit_file_save();                              // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
-	send_command(12);
-    waitanswer();                          // Запускаем профедуру ожидания ответа
-    exit_file_save();                              // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
+	send_command(9);                            // Показания Высота от датчика давления BMP085
+		waitanswer();                           // Запускаем профедуру ожидания ответа
+		exit_file_save();                       // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
+	send_command(10);                          // Высота в метрах со спутника
+	    waitanswer();                          // Запускаем профедуру ожидания ответа
+	    exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+	    {
+		   	stop_info = false;
+			return;
+		}
+	send_command(11);                          // Передать  координаты LAT
+		waitanswer();                          // Запускаем профедуру ожидания ответа
+		exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
+	send_command(12);                          // Передать  координаты LON
+		waitanswer();                          // Запускаем профедуру ожидания ответа
+		exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
 
-	send_command(13);
-    waitanswer();                          // Запускаем профедуру ожидания ответа
-    exit_file_save();                              // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
-	send_command(14);
-    waitanswer();                          // Запускаем профедуру ожидания ответа
-    exit_file_save();                              // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
-
-
-
-
-//send_command(14);
-//    waitanswer();                          // Запускаем профедуру ожидания ответа
-//	if (st_Power_gaz == 2 )                           // Питание включено
-//	{
-//		myGLCD.setColor(0, 255, 0);
-//    	myGLCD.fillRoundRect  (300, 100, 312, 112);   // Индикатор питания датчика газа
-//		myGLCD.setColor(255, 255, 255);
-//	}
-//	else if (st_Power_gaz == 1 )                      // Питание отключено
-//	{
-//		myGLCD.setColor(255, 0, 0);
-//	    myGLCD.fillRoundRect  (300, 100, 312, 112);   // Индикатор питания датчика газа
-//		myGLCD.setColor(255, 255, 255);
-//	}
-//	else                                              // Данные не получены
-//	{ 
-//   		myGLCD.setColor(0, 0, 0);
-//	    myGLCD.fillRoundRect  (300, 100, 312, 112);   // Индикатор питания датчика газа
-//		myGLCD.setColor(255, 255, 255);
-//	}
-//    exit_file_save();                              // Проверка состояния кнопок
-//	if(stop_info == true)
-//    {
-//	   	stop_info = false;
-//		return;
-//	}
-//send_command(17);
-//    waitanswer();                          // Запускаем профедуру ожидания ответа
-//    exit_file_save();                              // Проверка состояния кнопок
-//	if(stop_info == true)
-//    {
-//	   	stop_info = false;
-//		return;
-//	}
-//	if (st_PowerGeiger == 2 )                           // Питание включено
-//	{
-//		myGLCD.setColor(0, 255, 0);
-//    	myGLCD.fillRoundRect  (300, 60, 312, 72);     // Индикатор питания счетчика Гейгера
-//		myGLCD.setColor(255, 255, 255);
-//	}
-//	else if (st_PowerGeiger == 1 )                      // Питание отключено
-//	{
-//		myGLCD.setColor(255, 0, 0);
-//	    myGLCD.fillRoundRect  (300, 60, 312, 72);     // Индикатор питания счетчика Гейгера
-//		myGLCD.setColor(255, 255, 255);
-//	}
-//	else                                              // Данные не получены
-//	{ 
-//   		myGLCD.setColor(0, 0, 0);
-//	    myGLCD.fillRoundRect  (300, 60, 312, 72);     // Индикатор питания счетчика Гейгера
-//		myGLCD.setColor(255, 255, 255);
-//	}
-//
-send_command(22);
-    waitanswer();
-	exit_file_save();                                // Проверка состояния кнопок
-	if(stop_info == true)
-    {
-	   	stop_info = false;
-		return;
-	}
-
-
-
-
-
-
+	send_command(13);                          // Передать местные координаты DOM_LAT
+		waitanswer();                          // Запускаем профедуру ожидания ответа
+		exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
+	send_command(14);                          // Передать местные координаты DOM_LON
+		waitanswer();                          // Запускаем профедуру ожидания ответа
+		exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
+	send_command(15);                          // Количество спутников 
+		waitanswer();                          // Запускаем профедуру ожидания ответа
+		exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
+	send_command(16);                          // Расстояние до объекта
+		waitanswer();                          // Запускаем профедуру ожидания ответа
+		exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
+	send_command(17);                          // Направление на объект
+		waitanswer();                          // Запускаем профедуру ожидания ответа
+		exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
+	send_command(18);                          // Скорость объекта метров в час
+		waitanswer();                          // Запускаем профедуру ожидания ответа
+		exit_file_save();                      // Проверка состояния кнопок
+		if(stop_info == true)
+		{
+	   		stop_info = false;
+			return;
+		}
     delay(10);
   }
 }
@@ -1970,14 +1874,23 @@ void waitanswer()
 			if (data == 1)
 			{
 				st_PowerGeiger = 1;
+				myGLCD.setColor(255, 0, 0);
+			    myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+			    myGLCD.setColor(255, 255, 255);
 			}
 			else if (data == 2)
 			{
 				st_PowerGeiger = 2;
+				myGLCD.setColor(0, 255, 0);
+				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+				myGLCD.setColor(255, 255, 255);
 			}
 			else
 			{
 				st_PowerGeiger = 0;
+				myGLCD.setColor(0, 0, 0);
+				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+				myGLCD.setColor(255, 255, 255);
 			}
 			break; 
 		case 5:                                        // Анализатор Газа
@@ -1987,15 +1900,24 @@ void waitanswer()
 		case 6:                                       // Состоянеи ключа включения питания датчика газа
 			if (data == 1)
 			{
-			    st_Power_gaz = 1;
+				st_Power_gaz = 1;
+				myGLCD.setColor(255, 0, 0);
+				myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+				myGLCD.setColor(255, 255, 255);
 			}
 			else if (data == 2)
 			{
 				st_Power_gaz = 2;
+				myGLCD.setColor(0, 255, 0);
+				myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+				myGLCD.setColor(255, 255, 255);
 			}
 			else
 			{
 				st_Power_gaz = 0;
+				myGLCD.setColor(0, 0, 0);
+				myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+				myGLCD.setColor(255, 255, 255);
 			}
 			break;
 		case 7:  // Паказания температуры от BMP085
@@ -2054,11 +1976,23 @@ void waitanswer()
 			myGLCD.printNumF(DOM_LON, 6, 190, 147);
 			myGLCD.setFont(BigFont);
 			break;
-		case 15:                                   // Количество спутников
-		    data = gps_satellites_value;            // Количество спутников  
+		case 15:                                              // Количество спутников
+			gps_satellites_value = data;
+			myGLCD.setFont(SmallFont);
+			myGLCD.print("Sat =   ", 5, 164);                              // Количество спутников
+			if (gps_satellites_value == 255)
+			{
+			gps_satellites_value = 0;
+			}
+			myGLCD.printNumI(gps_satellites_value, 50, 164);
+			myGLCD.setFont(BigFont);
 			break;
-		case 16:// Расстояние до объекта
-		    data = distanceToDOM;                   // Расстояние до объекта
+		case 16:                                              // Расстояние до объекта
+			distanceToDOM = data;
+			myGLCD.setFont(SmallFont);
+			myGLCD.print("Dist =     ", 70, 164);   
+			myGLCD.printNumI(distanceToDOM, 125, 164);
+			myGLCD.setFont(BigFont);
 			break;
 		case 17: // Направление на объект
 		    data = gps_course_deg;                  // Направление на объект
@@ -2351,7 +2285,15 @@ void waitanswer()
 void send_command(int _command)
 {
     command = _command;
-    myGLCD.printNumI(command, 226, 35);
+	myGLCD.print("   ", 212, 35);
+	if(command < 10)
+	{
+		myGLCD.printNumI(command, 226, 35);
+	}
+	else
+	{
+	   myGLCD.printNumI(command, 212, 35);
+	}
     myGLCD.print("->", 240, 35);
     Mirf.send((byte *)&command);
     delay(100);
