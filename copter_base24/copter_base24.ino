@@ -517,14 +517,14 @@ void swichMenu() // Тексты меню в строках "txt....."
       }
       if (pressed_button == but3 && m2 == 1)
       {
-        menu_Geiger(); // если верно - выполнить пункт меню
+        menu_Geiger(); // если верно - выполнить пункт меню ПИТАНИЕ датчика Гейгера
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
       if (pressed_button == but4 && m2 == 1)
       {
-        menu_gaz(); // если верно - выполнить пункт меню
+        menu_gaz(); // если верно - выполнить пункт меню ПИТАНИЕ датчика газа
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -1080,7 +1080,6 @@ void updateStr(int val)
   }
 }
 
-// Draw a red frame while a button is touched
 void waitForIt(int x1, int y1, int x2, int y2)
 {
   myGLCD.setColor(255, 0, 0);
@@ -1700,6 +1699,24 @@ void radiotraffic()
 
 	  send_command(4);                          // Состоянеи ключа включения питания счетчика Гейгера
 		waitanswer();
+			if (st_PowerGeiger == 1)
+			{
+				myGLCD.setColor(255, 0, 0);
+			    myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+			    myGLCD.setColor(255, 255, 255);
+			}
+			else if (st_PowerGeiger == 2)
+			{
+				myGLCD.setColor(0, 255, 0);
+				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+				myGLCD.setColor(255, 255, 255);
+			}
+			else
+			{
+				myGLCD.setColor(0, 0, 0);
+				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+				myGLCD.setColor(255, 255, 255);
+			}
 		exit_file_save();                       // Проверка состояния кнопок
 		if(stop_info == true)
 		{
@@ -1717,6 +1734,24 @@ void radiotraffic()
 		}
 	 send_command(6);                           // Состоянеи ключа включения питания датчика газа
 		waitanswer();                           // Запускаем профедуру ожидания ответа
+		if (st_Power_gaz == 1)
+		{
+			myGLCD.setColor(255, 0, 0);
+			myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+			myGLCD.setColor(255, 255, 255);
+		}
+		else if (st_Power_gaz == 2)
+		{
+			myGLCD.setColor(0, 255, 0);
+			myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+			myGLCD.setColor(255, 255, 255);
+		}
+		else
+		{
+			myGLCD.setColor(0, 0, 0);
+			myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+			myGLCD.setColor(255, 255, 255);
+		}
 		exit_file_save();                       // Проверка состояния кнопок
 		if(stop_info == true)
 		{
@@ -1874,23 +1909,14 @@ void waitanswer()
 			if (data == 1)
 			{
 				st_PowerGeiger = 1;
-				myGLCD.setColor(255, 0, 0);
-			    myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
-			    myGLCD.setColor(255, 255, 255);
 			}
 			else if (data == 2)
 			{
 				st_PowerGeiger = 2;
-				myGLCD.setColor(0, 255, 0);
-				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
-				myGLCD.setColor(255, 255, 255);
 			}
 			else
 			{
 				st_PowerGeiger = 0;
-				myGLCD.setColor(0, 0, 0);
-				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
-				myGLCD.setColor(255, 255, 255);
 			}
 			break; 
 		case 5:                                        // Анализатор Газа
@@ -1901,23 +1927,14 @@ void waitanswer()
 			if (data == 1)
 			{
 				st_Power_gaz = 1;
-				myGLCD.setColor(255, 0, 0);
-				myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
-				myGLCD.setColor(255, 255, 255);
 			}
 			else if (data == 2)
 			{
 				st_Power_gaz = 2;
-				myGLCD.setColor(0, 255, 0);
-				myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
-				myGLCD.setColor(255, 255, 255);
 			}
 			else
 			{
 				st_Power_gaz = 0;
-				myGLCD.setColor(0, 0, 0);
-				myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
-				myGLCD.setColor(255, 255, 255);
 			}
 			break;
 		case 7:  // Паказания температуры от BMP085
@@ -2112,159 +2129,6 @@ void waitanswer()
 		case 40:
 			gps_altitude_feet = data;
 			break;
-	  
-	  
-	  /*
-
-        case 7:
-          //fact_LAT = data;
-          //fact_LAT = fact_LAT / 1000000;
-          myGLCD.setFont(SmallFont);
-          myGLCD.print("LAT =           ", 5, 160);                         // 
-          //myGLCD.printNumF(fact_LAT, 6, 50, 160);
-          myGLCD.setFont(BigFont);
-          break;
-        case 8:
-          //fact_LON = data;
-          //fact_LON = fact_LON / 1000000;
-          myGLCD.setFont(SmallFont);
-          myGLCD.print("LON =           ", 140, 160);                       // 
-          //myGLCD.printNumF(fact_LON, 6, 190, 160);
-          myGLCD.setFont(BigFont);
-          break;
-        case 9:
-          altitudeP = data;
-          myGLCD.setFont(SmallFont);
-          myGLCD.print("B""\xAB""co""\xA4""a =     ", 5, 143);              // Высота =
-          myGLCD.printNumI(altitudeP, 75, 143);                             // Высота от датчика давления BMP085
-		  myGLCD.setFont(BigFont);
-          break;
-        case 10:
-          distance = data;
-          myGLCD.setFont(SmallFont);
-          myGLCD.print("\x82\x9D""c""\xA4"". =     ", 140, 143);            // Дист. =
-          myGLCD.printNumI(distance, 205, 143);
-		  myGLCD.setFont(BigFont);
-          break;
-        case 11:
-		  satellites = data;
-		  myGLCD.setFont(SmallFont);
-          myGLCD.print("Sat =      ", 5, 175);                              // Количество спутников
-          if (satellites == 255)
-          {
-			satellites = 0;
-          }
-       	  myGLCD.printNumI(satellites, 50, 175);
-          myGLCD.setFont(BigFont);
-          break;
-        case 12:
-          if (data == 1)
-          {
-            st_Power_gaz = 1;
-          }
-          else if (data == 2)
-          {
-            st_Power_gaz = 2;
-          }
-          else
-          {
-            st_Power_gaz = 0;
-          }
-          break;
-        case 13:
-          if (data == 1)
-          {
-            st_Power_gaz = 1;
-          }
-          else if (data == 2)
-          {
-            st_Power_gaz = 2;
-          }
-          else
-          {
-            st_Power_gaz = 0;
-          }
-          break;
-        case 14:
-          if (data == 1)
-          {
-            st_Power_gaz = 1;
-          }
-          else if (data == 2)
-          {
-            st_Power_gaz = 2;
-          }
-          else
-          {
-            st_Power_gaz = 0;
-          }
-          break;
-        case 15:
-          if (data == 1)
-          {
-            st_PowerGeiger = 1;
-          }
-          else if (data == 2)
-          {
-            st_PowerGeiger = 2;
-          }
-          else
-          {
-            st_PowerGeiger = 0;
-          }
-          break;
-        case 16:
-          if (data == 1)
-          {
-            st_PowerGeiger = 1;
-          }
-          else if (data == 2)
-          {
-            st_PowerGeiger = 2;
-          }
-          else
-          {
-            st_PowerGeiger = 0;
-          }
-          break;
-        case 17:
-          if (data == 1)
-          {
-            st_PowerGeiger = 1;
-          }
-          else if (data == 2)
-          {
-            st_PowerGeiger = 2;
-          }
-          else
-          {
-            st_PowerGeiger = 0;
-          }
-          break;
-        case 18:
-          break;
-        case 19:
-          DOM_LAT = data * 1000000;
-          break;
-        case 20:
-          DOM_LON = data * 1000000;
-          break;
-
-		case 21:
-		  break;
-		case 22:
-		  f_altitude = data;
-		  myGLCD.setFont(SmallFont);
-          myGLCD.print("Alt =      ", 170, 175);                              // Количество спутников
-		  myGLCD.printNumI(f_altitude, 240, 175);
-		  myGLCD.setFont(BigFont);
-		  break;
-		case 23:
-		  break;
-		case 24:
-		  break;
-
-		  */
       }
       data = 0;
     }
@@ -2299,8 +2163,7 @@ void send_command(int _command)
     delay(100);
     myGLCD.print("    ", 210, 35);
     timestamp = millis();                          // Запомнили время отправки:
-  //  waitanswer();                                  // Запускаем профедуру ожидания ответа
-}
+ }
 
 void exit_file_save()
 {
@@ -3088,14 +2951,14 @@ void menu_gaz()
         if ((x >= 20) && (x <= 150))    // ВКЛ
         {
           waitForIt(20, 110, 150, 150);
-          radio_send(12);
+          radio_send(19);
           delay(500);
           info_power_gaz();
         }
         if ((x >= 170) && (x <= 300))  // ОТКЛ
         {
           waitForIt(170, 110, 300, 150);
-          radio_send(13);
+          radio_send(20);
           delay(500);
           info_power_gaz();
         }
@@ -3106,7 +2969,6 @@ void menu_gaz()
         {
           waitForIt(95, 170, 225, 210);
           break;
-          //  return;
         }
       }
     }
@@ -3117,7 +2979,7 @@ void info_power_gaz()
 {
   myGLCD.setBackColor(0, 0, 0);
   myGLCD.setColor(0, 0, 0);
-  radio_send(14);                                       // Запросить состояние питания датчика газа
+  radio_send(6);                                       // Запросить состояние питания датчика газа
   delay(500);
   if (st_Power_gaz == 2 )                           // Питание включено
   {
@@ -3191,14 +3053,14 @@ void menu_Geiger()
         if ((x >= 20) && (x <= 150))        // ВКЛ
         {
           waitForIt(20, 110, 150, 150);
-          radio_send(15);
+          radio_send(21);
           delay(500);
           info_power_geiger();
         }
         if ((x >= 170) && (x <= 300))       // ОТКЛ
         {
           waitForIt(170, 110, 300, 150);
-          radio_send(16);
+          radio_send(22);
           delay(500);
           info_power_geiger();
         }
@@ -3218,7 +3080,7 @@ void info_power_geiger()
 {
   myGLCD.setBackColor(0, 0, 0);
   myGLCD.setColor(0, 0, 0);
-  radio_send(17);                                       // Запросить состояние питания датчика газа
+  radio_send(4);                                       // Запросить состояние питания датчика газа
   delay(500);
   if (st_PowerGeiger == 2 )                           // Питание включено
   {
