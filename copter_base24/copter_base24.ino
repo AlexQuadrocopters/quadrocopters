@@ -426,9 +426,9 @@ void swichMenu() // Тексты меню в строках "txt....."
      if (pressed_button == but_m1)              // Нажата 1 страница меню
       {
         myButtons.setButtonColors(VGA_WHITE, VGA_GRAY, VGA_WHITE, VGA_RED, VGA_BLUE); // Голубой фон меню
-        myButtons.drawButtons();                // Восстановить кнопки
+        myButtons.drawButtons();                                   // Восстановить кнопки
         default_colors = true;
-        m2 = 1;                                              // Устанивить первую странице меню
+        m2 = 1;                                                    // Устанивить первую страницу меню
         myButtons.relabelButton(but1, txt_menu1_1, m2 == 1);
         myButtons.relabelButton(but2, txt_menu1_2, m2 == 1);
         myButtons.relabelButton(but3, txt_menu1_3, m2 == 1);
@@ -436,7 +436,7 @@ void swichMenu() // Тексты меню в строках "txt....."
         myGLCD.setColor(0, 255, 0);
         myGLCD.setBackColor(0, 0, 0);
         myGLCD.print("                      ", CENTER, 0);
-        myGLCD.print(txt_info1, CENTER, 0);            // "Ввод данных"
+        myGLCD.print(txt_info1, CENTER, 0);                        // "Ввод данных"
       }
      if (pressed_button == but_m2)
       {
@@ -451,7 +451,7 @@ void swichMenu() // Тексты меню в строках "txt....."
         myGLCD.setColor(0, 255, 0);
         myGLCD.setBackColor(0, 0, 0);
         myGLCD.print("                      ", CENTER, 0);
-        myGLCD.print(txt_info2, CENTER, 0);            // Информация
+        myGLCD.print(txt_info2, CENTER, 0);                       // Информация
       }
       if (pressed_button == but_m3)
       {
@@ -466,7 +466,7 @@ void swichMenu() // Тексты меню в строках "txt....."
         myGLCD.setColor(0, 255, 0);
         myGLCD.setBackColor(0, 0, 0);
         myGLCD.print("                      ", CENTER, 0);
-        myGLCD.print(txt_info3, CENTER, 0);            // Информация
+        myGLCD.print(txt_info3, CENTER, 0);                       // Информация
       }
       if (pressed_button == but_m4)
       {
@@ -481,7 +481,7 @@ void swichMenu() // Тексты меню в строках "txt....."
         myGLCD.setColor(0, 255, 0);
         myGLCD.setBackColor(0, 0, 0);
         myGLCD.print("                      ", CENTER, 0);
-        myGLCD.print(txt_info4, CENTER, 0);            //
+        myGLCD.print(txt_info4, CENTER, 0);                          //
       }
       if (pressed_button == but_m5)
       {
@@ -496,14 +496,14 @@ void swichMenu() // Тексты меню в строках "txt....."
         myGLCD.setColor(0, 255, 0);
         myGLCD.setBackColor(0, 0, 0);
         myGLCD.print("                      ", CENTER, 0);
-        myGLCD.print(txt_info5, CENTER, 0);            //
+        myGLCD.print(txt_info5, CENTER, 0);                     //
       }
 
       //*****************  Меню №1  **************
 
       if (pressed_button == but1 && m2 == 1)
       {
-        radiotraffic();                 // если верно - выполнить пункт меню
+        radiotraffic();                                        //  выполнить пункт меню
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -517,14 +517,14 @@ void swichMenu() // Тексты меню в строках "txt....."
       }
       if (pressed_button == but3 && m2 == 1)
       {
-        menu_Geiger(); // если верно - выполнить пункт меню ПИТАНИЕ датчика Гейгера
+        menu_Geiger();                                         // выполнить пункт меню ПИТАНИЕ датчика Гейгера
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
       if (pressed_button == but4 && m2 == 1)
       {
-        menu_gaz(); // если верно - выполнить пункт меню ПИТАНИЕ датчика газа
+        menu_gaz();                                           // выполнить пункт меню ПИТАНИЕ датчика газа
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -560,7 +560,7 @@ void swichMenu() // Тексты меню в строках "txt....."
       }
 
       //*****************  Меню №3  **************
-      if (pressed_button == but1 && m2 == 3) // Первый пункт меню 3
+      if (pressed_button == but1 && m2 == 3)                         // Первый пункт меню 3
       {
 		myGLCD.clrScr();
 		Draw_menu_SD();
@@ -571,7 +571,7 @@ void swichMenu() // Тексты меню в строках "txt....."
       }
 
       //--------------------------------------------------------------
-      if (pressed_button == but2 && m2 == 3) // Второй пункт меню 3
+      if (pressed_button == but2 && m2 == 3)                       // Второй пункт меню 3
       {
         pass_test_start();
         klav123();
@@ -602,7 +602,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 
       //------------------------------------------------------------------
 
-      if (pressed_button == but3 && m2 == 3) // Третий пункт меню 3
+      if (pressed_button == but3 && m2 == 3)                  // Третий пункт меню 3
       {
         myGLCD.clrScr();
         myButtons.drawButtons();
@@ -610,7 +610,7 @@ void swichMenu() // Тексты меню в строках "txt....."
       }
 
       //------------------------------------------------------------------
-      if (pressed_button == but4 && m2 == 3) // Четвертый пункт меню 3
+      if (pressed_button == but4 && m2 == 3)                 // Четвертый пункт меню 3
       {
 
 		myGLCD.clrScr();
@@ -622,32 +622,32 @@ void swichMenu() // Тексты меню в строках "txt....."
 
       //*****************  Меню №4  **************
 
-      if (pressed_button == but1 && m2 == 4)   // Сброс данных
+      if (pressed_button == but1 && m2 == 4)                 // Сброс данных  
       {
-        pass_test_start();              // Нарисовать цифровую клавиатуру
-        klav123();                      // Считать информацию с клавиатуры
-        if (ret == 1)                       // Если "Возврат" - закончить
+        pass_test_start();                                   // Вводим пароль Нарисовать цифровую клавиатуру
+        klav123();                                           // Считать информацию с клавиатуры
+        if (ret == 1)                                        // Если "Возврат" - закончить
         {
-          goto bailout14;              // Перейти на окончание выполнения пункта меню
+          goto bailout14;                                    // Перейти на окончание выполнения пункта меню
         }
         else
         {
           pass_test();
         }
-        if ( ( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
+        if ( ( pass2 == 1) || ( pass3 == 1))                  // если верно - выполнить пункт меню
         {
-          myGLCD.clrScr();              // Очистить экран
+          myGLCD.clrScr();                                    // Очистить экран
           myGLCD.print(txt_pass_ok, RIGHT, 208);
           delay (500);
-          eeprom_clear = 1;             // Разрешить стереть информации
-          system_clear_start();         // если верно - выполнить пункт меню
+          eeprom_clear = 1;                                   // Разрешить стереть информации
+          system_clear_start();                               // если верно - выполнить пункт меню
         }
-        else  // Пароль не верный - сообщить и закончить
+        else                                                  // Пароль не верный - сообщить и закончить
         {
           txt_pass_no_all();
         }
 
-bailout14: // Восстановить пункты меню
+		bailout14:                                           // Восстановить пункты меню
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -712,12 +712,12 @@ bailout14: // Восстановить пункты меню
           txt_pass_no_all();
         }
 
-bailout34:
+		bailout34:
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
-      if (pressed_button == but4 && m2 == 4) // Смена пароля администратора
+      if (pressed_button == but4 && m2 == 4)                        // Смена пароля администратора
       {
         int stCurrentLen_pass_admin = i2c_eeprom_read_byte( deviceaddress, adr_pass_admin - 2);
         if (stCurrentLen_pass_admin == 0)
@@ -754,63 +754,64 @@ bailout44:
       }
       //*****************  Меню №5  **************
 
-      if (pressed_button == but1 && m2 == 5) // Сброс данных
+      if (pressed_button == but1 && m2 == 5)                        // Меню 5 -1
       {
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
-      if (pressed_button == but2 && m2 == 5)
+
+      if (pressed_button == but2 && m2 == 5)                      // Меню 5 - 2
       {
-        pass_test_start();  // Нарисовать цифровую клавиатуру
-        klav123();          // Считать информацию с клавиатуры
-        if (ret == 1)        // Если "Возврат" - закончить
+        pass_test_start();                                        // Нарисовать цифровую клавиатуру
+        klav123();                                                // Считать информацию с клавиатуры
+        if (ret == 1)                                             // Если "Возврат" - закончить
         {
-          goto bailout25;  // Перейти на окончание выполнения пункта меню
+          goto bailout25;                                         // Перейти на окончание выполнения пункта меню
         }
-        else                 // Иначе выполнить пункт меню
+        else                                                      // Иначе выполнить пункт меню
         {
-          pass_test();     // Проверить пароль
+          pass_test();                                            // Проверить пароль
         }
-        if ( ( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
+        if ( ( pass2 == 1) || ( pass3 == 1))                      // если верно - выполнить пункт меню
         {
           myGLCD.clrScr();   // Очистить экран
           myGLCD.print(txt_pass_ok, RIGHT, 208);
           delay (500);
-          //					  ZigBee_SetH(); // если верно - выполнить пункт меню
+                                                                  //		    - выполнить пункт меню
           reset_klav();
         }
-        else  // Пароль не верный - сообщить и закончить
+        else                                                      // Пароль не верный - сообщить и закончить
         {
           txt_pass_no_all();
         }
 
-bailout25:
+		bailout25:
         myButtons.drawButtons();
         print_up();
       }
 
-      if (pressed_button == but3 && m2 == 5) // Ввод пароля пользователя
+      if (pressed_button == but3 && m2 == 5)                    // Ввод пароля пользователя
       {
-        pass_test_start();  // Нарисовать цифровую клавиатуру
-        klav123();          // Считать информацию с клавиатуры
-        if (ret == 1)        // Если "Возврат" - закончить
+        pass_test_start();                                      // Нарисовать цифровую клавиатуру
+        klav123();                                              // Считать информацию с клавиатуры
+        if (ret == 1)                                           // Если "Возврат" - закончить
         {
-          goto bailout35;  // Перейти на окончание выполнения пункта меню
+          goto bailout35;                                       // Перейти на окончание выполнения пункта меню
         }
-        else                 // Иначе выполнить пункт меню
+        else                                                    // Иначе выполнить пункт меню
         {
-          pass_test();     // Проверить пароль
+          pass_test();                                          // Проверить пароль
         }
-        if ( ( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
+        if ( ( pass2 == 1) || ( pass3 == 1))                    // если верно - выполнить пункт меню
         {
-          myGLCD.clrScr();   // Очистить экран
+          myGLCD.clrScr();                                      // Очистить экран
           myGLCD.print(txt_pass_ok, RIGHT, 208);
           delay (500);
-          //					  ZigBee_SetL(); // если верно - выполнить пункт меню
+                                                                //  выполнить пункт меню
           reset_klav();
         }
-        else  // Пароль не верный - сообщить и закончить
+        else                                                    // Пароль не верный - сообщить и закончить
         {
           txt_pass_no_all();
         }
@@ -820,27 +821,27 @@ bailout35:
         print_up();
       }
 
-      if (pressed_button == but4 && m2 == 5) // Смена пароля администратора
+      if (pressed_button == but4 && m2 == 5)                  // Смена пароля администратора
       {
 
-        pass_test_start();  // Нарисовать цифровую клавиатуру
-        klav123();          // Считать информацию с клавиатуры
-        if (ret == 1)        // Если "Возврат" - закончить
+        pass_test_start();                                    // Нарисовать цифровую клавиатуру
+        klav123();                                            // Считать информацию с клавиатуры
+        if (ret == 1)                                         // Если "Возврат" - закончить
         {
-          goto bailout45;  // Перейти на окончание выполнения пункта меню
+          goto bailout45;                                     // Перейти на окончание выполнения пункта меню
         }
-        else                 // Иначе выполнить пункт меню
+        else                                                  // Иначе выполнить пункт меню
         {
-          pass_test();     // Проверить пароль
+          pass_test();                                        // Проверить пароль
         }
-        if ( ( pass2 == 1) || ( pass3 == 1)) // если верно - выполнить пункт меню
+        if ( ( pass2 == 1) || ( pass3 == 1))                  // если верно - выполнить пункт меню
         {
-          myGLCD.clrScr();   // Очистить экран
+          myGLCD.clrScr();                                    // Очистить экран
           myGLCD.print(txt_pass_ok, RIGHT, 208);
           delay (500);
           reset_klav();
         }
-        else  // Пароль не верный - сообщить и закончить
+        else                                                  // Пароль не верный - сообщить и закончить
         {
           txt_pass_no_all();
         }
@@ -851,7 +852,6 @@ bailout45:
       }
     }
   }
-
 }
 
 void all_alarm()
@@ -2452,7 +2452,7 @@ void i2c_eeprom_read_buffer( int deviceaddress, unsigned int eeaddress, byte *bu
   Wire.requestFrom(deviceaddress, length);
   int c = 0;
   for ( c = 0; c < length; c++ )
-    if (Wire.available()) buffer[c] = Wire.read();
+  if (Wire.available()) buffer[c] = Wire.read();
 
 }
 
@@ -2776,90 +2776,7 @@ void AnalogClock()
   }
 
 }
-//
-//void info_nomer_user()
-//{
-//  myGLCD.clrScr();   // Очистить экран CENTER
-//  myGLCD.setColor(0, 0, 255);
-//  myGLCD.fillRoundRect (2, 2, 318, 25);
-//  myGLCD.setColor(255, 255, 255);
-//  myGLCD.drawRoundRect (2, 2, 318, 25);
-//  myGLCD.setColor(255, 255, 255);
-//  myGLCD.setBackColor(0, 0, 255);
-//  myGLCD.print(txt_info_n_user, CENTER, 5);
-//
-//  stCurrentLen_user = i2c_eeprom_read_byte( deviceaddress, adr_n_user - 2); // Чтение номера пользователя
-//  if (stCurrentLen_user > 20)
-//  {
-//    stCurrentLen_user = 0;
-//  }
-//  for (int z = 0; z < stCurrentLen_user + 1; z++)
-//  {
-//    n_user[z] = 0;
-//  }
-//  for (int z = 0; z < stCurrentLen_user; z++)
-//  {
-//    n_user[z] = i2c_eeprom_read_byte( deviceaddress, adr_n_user + z);
-//  }
-//
-//  myGLCD.setBackColor(0, 0, 0);
-//  myGLCD.print(txt_info_n_user1, CENTER, 30);
-//  myGLCD.print(n_user, CENTER, 50);//
-//
-//  stCurrentLen_telef = i2c_eeprom_read_byte( deviceaddress, adr_n_telef - 2); // Чтение номера пользователя
-//  if (stCurrentLen_telef > 11)
-//  {
-//    stCurrentLen_telef = 0;
-//  }
-//
-//  for (int z = 0; z < stCurrentLen_telef + 1; z++)
-//  {
-//    n_telefon[z] = 0;
-//  }
-//
-//  for (int z = 0; z < stCurrentLen_telef; z++)
-//  {
-//    n_telefon[z] = i2c_eeprom_read_byte( deviceaddress, adr_n_telef + z);
-//  }
-//
-//  myGLCD.setBackColor(0, 0, 0);
-////  myGLCD.print(txt_info_n_telef, CENTER, 70);
-//  myGLCD.print(n_telefon, CENTER, 90);//
-//  myGLCD.setColor(255, 255, 255);
-//
-//  myGLCD.setColor(0, 0, 255);
-//  myGLCD.fillRoundRect (2, 216, 318, 238);
-//  myGLCD.setColor(255, 255, 255);
-//  myGLCD.drawRoundRect (2, 216, 318, 238);
-//  myGLCD.setBackColor(0, 0, 255);
-//  myGLCD.setColor(255, 255, 255);
-//  myGLCD.print(txt_return, CENTER, 218);// Завершить просмотр
-//
-//  while (true)
-//  {
-//    delay(10);
-//    myGLCD.setColor(255, 255, 255);//
-//    myGLCD.setBackColor(0, 0, 0);
-//    myGLCD.print("      ", CENTER, 120);//
-//
-//    if (myTouch.dataAvailable())
-//    {
-//      myTouch.read();
-//      x = myTouch.getX();
-//      y = myTouch.getY();
-//
-//      if ((y >= 2) && (y <= 240)) // Upper row
-//      {
-//        if ((x >= 2) && (x <= 319)) // Выход
-//        {
-//
-//          waitForIt(10, 10, 60, 60);
-//          return;
-//        }
-//      }
-//    }
-//  }
-//}
+
 void time_flag_start()
 {
   timeF = millis();
@@ -3106,10 +3023,10 @@ void radio_send(int command_rf)
 {
   command = command_rf;
   Mirf.setTADDR((byte *)&"fly10");
-  Mirf.send((byte *)&command);    // команда отправлена
+  Mirf.send((byte *)&command);              // команда отправлена
   delay(100);
-  timestamp = millis();           // Запомнили время отправки:
-  waitanswer();                   // Запускаем профедуру ожидания ответа
+  timestamp = millis();                     // Запомнили время отправки:
+  waitanswer();                             // Запускаем профедуру ожидания ответа
   if (myTouch.dataAvailable()) return;
 }
 
@@ -3149,18 +3066,21 @@ void preob_num_str() // Программа формирования имени �
   sprintf(fileName, "%s%s", str2, "00.TXT");                                 // Получение имени файла в file_name
 }
 #define sdError(msg) sdError_F(F(msg))
+#define sdErrorMsg(msg) sdErrorMsg_F(F(msg));
 
-void sdError_F(const __FlashStringHelper* str) {
-  cout << F("error: ");
-  cout << str << endl;
-  myGLCD.clrScr();
-  myGLCD.setBackColor(0, 0, 0);
-  myGLCD.print("Error: ", CENTER, 80);
-  myGLCD.print(str, CENTER, 120);
-  if (card.errorCode()) {
-	cout << F("SD error: ") << hex << int(card.errorCode());
-	cout << ',' << int(card.errorData()) << dec << endl;
-  }
+void sdError_F(const __FlashStringHelper* str) 
+{
+	cout << F("error: ");
+	cout << str << endl;
+	myGLCD.clrScr();
+	myGLCD.setBackColor(0, 0, 0);
+	myGLCD.print("Error: ", CENTER, 80);
+	myGLCD.print(str, CENTER, 120);
+	if (card.errorCode()) 
+	{
+		cout << F("SD error: ") << hex << int(card.errorCode());
+		cout << ',' << int(card.errorData()) << dec << endl;
+	}
 	myGLCD.setColor(VGA_LIME);
 	myGLCD.print(txt_info11,CENTER, 200);
 	myGLCD.setColor(255, 255, 255);
@@ -3169,6 +3089,41 @@ void sdError_F(const __FlashStringHelper* str) {
 
  // while (1);
 }
+void sdErrorMsg_F(const __FlashStringHelper* str) 
+{
+  cout << str << endl;
+  myGLCD.clrScr();
+  myGLCD.setBackColor(0, 0, 0);
+  myGLCD.print("Error: ", CENTER, 80);
+  myGLCD.print(str, CENTER, 120);
+
+  if (sd.card()->errorCode())
+  {
+	cout << F("SD errorCode: ");
+	cout << hex << int(sd.card()->errorCode()) << endl;
+	cout << F("SD errorData: ");
+	cout << int(sd.card()->errorData()) << dec << endl;
+  }
+  delay(3000);
+}
+//void sdErrorMsg_P(const char* str) 
+//{
+//  cout << pgm(str) << endl;
+//  myGLCD.clrScr();
+//  myGLCD.setBackColor(0, 0, 0);
+//  myGLCD.print("Error: ", CENTER, 80);
+//  myGLCD.print(str, CENTER, 120);
+//  if (card.errorCode()) 
+//  {
+//	cout << pstr("SD errorCode: ");
+//	cout << hex << int(card.errorCode()) << endl;
+//	cout << pstr("SD errorData: ");
+//	cout << int(card.errorData()) << dec << endl;
+//  }
+//	delay(2000);
+//}
+
+
 void Draw_menu_SD()
 {
 	myGLCD.clrScr();
@@ -3191,45 +3146,45 @@ void menu_SD()
 	while (Serial.read() >= 0) {} // Удалить все символы из буфера
 	char c;
 	while (true)
+	{
+	delay(10);
+	if (myTouch.dataAvailable())
 		{
-		delay(10);
-		if (myTouch.dataAvailable())
-			{
-				myTouch.read();
-				int	x=myTouch.getX();
-				int	y=myTouch.getY();
+			myTouch.read();
+			int	x=myTouch.getX();
+			int	y=myTouch.getY();
 
-				if ((x>=30) && (x<=290))       // Upper row
-					{
-					if ((y>=20) && (y<=60))    // Button: 1
-						{
-							waitForIt(30, 20, 290, 60);
-							myGLCD.clrScr();
-							myFile = sd.open("/");
-							printDirectory(myFile, 0);
-							Draw_menu_SD();
-						}
-					if ((y>=70) && (y<=110))   // Button: 2
-						{
-							waitForIt(30, 70, 290, 110);
-							SD_info();
-							Draw_menu_SD();
-						}
-					if ((y>=120) && (y<=160))  // Button: 3
-						{
-							waitForIt(30, 120, 290, 160);
-							myGLCD.clrScr();
-							menu_formatSD();
-							Draw_menu_SD();
-						}
-					if ((y>=170) && (y<=220))  // Button: 4
-						{
-							waitForIt(30, 170, 290, 210);
-							break;
-						}
+			if ((x>=30) && (x<=290))       // Upper row
+			{
+			if ((y>=20) && (y<=60))    // Button: 1
+				{
+					waitForIt(30, 20, 290, 60);
+					myGLCD.clrScr();
+					myFile = sd.open("/");
+					printDirectory(myFile, 0);
+					Draw_menu_SD();
+				}
+			if ((y>=70) && (y<=110))   // Button: 2
+				{
+					waitForIt(30, 70, 290, 110);
+					SD_info();
+					Draw_menu_SD();
+				}
+			if ((y>=120) && (y<=160))  // Button: 3
+				{
+					waitForIt(30, 120, 290, 160);
+					myGLCD.clrScr();
+					menu_formatSD();
+					Draw_menu_SD();
+				}
+			if ((y>=170) && (y<=220))  // Button: 4
+				{
+					waitForIt(30, 170, 290, 210);
+					break;
 				}
 			}
 		}
+	}
 }
 
 void printDirectory(File dir, int numTabs) 
@@ -3887,7 +3842,8 @@ void initSizes()
 }
 //------------------------------------------------------------------------------
 // zero cache and optionally set the sector signature
-void clearCache(uint8_t addSig) {
+void clearCache(uint8_t addSig) 
+{
   memset(&cache, 0, sizeof(cache));
   if (addSig) {
 	cache.mbr.mbrSig0 = BOOTSIG0;
@@ -4187,45 +4143,13 @@ void formatCard()
   cout << F("Format done\n");
 }
 
-// store error strings in flash
-#define sdErrorMsg(msg) sdErrorMsg_F(F(msg));
-void sdErrorMsg_F(const __FlashStringHelper* str) 
-{
-  cout << str << endl;
-  myGLCD.clrScr();
-  myGLCD.setBackColor(0, 0, 0);
-  myGLCD.print("Error: ", CENTER, 80);
-  myGLCD.print(str, CENTER, 120);
-
-  if (sd.card()->errorCode()) {
-	cout << F("SD errorCode: ");
-	cout << hex << int(sd.card()->errorCode()) << endl;
-	cout << F("SD errorData: ");
-	cout << int(sd.card()->errorData()) << dec << endl;
-  }
-  delay(3000);
-}
-void sdErrorMsg_P(const char* str) 
-{
-  cout << pgm(str) << endl;
-  myGLCD.clrScr();
-  myGLCD.setBackColor(0, 0, 0);
-  myGLCD.print("Error: ", CENTER, 80);
-  myGLCD.print(str, CENTER, 120);
-  if (card.errorCode()) {
-	cout << pstr("SD errorCode: ");
-	cout << hex << int(card.errorCode()) << endl;
-	cout << pstr("SD errorData: ");
-	cout << int(card.errorData()) << dec << endl;
-  }
-	delay(2000);
-}
 
 //------------------------------------------------------------------------------
 uint8_t cidDmp() 
 {
   cid_t cid;
-  if (!sd.card()->readCID(&cid)) {
+  if (!sd.card()->readCID(&cid)) 
+  {
 	sdErrorMsg("readCID failed");
 	return false;
   }
@@ -4247,62 +4171,78 @@ uint8_t cidDmp()
   return true;
 }
 //------------------------------------------------------------------------------
-uint8_t csdDmp() {
+uint8_t csdDmp() 
+{
   csd_t csd;
   uint8_t eraseSingleBlock;
-  if (!sd.card()->readCSD(&csd)) {
+  if (!sd.card()->readCSD(&csd)) 
+  {
 	sdErrorMsg("readCSD failed");
 	return false;
   }
-  if (csd.v1.csd_ver == 0) {
+  if (csd.v1.csd_ver == 0) 
+  {
 	eraseSingleBlock = csd.v1.erase_blk_en;
 	eraseSize = (csd.v1.sector_size_high << 1) | csd.v1.sector_size_low;
-  } else if (csd.v2.csd_ver == 1) {
+  }
+  else if (csd.v2.csd_ver == 1) 
+  {
 	eraseSingleBlock = csd.v2.erase_blk_en;
 	eraseSize = (csd.v2.sector_size_high << 1) | csd.v2.sector_size_low;
-  } else {
+  }
+  else 
+  {
 	cout << F("csd version error\n");
 	return false;
   }
-  eraseSize++;
-  cout << F("cardSize: ") << 0.000512*cardSize;
-   myGLCD.print("cardSize: ", LEFT, 40);
-  myGLCD.printNumI(0.000512*cardSize, RIGHT-60 , 40);
-   myGLCD.print("MB", RIGHT, 40);
+	eraseSize++;
+	cout << F("cardSize: ") << 0.000512*cardSize;
+	myGLCD.print("cardSize: ", LEFT, 40);
+	myGLCD.printNumI(0.000512*cardSize, RIGHT-60 , 40);
+	myGLCD.print("MB", RIGHT, 40);
 
   cout << F(" MB (MB = 1,000,000 bytes)\n");
 
   cout << F("flashEraseSize: ") << int(eraseSize) << F(" blocks\n");
   cout << F("eraseSingleBlock: ");
-  if (eraseSingleBlock) {
+  if (eraseSingleBlock) 
+  {
 	cout << F("true\n");
-  } else {
+  }
+  else 
+  {
 	cout << F("false\n");
   }
   return true;
 }
 //------------------------------------------------------------------------------
 // print partition table
-uint8_t partDmp() {
+uint8_t partDmp() 
+{
   cache_t *p = sd.vol()->cacheClear();
-  if (!p) {
+  if (!p) 
+  {
 	sdErrorMsg("cacheClear failed");
 	return false;
   }
-  if (!sd.card()->readBlock(0, p->data)) {
+  if (!sd.card()->readBlock(0, p->data)) 
+  {
 	sdErrorMsg("read MBR failed");
 	return false;
   }
-  for (uint8_t ip = 1; ip < 5; ip++) {
+  for (uint8_t ip = 1; ip < 5; ip++) 
+  {
 	part_t *pt = &p->mbr.part[ip - 1];
-	if ((pt->boot & 0X7F) != 0 || pt->firstSector > cardSize) {
+	if ((pt->boot & 0X7F) != 0 || pt->firstSector > cardSize) 
+	{
 	  cout << F("\nNo MBR. Assuming Super Floppy format.\n");
 	  return true;
 	}
   }
   cout << F("\nSD Partition Table\n");
   cout << F("part,boot,type,start,length\n");
-  for (uint8_t ip = 1; ip < 5; ip++) {
+  for (uint8_t ip = 1; ip < 5; ip++) 
+  {
 	part_t *pt = &p->mbr.part[ip - 1];
 	cout << int(ip) << ',' << hex << int(pt->boot) << ',' << int(pt->type);
 	cout << dec << ',' << pt->firstSector <<',' << pt->totalSectors << endl;
@@ -4331,7 +4271,8 @@ void volDmp()
   cout << F("blocksPerFat: ") << sd.vol()->blocksPerFat() << endl;
   cout << F("rootDirStart: ") << sd.vol()->rootDirStart() << endl;
   cout << F("dataStartBlock: ") << sd.vol()->dataStartBlock() << endl;
-  if (sd.vol()->dataStartBlock() % eraseSize) {
+  if (sd.vol()->dataStartBlock() % eraseSize)
+  {
 	cout << F("Data area is not aligned on flash erase boundaries!\n");
 	cout << F("Download and use formatter from www.sdsd.card()->org/consumer!\n");
   }
@@ -4449,23 +4390,23 @@ void setup()
    //if (!sd.begin(chipSelect, SPI_FULL_SPEED)) 
 	if (!sd.begin(chipSelect, SPI_HALF_SPEED)) 
 		{
-		sd.initErrorPrint();
-		myGLCD.clrScr();
-		myGLCD.setBackColor(0, 0, 0);
-		myGLCD.setColor(255, 100, 0);
-		myGLCD.print("Can't access SD card",CENTER, 40);
-		myGLCD.print("Do not reformat",CENTER, 70);
-		myGLCD.print("SD card problem?",CENTER, 100);
-		myGLCD.setColor(VGA_LIME);
-		myGLCD.print(txt_info11,CENTER, 200);
-		myGLCD.setColor(255, 255, 255);
-		while (myTouch.dataAvailable()){}
-		delay(50);
-		while (!myTouch.dataAvailable()){}
-		delay(50);
-		myGLCD.clrScr();
-		myGLCD.print("Run Setup", CENTER,120);
-		delay(500);
+			sd.initErrorPrint();
+			myGLCD.clrScr();
+			myGLCD.setBackColor(0, 0, 0);
+			myGLCD.setColor(255, 100, 0);
+			myGLCD.print("Can't access SD card",CENTER, 40);
+			myGLCD.print("Do not reformat",CENTER, 70);
+			myGLCD.print("SD card problem?",CENTER, 100);
+			myGLCD.setColor(VGA_LIME);
+			myGLCD.print(txt_info11,CENTER, 200);
+			myGLCD.setColor(255, 255, 255);
+			while (myTouch.dataAvailable()){}
+			delay(50);
+			while (!myTouch.dataAvailable()){}
+			delay(50);
+			myGLCD.clrScr();
+			myGLCD.print("Run Setup", CENTER,120);
+			delay(500);
 		}
 
   Serial.println("initialization done.");
