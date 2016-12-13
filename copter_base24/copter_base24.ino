@@ -60,7 +60,7 @@ char* str_mon[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"
 
 char start[80], *end;
 //++++++++++++++++++++++ Работа с файлами +++++++++++++++++++++++++++++++++++++++
-
+#define DELIM ","
 
 //SdVolume volume;
 //SdFile root;
@@ -138,7 +138,7 @@ char noName[] = "NO NAME    ";
 char fat16str[] = "FAT16   ";
 char fat32str[] = "FAT32   ";
 
-
+String data_file = "";
 
 int  stCurrentLen_pass = 0;              // Длина вводимой строки
 char pass_user[20];                      // Строка с паролем пользователя
@@ -214,9 +214,10 @@ bool stop_info         = false;    // Остановить прием инфор
 bool save_file         = false;    // Записать данные в файл
 bool start_save_file   = false;    // Открыть файл для записи    
 bool stop_save_file    = false;    // Закрыть файл для записи  
+bool file_open         = false;    // Признак открытия файла для записи      
 
 // ++++++++++++++++++  Переменные измерений +++++++++++++++++++++++++++++++++
-unsigned long count_strok = 0;               // Счетчик строк в файле
+unsigned long count_strok   = 0;               // Счетчик строк в файле
 int cpm                     = 0;               // Счетчик Гейгера               
 float uSv_h                 = 0;               // Счетчик Гейгера 
 int temp_C                  = 0;               // Температура С 
@@ -612,8 +613,6 @@ void swichMenu() // Тексты меню в строках "txt....."
       //------------------------------------------------------------------
       if (pressed_button == but4 && m2 == 3)                 // Четвертый пункт меню 3
       {
-
-		myGLCD.clrScr();
 
         myGLCD.clrScr();
         myButtons.drawButtons();
@@ -1679,7 +1678,7 @@ void radiotraffic()
     {
 		send_command(2);                        // Показания Счетчика Гейгера отправлены
 		waitanswer(); 
-		Serial.print("cpm = ");
+		//Serial.print("cpm = ");
 		exit_file_save();                       // Проверка состояния кнопок
 		if(stop_info == true)
 		{
@@ -1694,7 +1693,7 @@ void radiotraffic()
 	   	 stop_info = false;
 		 return;
 	   }
-      Serial.print("uSv/h = ");
+    //  Serial.print("uSv/h = ");
 	}
 
 	  send_command(4);                          // Состоянеи ключа включения питания счетчика Гейгера
@@ -1717,42 +1716,42 @@ void radiotraffic()
 				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
 				myGLCD.setColor(255, 255, 255);
 			}
-		exit_file_save();                       // Проверка состояния кнопок
+		exit_file_save();                                    // Проверка состояния кнопок
 		if(stop_info == true)
 		{
 		stop_info = false;
 		return;
 		}
 	
-	 send_command(5);                           // Анализатор Газа
+	 send_command(5);                                        // Анализатор Газа
 		waitanswer(); 
-		exit_file_save();                       // Проверка состояния кнопок
+		exit_file_save();                                    // Проверка состояния кнопок
 		if(stop_info == true)
 		{
 	   		stop_info = false;
 			return;
 		}
-	 send_command(6);                           // Состоянеи ключа включения питания датчика газа
-		waitanswer();                           // Запускаем профедуру ожидания ответа
+	    send_command(6);                                     // Состоянеи ключа включения питания датчика газа
+		waitanswer();                                        // Запускаем профедуру ожидания ответа
 		if (st_Power_gaz == 1)
 		{
 			myGLCD.setColor(255, 0, 0);
-			myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+			myGLCD.fillRoundRect  (300, 90, 312, 102);      // Индикатор питания датчика газа
 			myGLCD.setColor(255, 255, 255);
 		}
 		else if (st_Power_gaz == 2)
 		{
 			myGLCD.setColor(0, 255, 0);
-			myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+			myGLCD.fillRoundRect  (300, 90, 312, 102);     // Индикатор питания датчика газа
 			myGLCD.setColor(255, 255, 255);
 		}
 		else
 		{
 			myGLCD.setColor(0, 0, 0);
-			myGLCD.fillRoundRect  (300, 90, 312, 102);   // Индикатор питания датчика газа
+			myGLCD.fillRoundRect  (300, 90, 312, 102);     // Индикатор питания датчика газа
 			myGLCD.setColor(255, 255, 255);
 		}
-		exit_file_save();                       // Проверка состояния кнопок
+		exit_file_save();                                  // Проверка состояния кнопок
 		if(stop_info == true)
 		{
 	   		stop_info = false;
@@ -1866,7 +1865,7 @@ void waitanswer()
   // Если ответ будет получен, установим переменную в ЛОЖЬ
   // Если ответа не будет - считаем ситуацию выходом по таймауту
   timeout = true;
-  while (millis() - timestamp < TIMEOUT && timeout)  // Ждём ответ или таймута ожидания
+  while (millis() - timestamp < TIMEOUT && timeout)              // Ждём ответ или таймута ожидания
   {
     if (!Mirf.isSending() && Mirf.dataReady())
     {
@@ -1878,11 +1877,11 @@ void waitanswer()
       delay(200);
       myGLCD.print("  ", 280, 35);
       timeout = false;
-      Mirf.getData((byte *)&data);    // Принимаем пакет данные в виде массива байт в переменную data:
+      Mirf.getData((byte *)&data);                              // Принимаем пакет данные в виде массива байт в переменную data:
       switch (command)
       {
 
-	  	case 1:             // Флаг готовности Счетчика Гейгера
+	  	case 1:                                                 // Флаг готовности Счетчика Гейгера
 			if (data == 1)
 			{
 				geiger_ready = true;
@@ -1894,14 +1893,14 @@ void waitanswer()
 			break;
 		case 2:
 			cpm = data;
-			Serial.println(cpm);
+			//Serial.println(cpm);
 			myGLCD.print("cpm   =        ", LEFT, 53);      
 			myGLCD.printNumI(cpm, 120, 53);
 			break;
 		case 3:
 			uSv_h = data;
 			uSv_h = uSv_h / 10000;
-			Serial.println(uSv_h , 4);
+		//	Serial.println(uSv_h , 4);
 			myGLCD.print("uSv/h =        ", LEFT, 70);
 			myGLCD.printNumF(uSv_h, 4, 120, 70);
 			break;
@@ -1919,11 +1918,12 @@ void waitanswer()
 				st_PowerGeiger = 0;
 			}
 			break; 
-		case 5:                                        // Анализатор Газа
-            myGLCD.print("\x81""a""\x9C"" V =        ", LEFT, 87); //Газ V =
-            myGLCD.printNumI(data, 120, 87);
+		case 5:                                                      // Анализатор Газа
+            myGLCD.print("\x81""a""\x9C"" V =        ", LEFT, 87);   //Газ V =
+			gaz_measure = data;
+            myGLCD.printNumI(gaz_measure, 120, 87);                  // 
 			break;
-		case 6:                                       // Состоянеи ключа включения питания датчика газа
+		case 6:                                                      // Состоянеи ключа включения питания датчика газа
 			if (data == 1)
 			{
 				st_Power_gaz = 1;
@@ -1937,55 +1937,55 @@ void waitanswer()
 				st_Power_gaz = 0;
 			}
 			break;
-		case 7:  // Паказания температуры от BMP085
-			temp_C = data;                                                   // от датчика давления BMP085
+		case 7:                                                       // Паказания температуры от BMP085
+			temp_C = data;                                            // от датчика давления BMP085
 			myGLCD.setFont(SmallFont);
-			myGLCD.print("Te""\xA1\xA3"".C =    ", 5, 108);                 // Темп.С =
+			myGLCD.print("Te""\xA1\xA3"".C =    ", 5, 108);           // Темп.С =
 			myGLCD.printNumF(temp_C * 0.1, 1, 75, 108);
 			myGLCD.setFont(BigFont);
 			break;
-		case 8:   // Показания давления от BMP085
-			P_mmHq = data;                                                   // от датчика давления BMP085
+		case 8:                                                       // Показания давления от BMP085
+			P_mmHq = data;                                            // от датчика давления BMP085
 			myGLCD.setFont(SmallFont);
-			myGLCD.print("P   mmHq", 120, 108);                              // Давл.Ра = 
-			myGLCD.printNumI(data, 135, 108);          // Показания давления от BMP085
+			myGLCD.print("P   mmHq", 120, 108);                       // Давл.Ра = 
+			myGLCD.printNumI(data, 135, 108);                         // Показания давления от BMP085
 			myGLCD.setFont(BigFont);
 			break;  
-		case 9:// Показания Высота от датчика давления BMP085
+		case 9:                                                       // Показания Высота от датчика давления BMP085
 			altitudeP = data;
 			myGLCD.setFont(SmallFont);
-			myGLCD.print("B""\xAB""co""\xA4""a =      ", 200, 108);              // Высота =
-			myGLCD.printNumI(altitudeP, 270, 108);                             // Высота от датчика давления BMP085
+			myGLCD.print("B""\xAB""co""\xA4""a =      ", 200, 108);   // Высота =
+			myGLCD.printNumI(altitudeP, 270, 108);                    // Высота от датчика давления BMP085
 			myGLCD.setFont(BigFont);
 			break;
 		case 10: // Высота в метрах со спутника
-		 //  data = gps_altitude_meters;                // Высота в метрах со спутника
+		 //  data = gps_altitude_meters;                              // Высота в метрах со спутника
 			break;
-		case 11:                                        // Передать  координаты LAT
+		case 11:                                                      // Передать  координаты LAT
 			gps_location_lat = data;
 			gps_location_lat = gps_location_lat / 1000000;
 			myGLCD.setFont(SmallFont);
-			myGLCD.print("LAT =           ", 5, 130);                         // 
+			myGLCD.print("LAT =           ", 5, 130);                 // 
 			myGLCD.printNumF(gps_location_lat, 6, 50, 130);
 			myGLCD.setFont(BigFont);
 			break;
-		case 12:                                           // Передать  координаты LON
+		case 12:                                                      // Передать  координаты LON
 			gps_location_lng = data;
 			gps_location_lng = gps_location_lng / 1000000;
 			myGLCD.setFont(SmallFont);
-			myGLCD.print("LON =           ", 140, 130);                       // 
+			myGLCD.print("LON =           ", 140, 130);               // 
 			myGLCD.printNumF(gps_location_lng, 6, 190, 130);
 			myGLCD.setFont(BigFont);
 			break;
-		case 13:                                             // Передать местные координаты DOM_LAT
+		case 13:                                                      // Передать местные координаты DOM_LAT
 			DOM_LAT = data;
 			DOM_LAT = DOM_LAT / 1000000;
 			myGLCD.setFont(SmallFont);
-			myGLCD.print("LAT =           ", 5, 147);                         // 
+			myGLCD.print("LAT =           ", 5, 147);                 // 
 			myGLCD.printNumF(DOM_LAT, 6, 50, 147);
 			myGLCD.setFont(BigFont);
 			break;
-		case 14:                                             // Передать местные координаты DOM_LON
+		case 14:                                                      // Передать местные координаты DOM_LON
 			DOM_LON = data;
 			DOM_LON = DOM_LON / 1000000;
 			myGLCD.setFont(SmallFont);
@@ -2131,6 +2131,72 @@ void waitanswer()
 			break;
       }
       data = 0;
+
+		if(file_open && command == 18)                      // Если файл открыт записать данные
+		{
+
+         data_file = String(count_strok)+DELIM+String(cpm)+DELIM+String(uSv_h)+DELIM+String(temp_C)+DELIM+String(gaz_measure)+DELIM+String(gaz_porog)+DELIM+String(P_mmHq)+DELIM+String(distance)+DELIM+String(altitudeP)+DELIM+String(altitudeDom)+DELIM+String(f_course)+DELIM+String(gps_location_lat)+DELIM+String(gps_location_lng)+DELIM+String(DOM_LAT)+DELIM+String(DOM_LON)+DELIM+String(gound_m)+DELIM+String(satellites)+DELIM+String(distanceToDOM)+DELIM+String(courseToDOM);
+
+		 Serial.println( data_file);
+
+        myFile.println ("");
+
+      count_strok ++;               // Счетчик строк в файле
+
+/*
+// ++++++++++++++++++  Переменные измерений +++++++++++++++++++++++++++++++++
+unsigned long count_strok   = 0;               // Счетчик строк в файле
+int cpm                     = 0;               // Счетчик Гейгера               
+float uSv_h                 = 0;               // Счетчик Гейгера 
+int temp_C                  = 0;               // Температура С 
+int gaz_measure             = 0;               // Величина измеренной загазованности
+int gaz_porog               = 0;               // Уровень порога газа
+int P_mmHq                  = 0;               // Давление
+int distance                = 0;               // Дистанция до объекта
+int altitudeP               = 0;               // Высота по давлению
+int f_altitude              = 0;               // Высота по GPS
+int altitudeDom             = 0;               // Высота местности
+int f_course                = 0;               // Направление на объект
+int speed_kmph              = 0;               // Скорость движения
+double gps_location_lat     = 0.0;             // Координата фактическая
+double gps_location_lng     = 0.0;             // Координата фактическая
+double DOM_LAT              = 55.954994;       // Координата домашняя
+double DOM_LON              = 37.231121;       // Координата домашняя
+float data_f                = 0;
+int gound_m                 = 218;             // Высота местности над уровнем моря
+int satellites              = 0;               // Количество спутников
+double distanceToDOM        = 0;               // Расстояние до объекта
+double courseToDOM          = 0;               // Направление на объект
+int gps_date_value          = 0;
+int gps_date_year           = 0;
+int gps_date_month          = 0;
+int gps_date_day            = 0;
+int gps_time_value          = 0;
+int gps_time_hour           = 0;
+int gps_time_minute         = 0;
+int gps_time_second         = 0;
+int gps_time_centisecond    = 0;
+int gps_speed_value         = 0;
+int gps_speed_knots         = 0;
+int gps_speed_mph           = 0;
+int gps_speed_mps           = 0;
+int gps_speed_kmph          = 0;
+int gps_course_value        = 0;
+int gps_course_deg          = 0;
+int gps_altitude_value      = 0;
+int gps_altitude_meters     = 0;
+int gps_altitude_miles      = 0;
+int gps_altitude_kilometers = 0;
+int gps_altitude_feet       = 0;
+int gps_satellites_value    = 0;
+int gps_hdop_value          = 0;
+
+*/
+
+
+
+		}
+
     }
   }
   if (timeout)
@@ -2172,20 +2238,26 @@ void exit_file_save()
 	myTouch.read();
 	x = myTouch.getX();
 	y = myTouch.getY();	
-	if ((x >= 2) && (x <= 318))            //
+	if ((x >= 2) && (x <= 318))                                 //
 		{
-		if ((y >= 2) && (y <= 190))        // Выход
+		if ((y >= 2) && (y <= 190))                             // Выход
 		{
 			waitForIt(2, 2, 318, 190);
-			stop_info = true;                // Остановить прием информации
+			if(	stop_save_file = true)                     // Закрыть файл  
+				{
+	               stop_save_file  = false;
+				   start_save_file = false;
+				   FileClose();
+				}
+			stop_info = true;                                   // Остановить прием информации
 		}
-		if ((y >= 196) && (y <= 238))      // ОТКЛ
+		if ((y >= 196) && (y <= 238))                           // ОТКЛ
 		{
 			waitForIt(2, 196, 318, 238);
 			save_file = !save_file;
-			if(save_file == true)                                // Записать данные в файл
+			if(save_file == true)                               // Записать данные в файл
 			{
-			  if(start_save_file == false)                      // Записать имя файла
+			  if(start_save_file == false)                      // Записать имя файла 
 			   {
 				   start_save_file = true;
 				   stop_save_file  = true;
@@ -2193,7 +2265,7 @@ void exit_file_save()
 				   myGLCD.print("                  ", CENTER, 5);
 				   myGLCD.print("Save file", CENTER, 5);
 				   myGLCD.setBackColor(0, 0, 0);
-				   FileOpen();
+				   FileOpen();                                 // Открыть файл
 			   }
 				myGLCD.setColor(255, 0, 0);
 				myGLCD.fillRoundRect (3, 197, 317, 237);
@@ -2781,7 +2853,7 @@ void time_flag_start()
 {
   timeF = millis();
   if (timeF > 60000) flag_time = 1;
-}
+} 
 void test_power()
 {
   currentTime = millis();                           // считываем время, прошедшее с момента запуска программы
@@ -4143,7 +4215,6 @@ void formatCard()
   cout << F("Format done\n");
 }
 
-
 //------------------------------------------------------------------------------
 uint8_t cidDmp() 
 {
@@ -4296,12 +4367,12 @@ void FileOpen()
     }
     else
     {
-                                  // Флаг ошибки  открытия файла
+                                                              // Флаг ошибки  открытия файла
     }
   }
-  if (!myFile.open(fileName, O_CREAT | O_WRITE | O_EXCL)) //sdError("file.open");
+  if (!myFile.open(fileName, O_CREAT | O_WRITE | O_EXCL))     //sdError("file.open");
   {
-                               // Флаг ошибки  открытия файла
+                                                              // Флаг ошибки  открытия файла
   }
   else
   {
@@ -4311,6 +4382,8 @@ void FileOpen()
     file_print_date();
     myFile.println ("");
     myFile.println ("");
+	file_open = true;                                          // Признак открытия файла для записи   
+	count_strok= 0;
     Serial.println(fileName);
   }
 }
@@ -4327,6 +4400,7 @@ void FileClose()
   {
     Serial.println();
     Serial.print(fileName);
+	file_open = false;                                   // Признак открытия файла для записи     
     //Serial.println("  Close  OK!.");
   }
   else
