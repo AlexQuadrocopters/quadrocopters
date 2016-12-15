@@ -83,6 +83,7 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portInputRegister(P)
 #define portModeRegister(P)
 
+int freeRam ();
 void dateTime(uint16_t* date, uint16_t* time);
 void draw_Glav_Menu();
 void swichMenu();
@@ -160,6 +161,7 @@ uint8_t partDmp();
 void volDmp();
 void FileOpen();
 void FileClose();
+String formHeader();
 void file_print_date();
 //
 //
