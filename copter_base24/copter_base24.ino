@@ -66,7 +66,6 @@ char* str_mon[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"
 char start[80], *end;
 //++++++++++++++++++++++ Работа с файлами +++++++++++++++++++++++++++++++++++++++
 #define DELIM ","
-
 //SdVolume volume;
 //SdFile root;
 #define chipSelect SS                          // Настройка выбора SD
@@ -360,7 +359,7 @@ const char  txt_info_n_user[]        PROGMEM = "\x89""p""\x9D""e""\xA1"" ""\x9D\
 const char  txt_SD_menu1[]           PROGMEM = "\x89poc\xA1o\xA4p \xA5""a\x9E\xA0""a";                                       //
 const char  txt_SD_menu2[]           PROGMEM = "\x86\xA2\xA5o SD";                                                           //
 const char  txt_SD_menu3[]           PROGMEM = "\x8Bop\xA1""a\xA4 SD";                                                       //
-const char  txt_SD_menu4[]           PROGMEM = "B\x91XO\x82";           
+const char  txt_SD_menu4[]           PROGMEM = "B\x91XO\x82";                                                                // Выход    
 const char  txt_buffer[]             PROGMEM = "\x80\x8A\x8B\x8B""EP \x89\x8A""CTO\x87!" ;                                   //"БУФФЕР ПУСТОЙ!"
 const char  txt_buffer_ful[]         PROGMEM = "\x89""EPE""\x89O\x88HEH\x86""E!" ;                                           // ПЕРЕПОЛНЕНИЕ!
 const char  txt_empty[]              PROGMEM = "                         ";                                                  // 
@@ -440,7 +439,7 @@ const char* const table_message[] PROGMEM =
  txt_SD_menu1,              // 42 "\x89poc\xA1o\xA4p \xA5""a\x9E\xA0""a";                                       //
  txt_SD_menu2,              // 43 "\x86\xA2\xA5o SD";                                                           //
  txt_SD_menu3,              // 44 "\x8Bop\xA1""a\xA4 SD";                                                       //
- txt_SD_menu4,              // 45 "B\x91XO\x82";           
+ txt_SD_menu4,              // 45 "B\x91XO\x82";                                                                // Выход  
  txt_buffer,                // 46 "\x80\x8A\x8B\x8B""EP \x89\x8A""CTO\x87!" ;                                   //"БУФФЕР ПУСТОЙ!"
  txt_buffer_ful,            // 47 "\x89""EPE""\x89O\x88HEH\x86""E!" ;                                           // ПЕРЕПОЛНЕНИЕ!
  txt_empty,                 // 48 "                      ";                                                     // 
@@ -1849,6 +1848,8 @@ void print_up() // Печать верхней строчки над меню
 
 void radiotraffic()
 {
+
+  const int width = 4;
   myGLCD.clrScr();                                          // Очистить экран CENTER
   myGLCD.setColor(0, 0, 255);
   myGLCD.fillRoundRect (2, 2, 318, 25);
@@ -2071,11 +2072,21 @@ void radiotraffic()
 	 if(file_open && command == 18)           // Если файл открыт записать данные
 		{
 
-       //  data_file = formHeader()+DELIM+String(cpm)+DELIM+String(uSv_h)+DELIM+String(temp_C)+DELIM+String(gaz_measure)+DELIM+String(gaz_porog)+DELIM+String(P_mmHq)+DELIM+String(distance)+DELIM+String(altitudeP)+DELIM+String(altitudeDom)+DELIM+String(f_course)+DELIM+String(gps_location_lat)+DELIM+String(gps_location_lng)+DELIM+String(DOM_LAT)+DELIM+String(DOM_LON)+DELIM+String(gound_m)+DELIM+String(satellites)+DELIM+String(distanceToDOM)+DELIM+String(courseToDOM);
-	 data_file = String(count_strok)+DELIM+String(cpm)+DELIM+String(uSv_h)+DELIM+String(temp_C)+DELIM+String(gaz_measure)+DELIM+String(gaz_porog)+DELIM+String(P_mmHq)+DELIM+String(distance)+DELIM+String(altitudeP)+DELIM+String(altitudeDom)+DELIM+String(f_course)+DELIM+String(gps_location_lat)+DELIM+String(gps_location_lng)+DELIM+String(DOM_LAT)+DELIM+String(DOM_LON)+DELIM+String(gound_m)+DELIM+String(satellites)+DELIM+String(distanceToDOM)+DELIM+String(courseToDOM);
-		 
+
+    String uptime = "";
+
+	DateTime now = RTC.now();                               // Получить время 
+    uptime  = String(now.hour())+':'+ String(now.minute())+':'+ String(now.second());
+ 
+	float tempF_C = temp_C/10; 
+
+	data_file = String(count_strok)+DELIM+uptime+DELIM+String(cpm)+DELIM+String(uSv_h,4)+DELIM+String(tempF_C,1)+DELIM+String(gaz_measure)+DELIM+String(gaz_porog)+DELIM+String(P_mmHq)+DELIM+String(distance)
+		+DELIM+String(altitudeP)+DELIM+String(altitudeDom)+DELIM+String(f_course)+DELIM+String(gps_location_lat,6)+DELIM+String(gps_location_lng,6)+DELIM+String(DOM_LAT,6)+DELIM+String(DOM_LON,6)
+		+DELIM+String(gound_m)+DELIM+String(gps_satellites_value)+DELIM+String(distanceToDOM)+DELIM+String(courseToDOM);
+ 
 		myFile.println(data_file);
 		Serial.print(data_file);
+
         //  myFile.println ("");
 		Serial.print("  ");
 		Serial.println(freeRam());
@@ -3891,13 +3902,6 @@ void file_serial()
 
 
 
-
-
-
-
-
-
-
 	myFile.rewind();       
 	
  while (myFile.available())
@@ -3941,19 +3945,21 @@ void Draw_menu_formatSD()
 			myGLCD.setColor(255, 255, 255);
 			myGLCD.drawRoundRect (30, 20+(50*x), 290,60+(50*x));
 		}
+
 	myGLCD.print( "\x89o\xA0\xA2o""e y\x99""a\xA0""e\xA2\x9D""e", CENTER, 30);     // 
 	myGLCD.print( "\x8Bop\xA1""a\xA4\x9Dpo\x97""a\xA2\x9D""e", CENTER, 80);      
 	myGLCD.print( "      ", CENTER, 130);     
-	myGLCD.print( txt_SD_menu4, CENTER, 180);      
+	strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[45])));  
+	myGLCD.print(bufmessage, CENTER, 180);      
 }
 void menu_formatSD()
 {
   if (!card.init(spiSpeed, chipSelect)) 
 	  {
-		cout << pstr(
-		 "\nSD initialization failure!\n"
-		 "Is the SD card inserted correctly?\n"
-		 "Is chip select correct at the top of this sketch?\n");
+		//cout << pstr(
+		// "\nSD initialization failure!\n"
+		// "Is the SD card inserted correctly?\n"
+		// "Is chip select correct at the top of this sketch?\n");
 		sdError("card.init failed");
 		 myGLCD.print("File System failed", CENTER, 120);
 
@@ -4625,6 +4631,10 @@ void FileOpen()
     file_print_date();
     myFile.println ("");
     myFile.println ("");
+
+	data_file = "N str,Time,CPM,uSv_h,temp_C,gaz_meas,gaz_porog,P_mmHq,Distance,alt P,alt Dom,f_course,gps_loc_lat,gps_loc_lng,DOM_LAT,DOM_LON,gound_m,sat,distToDOM,courseToDOM";
+	    myFile.println(data_file);
+        Serial.println(data_file);
 	file_open = true;                                          // Признак открытия файла для записи   
 	count_strok= 0;
   }
@@ -4652,13 +4662,6 @@ void FileClose()
   }
 }
 
-String formHeader() 
-{
-    String uptime = "";
-	DateTime now = RTC.now();                               // Получить время 
-    uptime  = String(now.hour())+'/'+ String(now.minute())+'/'+ String(now.second());
-    return count_strok + DELIM + uptime;
-}
 
 
 void file_print_date()  //программа  записи даты в файл
@@ -4676,6 +4679,19 @@ void file_print_date()  //программа  записи даты в файл
 	myFile.print(':');
 	myFile.print(now.second(), DEC);
 }
+
+void example(void) {
+  const int max = 10;
+  const int width = 4;
+
+  for (int row = 1; row <= max; row++) {
+    for (int col = 1; col <= max; col++) {
+      cout << setw(width) << row * col << (col == max ? '\n' : ' ');
+    }
+  }
+  cout << endl;
+}
+
 
 void setup()
 {
@@ -4758,6 +4774,9 @@ void setup()
   //	  ReadWriteSD();
   myGLCD.clrScr();
   Serial.println(freeRam());
+
+  //cout << endl << "default formatting" << endl;
+  //example();
 }
 
 void loop()

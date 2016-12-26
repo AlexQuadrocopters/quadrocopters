@@ -161,8 +161,8 @@ uint8_t partDmp();
 void volDmp();
 void FileOpen();
 void FileClose();
-String formHeader();
 void file_print_date();
+void example(void);
 //
 //
 void drawUpButton(int x, int y);
