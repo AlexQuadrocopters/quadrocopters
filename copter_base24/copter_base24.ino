@@ -3950,7 +3950,7 @@ void Draw_menu_formatSD()
 	myGLCD.print( "\x8Bop\xA1""a\xA4\x9Dpo\x97""a\xA2\x9D""e", CENTER, 80);      
 	myGLCD.print( "      ", CENTER, 130);     
 	strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[45])));  
-	myGLCD.print(bufmessage, CENTER, 180);      
+	myGLCD.print(bufmessage , CENTER, 180);      
 }
 void menu_formatSD()
 {
