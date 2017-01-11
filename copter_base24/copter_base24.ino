@@ -27,8 +27,7 @@
 #include <MirfHardwareSpiDriver.h>
 #include <nRF24L01.h>
 #include <SoftwareSerial.h>
-#include <avr/pgmspace.h>
-#include <EEPROM.h>
+//#include <pgmspace.h>
 
 
 
@@ -37,6 +36,7 @@ extern "C" {
 }
 
 //------------------------------------------------------------------------------------------------------
+
 
 int deviceaddress =    0x50;
 unsigned int eeaddress = 0;
@@ -522,7 +522,9 @@ void draw_Glav_Menu()
   switch (m2)
   {
     case 1:
-	  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[19])));
+	
+	  strcpy_P(bufmessage, (char*)pgm_read_byte_near(&(table_message[19])));
+		//strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[19])));
       myGLCD.print(bufmessage, CENTER, 0);                // txt_info1
       break;
     case 2:
