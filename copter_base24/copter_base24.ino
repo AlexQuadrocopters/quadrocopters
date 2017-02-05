@@ -2247,7 +2247,12 @@ void waitanswer()
 			myGLCD.setFont(BigFont);
 			break;
 		case 10: // Высота в метрах со спутника
-		 //  data = gps_altitude_meters;                              // Высота в метрах со спутника
+		    gps_altitude_meters = data;                              // Высота в метрах со спутника
+			myGLCD.setFont(SmallFont);
+			strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[54])));
+			myGLCD.print(bufmessage, 200, 164);   // Высота =
+			myGLCD.printNumI(gps_altitude_meters, 270, 164);
+			myGLCD.setFont(BigFont);
 			break;
 		case 11:                                                      // Передать  координаты LAT
 			gps_location_lat = data;
