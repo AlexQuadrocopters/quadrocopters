@@ -362,7 +362,7 @@ const char  txt_SD_menu3[]           PROGMEM = "\x8Bop\xA1""a\xA4 SD";          
 const char  txt_SD_menu4[]           PROGMEM = "B\x91XO\x82";                                                                // Выход    
 const char  txt_buffer[]             PROGMEM = "\x80\x8A\x8B\x8B""EP \x89\x8A""CTO\x87!" ;                                   //"БУФФЕР ПУСТОЙ!"
 const char  txt_buffer_ful[]         PROGMEM = "\x89""EPE""\x89O\x88HEH\x86""E!" ;                                           // ПЕРЕПОЛНЕНИЕ!
-const char  txt_empty[]              PROGMEM = "                         ";                                                  // 
+const char  txt_empty[]              PROGMEM = "                           ";                                                  // 
 const char  txt_cpm[]                PROGMEM = "cpm   =        ";    
 const char  txt_uSv[]                PROGMEM = "uSv/h =        ";
 const char  txt_gaz1[]               PROGMEM = "\x81""a""\x9C"" V =        ";                                                //Газ V =
@@ -1845,10 +1845,9 @@ void radiotraffic()
   const int width = 4;
   myGLCD.clrScr();                                          // Очистить экран CENTER
   myGLCD.setColor(0, 0, 255);
-  myGLCD.fillRoundRect (2, 2, 318, 25);
+  myGLCD.fillRoundRect (3, 3, 317, 24);
   myGLCD.setColor(255, 255, 255);
   myGLCD.drawRoundRect (2, 2, 318, 25);
-  myGLCD.setColor(255, 255, 255);
   myGLCD.setBackColor(0, 0, 255);
   strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[41])));  
   myGLCD.print(bufmessage, CENTER, 5);
@@ -2501,7 +2500,8 @@ void exit_file_save()
 				   strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48]))); 
 				   myGLCD.print(bufmessage, CENTER, 5);
 				   strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[62]))); 
-				   myGLCD.print(bufmessage, CENTER, 5);
+				   myGLCD.print(bufmessage,20, 5);
+
 				   myGLCD.setBackColor(0, 0, 0);
 				   FileOpen();                                 // Открыть файл
 			   }
@@ -4630,6 +4630,11 @@ void FileOpen()
   {
     Serial.print(fileName);
     Serial.println(F("  Open Ok!"));
+	myGLCD.setBackColor(0, 0, 255);
+	myGLCD.setFont(SmallFont);
+	myGLCD.print(fileName, 200, 8);
+	myGLCD.setFont(BigFont);
+	myGLCD.setBackColor(0, 0, 0);
     myFile.print ("Start measure  ");
     file_print_date();
     myFile.println ("");
