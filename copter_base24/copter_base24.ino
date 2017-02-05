@@ -3805,7 +3805,8 @@ void printDirectory(File dir, int numTabs)
 								myGLCD.setBackColor(0, 0, 0);
 								myGLCD.print("Page N ",30, 193);
 								myGLCD.setBackColor(0, 0, 255);
-								myGLCD.print(txt_info11,CENTER, 221);          // Кнопка "ESC -> PUSH"
+								strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[24])));
+								myGLCD.print(bufmessage, CENTER, 221);            // Кнопка "ESC -> PUSH"
 								myGLCD.setColor(VGA_YELLOW);
 								myGLCD.print("<<",101, 193);
 								myGLCD.print(">>",203, 193);
@@ -3871,12 +3872,12 @@ void file_serial()
 	File_size = myFile.fileSize();                                                                   // Получить размер файла 
 
 	myGLCD.setFont( SmallFont);
-	myGLCD.print("Pa\x9C\xA1""ep \xA5""a\x9E\xA0""a", 8, 138);                                     // "Размер файла"
-	myGLCD.print("\x89o\x9C. \x97 \xA5""a\x9E\xA0""e             ", 8, 153);                       // "Поз. в файле"
+	myGLCD.print("Pa\x9C\xA1""ep \xA5""a\x9E\xA0""a", 8, 138);                                       // "Размер файла"
+	myGLCD.print("\x89o\x9C. \x97 \xA5""a\x9E\xA0""e             ", 8, 153);                         // "Поз. в файле"
 	myGLCD.setFont(BigFont);
-	myGLCD.print("\x89""epe\x99""a\xA7""a \xA5""a\x9E\xA0""a", CENTER, 60);                        // "Передача файла"
-	myGLCD.print("\x97 COM \xA3op\xA4", CENTER, 80);                                               // "в СОМ порт"
-	myGLCD.printNumI(File_size, 105, 135);                                                         //  Отобразить размер файла
+	myGLCD.print("\x89""epe\x99""a\xA7""a \xA5""a\x9E\xA0""a", CENTER, 60);                          // "Передача файла"
+	myGLCD.print("\x97 COM \xA3op\xA4", CENTER, 80);                                                 // "в СОМ порт"
+	myGLCD.printNumI(File_size, 105, 135);                                                           //  Отобразить размер файла
 	myGLCD.setColor(VGA_LIME);
 	myGLCD.print(txt_info11,CENTER, 200);
 	myGLCD.setColor(255,255,255);
