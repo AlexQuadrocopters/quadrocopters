@@ -1,4 +1,5 @@
 /*
+
   copter_base24.ino
   VisualStudio
   Программа (Базовый вариант)
@@ -27,7 +28,6 @@
 #include <MirfHardwareSpiDriver.h>
 #include <nRF24L01.h>
 #include <SoftwareSerial.h>
-//#include <pgmspace.h>
 
 
 
@@ -421,7 +421,7 @@ const char* const table_message[] PROGMEM =
  txt_info11,                // 24 "ESC->PUSH Display"; 
  txt_radiacia,              // 25 " ***** "; //
  txt_gaz,                   // 26 "\x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a";                   // Датчик газа
- txt_gazOn,                 // 27 "\x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a BK""\x88"".";      // Датчик газа ВКЛ.
+ txt_gazOn,                 // 27 "\x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a BK""\x88"".";       // Датчик газа ВКЛ.
  txt_gazOff,                // 28 "\x82""a""\xA4\xA7\x9D\x9F"" ""\x98""a""\x9C""a OTK""\x88"".";      // Датчик газа ОТКЛ.
  txt_gazNo,                 // 29 "\x82""a""\xA2\xA2\xAB""e ""\xA2""e ""\xA3""o""\xA0""y""\xA7""e""\xA2\xAB"; // Данные не получены
  txt_On,                    // 30 "BK""\x88"".";                                                      // ВКЛ.
@@ -522,9 +522,7 @@ void draw_Glav_Menu()
   switch (m2)
   {
     case 1:
-	
-	  strcpy_P(bufmessage, (char*)pgm_read_byte_near(&(table_message[19])));
-		//strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[19])));
+      strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[19])));
       myGLCD.print(bufmessage, CENTER, 0);                // txt_info1
       break;
     case 2:
@@ -660,7 +658,6 @@ void swichMenu() // Тексты меню в строках "txt....."
         myButtons.drawButtons();
         print_up();
       }
-
       if (pressed_button == but2 && m2 == 1) 
       {
         myGLCD.clrScr();
@@ -697,7 +694,6 @@ void swichMenu() // Тексты меню в строках "txt....."
         myButtons.drawButtons();
         print_up();
       }
-
       if (pressed_button == but3 && m2 == 2)
       {
         myGLCD.clrScr();
@@ -721,7 +717,6 @@ void swichMenu() // Тексты меню в строках "txt....."
         myButtons.drawButtons();
         print_up();
       }
-
       //--------------------------------------------------------------
       if (pressed_button == but2 && m2 == 3)                       // Второй пункт меню 3
       {
@@ -752,16 +747,13 @@ void swichMenu() // Тексты меню в строках "txt....."
         myButtons.drawButtons();
         print_up();
       }
-
       //------------------------------------------------------------------
-
       if (pressed_button == but3 && m2 == 3)                  // Третий пункт меню 3
       {
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
-
       //------------------------------------------------------------------
       if (pressed_button == but4 && m2 == 3)                 // Четвертый пункт меню 3
       {
@@ -3266,11 +3258,11 @@ void menu_Geiger()
 
   myGLCD.setColor(255, 255, 255);
   myGLCD.setBackColor(0, 0, 255);
-  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[34]))); 
+  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[30])));
   myGLCD.print(bufmessage, 58, 122);
-  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[35]))); 
+  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[31])));
   myGLCD.print(bufmessage, 200, 122);
-  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[32]))); 
+  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[32])));
   myGLCD.print(bufmessage, 120, 180);
 
   info_power_geiger();
@@ -3391,8 +3383,8 @@ void preob_num_str() // Программа формирования имени �
 
 void sdError_F(const __FlashStringHelper* str) 
 {
-	//cout << F("error: ");
-	//cout << str << endl;
+	cout << F("error: ");
+	cout << str << endl;
 	myGLCD.clrScr();
 	myGLCD.setBackColor(0, 0, 0);
 	strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[65]))); 
@@ -3400,8 +3392,8 @@ void sdError_F(const __FlashStringHelper* str)
 	myGLCD.print(str, CENTER, 120);
 	if (card.errorCode()) 
 	{
-		//cout << F("SD error: ") << hex << int(card.errorCode());
-		//cout << ',' << int(card.errorData()) << dec << endl;
+		cout << F("SD error: ") << hex << int(card.errorCode());
+		cout << ',' << int(card.errorData()) << dec << endl;
 	}
 	myGLCD.setColor(VGA_LIME);
 	strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[24]))); 
@@ -3423,10 +3415,10 @@ void sdErrorMsg_F(const __FlashStringHelper* str)
 
   if (sd.card()->errorCode())
   {
-	//cout << F("SD errorCode: ");
-	//cout << hex << int(sd.card()->errorCode()) << endl;
-	//cout << F("SD errorData: ");
-	//cout << int(sd.card()->errorData()) << dec << endl;
+	cout << F("SD errorCode: ");
+	cout << hex << int(sd.card()->errorCode()) << endl;
+	cout << F("SD errorData: ");
+	cout << int(sd.card()->errorData()) << dec << endl;
   }
   delay(3000);
 }
@@ -3581,13 +3573,17 @@ void printDirectory(File dir, int numTabs)
 	myGLCD.setBackColor(0, 0, 0);
 	myGLCD.print("Page N ",30, 193);
 	myGLCD.setBackColor(0, 0, 255);
-	myGLCD.print(txt_info11,CENTER, 221);            // Кнопка "ESC -> PUSH"
+	strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[24])));
+	myGLCD.print(bufmessage,CENTER, 221);            // Кнопка "ESC -> PUSH"
 	myGLCD.setColor(VGA_YELLOW);
 	myGLCD.print("<<",101, 193);
 	myGLCD.print(">>",203, 193);
 	myGLCD.setFont(BigFont);
-	myGLCD.print("\x89poc\xA1o\xA4p",160, 70);       // Кнопка "Просмотр"
-	myGLCD.print("\xA5""a\x9E\xA0""a",185, 90);      // Кнопка "файла"
+
+	strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[67])));
+	myGLCD.print(bufmessage,160, 70);                       // Кнопка "Просмотр"
+	strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[68])));
+	myGLCD.print(bufmessage,185, 90);                       // Кнопка "файла"
 	myGLCD.setFont( SmallFont);
 	int count_str = 1;
 	count_string = 0;
@@ -3958,10 +3954,10 @@ void menu_formatSD()
 {
   if (!card.init(spiSpeed, chipSelect)) 
 	  {
-		//cout << pstr(
-		// "\nSD initialization failure!\n"
-		// "Is the SD card inserted correctly?\n"
-		// "Is chip select correct at the top of this sketch?\n");
+		cout << pstr(
+		 "\nSD initialization failure!\n"
+		 "Is the SD card inserted correctly?\n"
+		 "Is chip select correct at the top of this sketch?\n");
 		sdError("card.init failed");
 		 myGLCD.print("File System failed", CENTER, 120);
 
@@ -4664,8 +4660,6 @@ void FileClose()
   }
 }
 
-
-
 void file_print_date()  //программа  записи даты в файл
 {
 	DateTime now = RTC.now();
@@ -4693,7 +4687,6 @@ void example(void) {
   }
   cout << endl;
 }
-
 
 void setup()
 {
@@ -4751,7 +4744,7 @@ void setup()
 			delay(500);
 		}
 
-  Serial.println("initialization done.");
+  Serial.println(F("initialization done."));
   // Настройка радиоканала
   Mirf.cePin = 8;
   Mirf.csnPin = 9;
@@ -4775,6 +4768,7 @@ void setup()
   //Serial.println(st_Power_gaz);
   //	  ReadWriteSD();
   myGLCD.clrScr();
+  Serial.print(F("freeRam: "));
   Serial.println(freeRam());
 
   //cout << endl << "default formatting" << endl;
