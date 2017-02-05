@@ -500,7 +500,6 @@ void dateTime(uint16_t* date, uint16_t* time)                                   
 
 void draw_Glav_Menu()
 {
- // strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[0])));
  
   but1 = myButtons.addButton( 10,  20, 250,  35, txt_menu1_1);        //  txt_menu1_1;
   but2 = myButtons.addButton( 10,  65, 250,  35, txt_menu1_2);        //  txt_menu1_2;
@@ -523,7 +522,7 @@ void draw_Glav_Menu()
   {
     case 1:
       strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[19])));
-    //  myGLCD.print(bufmessage, CENTER, 0);                // txt_info1
+      myGLCD.print(bufmessage, CENTER, 0);                // txt_info1
       break;
     case 2:
       strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[20])));
@@ -578,7 +577,7 @@ void swichMenu() // Тексты меню в строках "txt....."
  		strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));
 		myGLCD.print(bufmessage, CENTER, 0);
     	strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[19])));
-		myGLCD.print(txt_info1, CENTER, 0);                        // "Ввод данных"
+		myGLCD.print(bufmessage, CENTER, 0);                        // "Ввод данных"
       }
      if (pressed_button == but_m2)
       {
