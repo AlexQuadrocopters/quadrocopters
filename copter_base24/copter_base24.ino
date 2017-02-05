@@ -681,7 +681,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 
       if (pressed_button == but1 && m2 == 2)
       {
-      //  print_info();
+		radio_send(23);
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();

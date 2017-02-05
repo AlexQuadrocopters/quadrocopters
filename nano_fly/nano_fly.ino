@@ -389,13 +389,13 @@ void UpdateGPS()
 					gps.location.lat(),
 					gps.location.lng(),
 					DOM_LAT, 
-					DOM_LAT);
+					DOM_LON);
 				courseToDOM =
 				TinyGPSPlus::courseTo(
 					gps.location.lat(),
 					gps.location.lng(),
 					DOM_LAT, 
-					DOM_LAT);
+					DOM_LON);
 
 				//Serial.print(F("LONDON     Distance="));
 				//Serial.print(distanceToLondon/1000, 6);
@@ -531,7 +531,7 @@ void run_nRF24L01()
 			data =Altitude/100;                      // Показания Высота от датчика давления BMP085
 			break;
 		case 10:
-		   data = gps_altitude_meters;                // Высота в метрах со спутника
+		   data = gps_altitude_meters;               // Высота в метрах со спутника
 			break;
 		case 11:                                     // 
 			data = gps_location_lat*1000000;         // Передать  координаты LAT
