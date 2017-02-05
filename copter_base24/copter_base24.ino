@@ -523,7 +523,7 @@ void draw_Glav_Menu()
   {
     case 1:
       strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[19])));
-      myGLCD.print(bufmessage, CENTER, 0);                // txt_info1
+    //  myGLCD.print(bufmessage, CENTER, 0);                // txt_info1
       break;
     case 2:
       strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[20])));
