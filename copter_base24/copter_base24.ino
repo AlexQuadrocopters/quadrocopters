@@ -156,15 +156,15 @@ int pass3 = 0;                            // Признак правильнос
 int eeprom_clear = 0;
 int adr_variant_sys          = 241;       //
 
-//byte hi;                                  // Старший байт для преобразования числа
-//byte low;                                 // Младший байт для преобразования числа
+byte hi;                                  // Старший байт для преобразования числа
+byte low;                                 // Младший байт для преобразования числа
 
 char n_user[20];                          // Переменная хранения № пользователя
 char temp_stLast[20];                     // Переменная для временного хранения содержания строки= stLast
 
 unsigned long count_preobr_str = 0;       // Переменная для преобразования строк в число
 unsigned int count_preobr_str1 = 0;       // Переменная для преобразования строк в число
-
+//unsigned int level_warm_gaz = 0;
 int adr_pass_user = 8;                    // Адрес пароля пользователя
 
 int adr_stCurrentLen1 = 92;               // Адрес указателя длины строки
@@ -172,6 +172,14 @@ int adr_stCurrentLen1 = 92;               // Адрес указателя дл�
 int adr_pass_admin = 118;                 // адрес пароля администратора
 int adr_n_user = 140;                     // Адрес хранения № номера пользователя
 int adr_n_telef = 220;                    // Адрес хранения № номера телефона
+int adr_war_flag_gaz = 181;               // Адрес хранения war_gaz
+int adr_level_war_gaz = 183;              // Адрес хранения уровня срабатывания Газ
+int adr_level_war_gaz_max = 201;          // Адрес хранения уровня срабатывания Газ
+int adr_war_flag_cpm = 203;               // Адрес хранения war_
+int adr_level_war_cpm = 205;              // Адрес хранения уровня срабатывания Газ
+int adr_level_war_cpm_max = 208;          // Адрес хранения уровня срабатывания Газ
+
+
 
 volatile int state = LOW;
 
@@ -225,8 +233,10 @@ unsigned long count_strok   = 0;               // Счетчик строк в �
 int cpm                     = 0;               // Счетчик Гейгера               
 float uSv_h                 = 0;               // Счетчик Гейгера 
 int temp_C                  = 0;               // Температура С 
-int gaz_measure             = 0;               // Величина измеренной загазованности
-int gaz_porog               = 0;               // Уровень порога газа
+unsigned int gaz_measure    = 0;               // Величина измеренной загазованности
+unsigned int gaz_porog      = 0;               // Уровень порога газа
+unsigned int cpm_measure    = 0;               // Величина измеренной радиоактивности
+unsigned int cpm_porog      = 0;               // Уровень порога радиоактивности
 int P_mmHq                  = 0;               // Давление
 int distance                = 0;               // Дистанция до объекта
 int altitudeP               = 0;               // Высота по давлению
@@ -267,8 +277,6 @@ int gps_altitude_feet       = 0;
 int gps_satellites_value    = 0;
 int gps_hdop_value          = 0;
 
-
-//----------------------------
 
 //Назначение переменных для хранения № опций меню (клавиш)
 
@@ -313,6 +321,12 @@ char  txt_menu5_1[] = "CKAH.PA""\x82\x86""O""\x93\x8B\x86""PA";          // СК
 char  txt_menu5_2[] = "B""\x91\x80""OP KAHA""\x88""A";                   // ВЫБОР КАНАЛА
 char  txt_menu5_3[] = "B""\x91\x80""OP MO""\x8F""HOCT""\x86";            // ВЫБОР МОЩНОСТИ
 char  txt_menu5_4[] = "PE""\x84\x86""M ""\x89""APO""\x88\x95";           // РЕЖИМ ПАРОЛЯ
+char  txt_level_warm_gaz[] = "B\x97""e\x99\x9D\xA4""e Level Gaz";        //
+char  txt_level_warm_gaz2[] = "\x89o\x97\xA4op\x9D\xA4""e  Level Gaz";   //
+char  txt_level_warm_cpm[] = "B\x97""e\x99\x9D\xA4""e Level CPM";        //
+char  txt_level_warm_cpm2[] = "\x89o\x97\xA4op\x9D\xA4""e  Level CPM";   //
+
+
 
 const char  txt12[]                  PROGMEM = "B\x97""e\x99\x9D\xA4""e \xA3""apo\xA0\xAC!";                       // "Введите пароль"
 const char  txt_pass_ok[]            PROGMEM = "\xA3""apo\xA0\xAC OK!";                                            // Пароль ОК!
@@ -362,11 +376,11 @@ const char  txt_SD_menu3[]           PROGMEM = "\x8Bop\xA1""a\xA4 SD";          
 const char  txt_SD_menu4[]           PROGMEM = "B\x91XO\x82";                                                                // Выход    
 const char  txt_buffer[]             PROGMEM = "\x80\x8A\x8B\x8B""EP \x89\x8A""CTO\x87!" ;                                   //"БУФФЕР ПУСТОЙ!"
 const char  txt_buffer_ful[]         PROGMEM = "\x89""EPE""\x89O\x88HEH\x86""E!" ;                                           // ПЕРЕПОЛНЕНИЕ!
-const char  txt_empty[]              PROGMEM = "                           ";                                                  // 
+const char  txt_empty[]              PROGMEM = "                              ";                                                  // 
 const char  txt_cpm[]                PROGMEM = "cpm   =        ";    
 const char  txt_uSv[]                PROGMEM = "uSv/h =        ";
 const char  txt_gaz1[]               PROGMEM = "\x81""a""\x9C"" V =        ";                                                //Газ V =
-const char  txt_temp[]               PROGMEM = "Te""\xA1\xA3"".C =    ";                                                     // Темп.С =
+const char  txt_temp[]               PROGMEM = "Te""\xA1\xA3"".C =    ";                                                     // Темп.С = 
 const char  txt_mmHq[]               PROGMEM = "P   mmHq";                                                                   // Давл.Ра = 
 const char  txt_H[]                  PROGMEM = "B""\xAB""co""\xA4""a =      ";                                               // Высота =
 const char  txt_LAT[]                PROGMEM = "LAT =           ";                                                           // 
@@ -469,10 +483,6 @@ const char* const table_message[] PROGMEM =
  txt_send_com,              // 72 "\x97 COM \xA3op\xA4" ;                                                       // "в СОМ порт"
  txt_no_file,               // 73 "No current file" ;                                                           // "No current file"
  txt_vvod                   // 74 "B\x97o\x99" ;                                                                // "Ввод"
-
-
-
-
 
 
 
@@ -688,19 +698,21 @@ void swichMenu() // Тексты меню в строках "txt....."
       }
       if (pressed_button == but2 && m2 == 2)
       {
-        //   info_nomer_user();
+        
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
       if (pressed_button == but3 && m2 == 2)
       {
+		set_warm_cpm();
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
       if (pressed_button == but4 && m2 == 2)
       {
+		set_warm_gaz();
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -1007,7 +1019,7 @@ void all_alarm()
 {
   time_flag_start();
   //warm_temp();                    // Проверить температуру
-  //warm_gaz();                     // Проверить уровень Газ
+  // warm_gaz();                      // Проверить уровень Газ
 }
 
 void reset_klav()
@@ -1668,6 +1680,184 @@ void set_n_telef()      // Переделать на ввод уровня по�
 
 }
 
+
+void warm_gaz()
+{
+	hi = i2c_eeprom_read_byte(deviceaddress, adr_level_war_gaz + 1); // 29-30 Номер строки в файле gaz.txt
+	low = i2c_eeprom_read_byte(deviceaddress, adr_level_war_gaz);
+
+	gaz_porog = (hi << 8) | low; // собираем как "настоящие программеры"
+	//if (gaz_measure > gaz_porog & flag_time == 1)
+	if (gaz_measure > gaz_porog)
+	{
+		myGLCD.setColor(255, 0, 0);
+		myGLCD.fillRoundRect(277, 90, 289, 102);     // Индикатор питания датчика газа
+		myGLCD.setColor(255, 255, 255);
+	}
+
+	if (gaz_measure < gaz_porog) //
+	{
+		myGLCD.setColor(0, 255, 0);
+		myGLCD.fillRoundRect(277,90, 289, 102);     // Индикатор питания датчика газа
+		myGLCD.setColor(255, 255, 255);
+	}
+}
+void set_warm_gaz()
+{
+	myGLCD.setFont(BigFont);
+	myGLCD.setBackColor(0, 0, 255);
+	myGLCD.clrScr();
+	drawButtons1();
+	// Вывод строки "Введите."
+	myGLCD.setColor(255, 0, 0);
+	myGLCD.print(txt_level_warm_gaz, CENTER, 192);// Введите 
+	delay(300);
+	myGLCD.print("                         ", CENTER, 192);
+	delay(300);
+	myGLCD.print(txt_level_warm_gaz, CENTER, 192);// Введите 
+	klav123();
+	if (ret == 1)
+	{
+		ret = 0;
+		return;
+	}
+	strcpy(temp_stLast, stLast);
+	myGLCD.setColor(255, 0, 0);
+	myGLCD.print("                         ", CENTER, 192);
+	myGLCD.print(txt_level_warm_gaz2, CENTER, 192);// 
+	delay(300);
+	myGLCD.print("                        ", CENTER, 192);
+	delay(300);
+	myGLCD.print(txt_level_warm_gaz2, CENTER, 192);// 
+
+	klav123();
+	if (ret == 1)
+	{
+		ret = 0;
+		return;
+	}
+	if (strcmp(temp_stLast, stLast) == 0)
+
+	{
+		count_preobr_str1 = atol(temp_stLast);
+
+		//   if (count_preobr_str1 < 65535)
+		if (count_preobr_str1 < 2000)
+		{
+			byte *m = (byte *)&count_preobr_str1; //Разложить номер устройства побайтно для записи в память
+			for (int i = 0; i<2; i++)
+			{
+				i2c_eeprom_write_byte(deviceaddress, i + adr_level_war_gaz, m[i]); // Записать номер устройства в память
+			}
+			//	regBank.setId(count_preobr_str1);// Записать номер устройства
+			myGLCD.print("                        ", CENTER, 192);
+			myGLCD.print(" OK !", CENTER, 192);// ОК!
+			delay(1500);
+		}
+		else
+		{
+			myGLCD.print("                      ", CENTER, 192);
+			myGLCD.print(txt_err_pass_user, CENTER, 192);// Ошибка ввода!
+			delay(1500);
+		}
+	}
+
+	if (strcmp(temp_stLast, stLast) != 0)
+	{
+		myGLCD.print("                        ", CENTER, 192);
+		myGLCD.print(txt_err_pass_user, CENTER, 192);// Ошибка ввода!
+		delay(1500);
+	}
+}
+void warm_cpm()
+{
+	hi = i2c_eeprom_read_byte(deviceaddress, adr_level_war_cpm + 1); // 29-30 Номер строки в файле gaz.txt
+	low = i2c_eeprom_read_byte(deviceaddress, adr_level_war_cpm);
+
+	cpm_porog = (hi << 8) | low; // собираем как "настоящие программеры"
+								
+	if (cpm > cpm_porog)
+	{
+		myGLCD.setColor(255, 0, 0);
+		myGLCD.fillRoundRect(277, 71-16, 289, 83-16);     // Индикатор счетчика Гейгера
+		myGLCD.setColor(255, 255, 255);
+	}
+
+	if (cpm < cpm_porog) //
+	{
+		myGLCD.setColor(0, 255, 0);
+		myGLCD.fillRoundRect(277, 71-16, 289, 83-16);     // Индикатор счетчика Гейгера
+		myGLCD.setColor(255, 255, 255);
+	}
+}
+void set_warm_cpm()
+{
+	myGLCD.setFont(BigFont);
+	myGLCD.setBackColor(0, 0, 255);
+	myGLCD.clrScr();
+	drawButtons1();
+	// Вывод строки "Введите."
+	myGLCD.setColor(255, 0, 0);
+	myGLCD.print(txt_level_warm_cpm, CENTER, 192);// Введите 
+	delay(300);
+	myGLCD.print("                         ", CENTER, 192);
+	delay(300);
+	myGLCD.print(txt_level_warm_cpm, CENTER, 192);// Введите 
+	klav123();
+	if (ret == 1)
+	{
+		ret = 0;
+		return;
+	}
+	strcpy(temp_stLast, stLast);
+	myGLCD.setColor(255, 0, 0);
+	myGLCD.print("                         ", CENTER, 192);
+	myGLCD.print(txt_level_warm_cpm2, CENTER, 192);// 
+	delay(300);
+	myGLCD.print("                        ", CENTER, 192);
+	delay(300);
+	myGLCD.print(txt_level_warm_cpm2, CENTER, 192);// 
+
+	klav123();
+	if (ret == 1)
+	{
+		ret = 0;
+		return;
+	}
+	if (strcmp(temp_stLast, stLast) == 0)
+
+	{
+		count_preobr_str1 = atol(temp_stLast);
+
+		//   if (count_preobr_str1 < 65535)
+		if (count_preobr_str1 < 2000)
+		{
+			byte *m = (byte *)&count_preobr_str1; //Разложить номер устройства побайтно для записи в память
+			for (int i = 0; i<2; i++)
+			{
+				i2c_eeprom_write_byte(deviceaddress, i + adr_level_war_cpm, m[i]); // Записать номер устройства в память
+			}
+			//	regBank.setId(count_preobr_str1);// Записать номер устройства
+			myGLCD.print("                        ", CENTER, 192);
+			myGLCD.print(" OK !", CENTER, 192);// ОК!
+			delay(1500);
+		}
+		else
+		{
+			myGLCD.print("                      ", CENTER, 192);
+			myGLCD.print(txt_err_pass_user, CENTER, 192);// Ошибка ввода!
+			delay(1500);
+		}
+	}
+
+	if (strcmp(temp_stLast, stLast) != 0)
+	{
+		myGLCD.print("                        ", CENTER, 192);
+		myGLCD.print(txt_err_pass_user, CENTER, 192);// Ошибка ввода!
+		delay(1500);
+	}
+}
+
 void set_pass_user_start()
 {
   myGLCD.setFont(BigFont);
@@ -1841,7 +2031,6 @@ void print_up() // Печать верхней строчки над меню
 
 void radiotraffic()
 {
-
   const int width = 4;
   myGLCD.clrScr();                                          // Очистить экран CENTER
   myGLCD.setColor(0, 0, 255);
@@ -1858,8 +2047,10 @@ void radiotraffic()
   myGLCD.drawRoundRect (2, 196, 318, 238);
   myGLCD.setBackColor(0, 0, 255);
   myGLCD.setColor(255, 255, 255);
-  myGLCD.drawRoundRect (299, 70, 313, 84);                          // Индикатор питания счетчика Гейгера
+  myGLCD.drawRoundRect (299, 70-16, 313, 84-16);                          // Индикатор питания счетчика Гейгера
+  myGLCD.drawRoundRect(276, 70-16, 290, 84-16);                          // Индикатор питания счетчика Гейгера
   myGLCD.drawRoundRect (299, 89, 313, 103);                         // Индикатор питания датчика газа
+  myGLCD.drawRoundRect(276, 89, 290, 103);                          // Индикатор срабатывания датчика газа
   strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[39])));  
   myGLCD.print(bufmessage, CENTER, 207);                            // Записать в файл
   stop_info = false;
@@ -1879,7 +2070,6 @@ void radiotraffic()
 		stop_info = false;
 		return;
 	}
-
 	if (geiger_ready == true)                   // Если данные со счетчика Гейгера готовы - запрашиваем их
     {
 		send_command(2);                        // Показания Счетчика Гейгера отправлены
@@ -1902,24 +2092,24 @@ void radiotraffic()
     //  Serial.print("uSv/h = ");
 	}
 
-	  send_command(4);                          // Состоянеи ключа включения питания счетчика Гейгера
+	  send_command(4);                                       // Состоянеи ключа включения питания счетчика Гейгера
 		waitanswer();
 			if (st_PowerGeiger == 1)
 			{
 				myGLCD.setColor(255, 0, 0);
-			    myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+			    myGLCD.fillRoundRect  (300, 71-16, 312, 83-16);     // Индикатор питания счетчика Гейгера
 			    myGLCD.setColor(255, 255, 255);
 			}
 			else if (st_PowerGeiger == 2)
 			{
 				myGLCD.setColor(0, 255, 0);
-				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+				myGLCD.fillRoundRect  (300, 71-16, 312, 83-16);     // Индикатор питания счетчика Гейгера
 				myGLCD.setColor(255, 255, 255);
 			}
 			else
 			{
 				myGLCD.setColor(0, 0, 0);
-				myGLCD.fillRoundRect  (300, 71, 312, 83);     // Индикатор питания счетчика Гейгера
+				myGLCD.fillRoundRect  (300, 71-16, 312, 83-16);     // Индикатор питания счетчика Гейгера
 				myGLCD.setColor(255, 255, 255);
 			}
 		exit_file_save();                                    // Проверка состояния кнопок
@@ -1957,7 +2147,7 @@ void radiotraffic()
 			myGLCD.fillRoundRect  (300, 90, 312, 102);     // Индикатор питания датчика газа
 			myGLCD.setColor(255, 255, 255);
 		}
-		exit_file_save();                                  // Проверка состояния кнопок
+		exit_file_save();                                    // Проверка состояния кнопок
 		if(stop_info == true)
 		{
 	   		stop_info = false;
@@ -2061,7 +2251,7 @@ void radiotraffic()
 			return;
 		}
     delay(10);
-	 if(file_open && command == 18)           // Если файл открыт записать данные
+	 if(file_open && command == 18)            // Если файл открыт записать данные
 		{
 
 
@@ -2133,9 +2323,6 @@ int gps_satellites_value    = 0;
 int gps_hdop_value          = 0;
 
 */
-
-
-
 		}
 
   }
@@ -2179,6 +2366,9 @@ void waitanswer()
 			strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[49])));  
 			myGLCD.print(bufmessage, LEFT, 53);      
 			myGLCD.printNumI(cpm, 120, 53);
+			myGLCD.print("/", 180, 53);
+			warm_cpm();
+			myGLCD.printNumI(cpm_porog, 200, 53);               // 
 			break;
 		case 3:
 			uSv_h = data;
@@ -2206,6 +2396,9 @@ void waitanswer()
 			myGLCD.print(bufmessage, LEFT, 87);   //Газ V =
 			gaz_measure = data;
             myGLCD.printNumI(gaz_measure, 120, 87);                  // 
+			myGLCD.print("/", 180, 87);
+			warm_gaz();
+			myGLCD.printNumI(gaz_porog, 200, 87);               // 
 			break;
 		case 6:                                                      // Состоянеи ключа включения питания датчика газа
 			if (data == 1)
@@ -2285,11 +2478,11 @@ void waitanswer()
 			DOM_LON = DOM_LON / 1000000;
 			myGLCD.setFont(SmallFont);
 			 strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[58])));  
-			myGLCD.print(bufmessage, 140, 147);                       // 
+			myGLCD.print(bufmessage, 140, 147);                             // 
 			myGLCD.printNumF(DOM_LON, 6, 190, 147);
 			myGLCD.setFont(BigFont);
 			break;
-		case 15:                                              // Количество спутников
+		case 15:                                                            // Количество спутников
 			gps_satellites_value = data;
 			myGLCD.setFont(SmallFont);
 			strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[59])));  
@@ -2478,7 +2671,7 @@ void exit_file_save()
 		if ((y >= 2) && (y <= 190))                             // Выход
 		{
 			waitForIt(2, 2, 318, 190);
-			if(	stop_save_file = true)                     // Закрыть файл  
+			if(	stop_save_file = true)                          // Закрыть файл  
 				{
 	               stop_save_file  = false;
 				   start_save_file = false;
@@ -2528,6 +2721,8 @@ void exit_file_save()
 	               stop_save_file  = false;
 				   start_save_file = false;
 				   myGLCD.setBackColor(0, 0, 255);
+				   strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));
+				   myGLCD.print(bufmessage, CENTER, 5);
 				   strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[41]))); 
 				   myGLCD.print(bufmessage, CENTER, 5);                     // Прием информации
 				   myGLCD.setBackColor(0, 0, 0);
