@@ -302,31 +302,31 @@ unsigned long timestamp = 0;
 // Назначение переменных для хранения текстов
 
 char  txt_menu1_1[] = "\x89""P""\x86""EM ""\x82\AHH""\x91""X";           // ПРИЕМ ДАННЫХ
-char  txt_menu1_2[] = "\x86""H""\x8B""O GPS";                            // ИНФО GPS
+char  txt_menu1_2[] = "==============";                                  // ИНФО GPS
 char  txt_menu1_3[] = "\x89\x86""T""A""H""\x86""E \x81""e""\x9E\x98""epa";                // ПИТАНИЕ Гейгера
 char  txt_menu1_4[] = "\x89\x86""T""A""H""\x86""E ""\x99""a""\xA4"".""\x81""A""\x85";     // ПИТАНИЕ датч. ГАЗА
 char  txt_menu2_1[] = "BBO""\x82"" KOOP""\x82\x86""HAT";                 // ВВОД КООРДИНАТ
-char  txt_menu2_2[] = "BBO""\x82"" B""\x91""COT""\x91";                  // ВВОД ВЫСОТЫ
+char  txt_menu2_2[] = "==============";                                  // ВВОД ВЫСОТЫ
 char  txt_menu2_3[] = "\x89""OPO""\x81"" PA""\x82\x86""A""\x8C\x86\x86"; // ПОРОГ РАДИАЦИИ
 char  txt_menu2_4[] = "\x89""OPO""\x81"" ""\x81""A""\x85";               // ПОРОГ ГАЗ
 char  txt_menu3_1[] = "Pa""\x96""o""\xA4""a c SD";                       // Работа с SD
 
-char  txt_menu3_2[] = "==============";      // ВВОД КОЭФФ. РАД.
-char  txt_menu3_3[] = "==============";// ПЕРЕДАЧА в ПК
-char  txt_menu3_4[] = "==============";          // ИНФО УСТАНОВКИ
+char  txt_menu3_2[] = "==============";                                  // ВВОД КОЭФФ. РАД.
+char  txt_menu3_3[] = "==============";                                  // ПЕРЕДАЧА в ПК
+char  txt_menu3_4[] = "==============";                                  // ИНФО УСТАНОВКИ
 
 //char  txt_menu3_2[] = "BBO""\x82"" KO""\x93\x8B\x8B"".PA""\x82"".";      // ВВОД КОЭФФ. РАД.
 //char  txt_menu3_3[] = "\x89""EPE""\x82""A""\x8D""A"" ""\x97"" ""\x89""K";// ПЕРЕДАЧА в ПК
 //char  txt_menu3_4[] = "\x86""H""\x8B""O ""\x8A""CTAHOBK""\x86";          // ИНФО УСТАНОВКИ
 
-char  txt_menu4_1[] = "C\x96poc \x99""a""\xA2\xA2\xABx";                 // Сброс данных
-char  txt_menu4_2[] = "\x8A""c\xA4.N \xA3o\xA0\xAC\x9C.";                // Уст. № польз
-char  txt_menu4_3[] = "\x89""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";            // Пароль польз.
-char  txt_menu4_4[] = "\x89""apo\xA0\xAC a\x99\xA1\x9D\xA2.";            // Пароль админ.
-char  txt_menu5_1[] = "CKAH.PA""\x82\x86""O""\x93\x8B\x86""PA";          // СКАН.РАДИОЭФИРА
-char  txt_menu5_2[] = "B""\x91\x80""OP KAHA""\x88""A";                   // ВЫБОР КАНАЛА
-char  txt_menu5_3[] = "B""\x91\x80""OP MO""\x8F""HOCT""\x86";            // ВЫБОР МОЩНОСТИ
-char  txt_menu5_4[] = "PE""\x84\x86""M ""\x89""APO""\x88\x95";           // РЕЖИМ ПАРОЛЯ
+char  txt_menu4_1[] = "==============";                                    // Сброс данных
+char  txt_menu4_2[] = "==============";                                    // Уст. № польз
+char  txt_menu4_3[] = "==============";                                    // Пароль польз.
+char  txt_menu4_4[] = "==============";                                    // Пароль админ.
+char  txt_menu5_1[] = "==============";                                    // СКАН.РАДИОЭФИРА
+char  txt_menu5_2[] = "==============";                                    // ВЫБОР КАНАЛА
+char  txt_menu5_3[] = "==============";                                    // ВЫБОР МОЩНОСТИ
+char  txt_menu5_4[] = "==============";                                    // РЕЖИМ ПАРОЛЯ
 char  txt_level_warm_gaz[] = "B\x97""e\x99\x9D\xA4""e Level Gaz";        //
 char  txt_level_warm_gaz2[] = "\x89o\x97\xA4op\x9D\xA4""e  Level Gaz";   //
 char  txt_level_warm_cpm[] = "B\x97""e\x99\x9D\xA4""e Level CPM";        //
@@ -784,31 +784,31 @@ void swichMenu() // Тексты меню в строках "txt....."
 
       if (pressed_button == but1 && m2 == 4)                 // Сброс данных  
       {
-        pass_test_start();                                   // Вводим пароль Нарисовать цифровую клавиатуру
-        klav123();                                           // Считать информацию с клавиатуры
-        if (ret == 1)                                        // Если "Возврат" - закончить
-        {
-          goto bailout14;                                    // Перейти на окончание выполнения пункта меню
-        }
-        else
-        {
-          pass_test();
-        }
-        if ( ( pass2 == 1) || ( pass3 == 1))                  // если верно - выполнить пункт меню
-        {
-          myGLCD.clrScr();                                    // Очистить экран
-       	  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
-		  myGLCD.print(bufmessage, RIGHT, 208);
-          delay (500);
-          eeprom_clear = 1;                                   // Разрешить стереть информации
-          system_clear_start();                               // если верно - выполнить пункт меню
-        }
-        else                                                  // Пароль не верный - сообщить и закончить
-        {
-          txt_pass_no_all();
-        }
+  //      pass_test_start();                                   // Вводим пароль Нарисовать цифровую клавиатуру
+  //      klav123();                                           // Считать информацию с клавиатуры
+  //      if (ret == 1)                                        // Если "Возврат" - закончить
+  //      {
+  //        goto bailout14;                                    // Перейти на окончание выполнения пункта меню
+  //      }
+  //      else
+  //      {
+  //        pass_test();
+  //      }
+  //      if ( ( pass2 == 1) || ( pass3 == 1))                  // если верно - выполнить пункт меню
+  //      {
+  //        myGLCD.clrScr();                                    // Очистить экран
+  //     	  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
+		//  myGLCD.print(bufmessage, RIGHT, 208);
+  //        delay (500);
+  //        eeprom_clear = 1;                                   // Разрешить стереть информации
+  //        system_clear_start();                               // если верно - выполнить пункт меню
+  //      }
+  //      else                                                  // Пароль не верный - сообщить и закончить
+  //      {
+  //        txt_pass_no_all();
+  //      }
 
-		bailout14:                                           // Восстановить пункты меню
+		//bailout14:                                           // Восстановить пункты меню
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -816,7 +816,7 @@ void swichMenu() // Тексты меню в строках "txt....."
 
       if (pressed_button == but2 && m2 == 4)
       {
-        pass_test_start();
+ /*       pass_test_start();
         klav123();
         if (ret == 1)
         {
@@ -839,7 +839,7 @@ void swichMenu() // Тексты меню в строках "txt....."
           txt_pass_no_all();
         }
 
-        bailout24:
+        bailout24:*/
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -847,42 +847,42 @@ void swichMenu() // Тексты меню в строках "txt....."
 
       if (pressed_button == but3 && m2 == 4) // Ввод пароля пользователя
       {
-        int  stCurrentLen_pass_user = i2c_eeprom_read_byte( deviceaddress, adr_pass_user - 2); //считать длину пароля  из памяти
-        if (stCurrentLen_pass_user == 0)
-        {
-          pass1 = 1;
-          goto pass_cross_user;
-        }
-        pass_test_start();
-        klav123();
-        if (ret == 1)
-        {
-          goto bailout34;
-        }
-        pass_test();
-        pass_cross_user:
+  //      int  stCurrentLen_pass_user = i2c_eeprom_read_byte( deviceaddress, adr_pass_user - 2); //считать длину пароля  из памяти
+  //      if (stCurrentLen_pass_user == 0)
+  //      {
+  //        pass1 = 1;
+  //        goto pass_cross_user;
+  //      }
+  //      pass_test_start();
+  //      klav123();
+  //      if (ret == 1)
+  //      {
+  //        goto bailout34;
+  //      }
+  //      pass_test();
+  //      pass_cross_user:
 
-        if ( ( pass1 == 1) || ( pass2 == 1) || ( pass3 == 1))
-        {
-          myGLCD.clrScr();
-          strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
-		  myGLCD.print(bufmessage, RIGHT, 208);
-          delay (500);
-          set_pass_user_start();
-        }
-        else
-        {
-          txt_pass_no_all();
-        }
+  //      if ( ( pass1 == 1) || ( pass2 == 1) || ( pass3 == 1))
+  //      {
+  //        myGLCD.clrScr();
+  //        strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
+		//  myGLCD.print(bufmessage, RIGHT, 208);
+  //        delay (500);
+  //        set_pass_user_start();
+  //      }
+  //      else
+  //      {
+  //        txt_pass_no_all();
+  //      }
 
-		bailout34:
+		//bailout34:
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
       if (pressed_button == but4 && m2 == 4)                        // Смена пароля администратора
       {
-        int stCurrentLen_pass_admin = i2c_eeprom_read_byte( deviceaddress, adr_pass_admin - 2);
+ /*       int stCurrentLen_pass_admin = i2c_eeprom_read_byte( deviceaddress, adr_pass_admin - 2);
         if (stCurrentLen_pass_admin == 0)
         {
           pass2 = 1;
@@ -911,7 +911,7 @@ void swichMenu() // Тексты меню в строках "txt....."
           txt_pass_no_all();
         }
 
-        bailout44:
+        bailout44:*/
         myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
@@ -927,62 +927,64 @@ void swichMenu() // Тексты меню в строках "txt....."
 
       if (pressed_button == but2 && m2 == 5)                      // Меню 5 - 2
       {
-        pass_test_start();                                        // Нарисовать цифровую клавиатуру
-        klav123();                                                // Считать информацию с клавиатуры
-        if (ret == 1)                                             // Если "Возврат" - закончить
-        {
-          goto bailout25;                                         // Перейти на окончание выполнения пункта меню
-        }
-        else                                                      // Иначе выполнить пункт меню
-        {
-          pass_test();                                            // Проверить пароль
-        }
-        if ( ( pass2 == 1) || ( pass3 == 1))                      // если верно - выполнить пункт меню
-        {
-          myGLCD.clrScr();   // Очистить экран
-          strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
-		  myGLCD.print(bufmessage, RIGHT, 208);
-          delay (500);
-                                                                  //		    - выполнить пункт меню
-          reset_klav();
-        }
-        else                                                      // Пароль не верный - сообщить и закончить
-        {
-          txt_pass_no_all();
-        }
+  //      pass_test_start();                                        // Нарисовать цифровую клавиатуру
+  //      klav123();                                                // Считать информацию с клавиатуры
+  //      if (ret == 1)                                             // Если "Возврат" - закончить
+  //      {
+  //        goto bailout25;                                         // Перейти на окончание выполнения пункта меню
+  //      }
+  //      else                                                      // Иначе выполнить пункт меню
+  //      {
+  //        pass_test();                                            // Проверить пароль
+  //      }
+  //      if ( ( pass2 == 1) || ( pass3 == 1))                      // если верно - выполнить пункт меню
+  //      {
+  //        myGLCD.clrScr();   // Очистить экран
+  //        strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
+		//  myGLCD.print(bufmessage, RIGHT, 208);
+  //        delay (500);
+  //                                                                //		    - выполнить пункт меню
+  //        reset_klav();
+  //      }
+  //      else                                                      // Пароль не верный - сообщить и закончить
+  //      {
+  //        txt_pass_no_all();
+  //      }
 
-		bailout25:
+		//bailout25:
+		myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
 
       if (pressed_button == but3 && m2 == 5)                    // Ввод пароля пользователя
       {
-        pass_test_start();                                      // Нарисовать цифровую клавиатуру
-        klav123();                                              // Считать информацию с клавиатуры
-        if (ret == 1)                                           // Если "Возврат" - закончить
-        {
-          goto bailout35;                                       // Перейти на окончание выполнения пункта меню
-        }
-        else                                                    // Иначе выполнить пункт меню
-        {
-          pass_test();                                          // Проверить пароль
-        }
-        if ( ( pass2 == 1) || ( pass3 == 1))                    // если верно - выполнить пункт меню
-        {
-          myGLCD.clrScr();                                      // Очистить экран
-          strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
-		  myGLCD.print(bufmessage, RIGHT, 208);
-          delay (500);
-                                                                //  выполнить пункт меню
-          reset_klav();
-        }
-        else                                                    // Пароль не верный - сообщить и закончить
-        {
-          txt_pass_no_all();
-        }
+    //    pass_test_start();                                      // Нарисовать цифровую клавиатуру
+    //    klav123();                                              // Считать информацию с клавиатуры
+    //    if (ret == 1)                                           // Если "Возврат" - закончить
+    //    {
+    //      goto bailout35;                                       // Перейти на окончание выполнения пункта меню
+    //    }
+    //    else                                                    // Иначе выполнить пункт меню
+    //    {
+    //      pass_test();                                          // Проверить пароль
+    //    }
+    //    if ( ( pass2 == 1) || ( pass3 == 1))                    // если верно - выполнить пункт меню
+    //    {
+    //      myGLCD.clrScr();                                      // Очистить экран
+    //      strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
+		  //myGLCD.print(bufmessage, RIGHT, 208);
+    //      delay (500);
+    //                                                            //  выполнить пункт меню
+    //      reset_klav();
+    //    }
+    //    else                                                    // Пароль не верный - сообщить и закончить
+    //    {
+    //      txt_pass_no_all();
+    //    }
 
-        bailout35:
+    //    bailout35:
+		myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
@@ -990,30 +992,31 @@ void swichMenu() // Тексты меню в строках "txt....."
       if (pressed_button == but4 && m2 == 5)                  // Смена пароля администратора
       {
 
-        pass_test_start();                                    // Нарисовать цифровую клавиатуру
-        klav123();                                            // Считать информацию с клавиатуры
-        if (ret == 1)                                         // Если "Возврат" - закончить
-        {
-          goto bailout45;                                     // Перейти на окончание выполнения пункта меню
-        }
-        else                                                  // Иначе выполнить пункт меню
-        {
-          pass_test();                                        // Проверить пароль
-        }
-        if ( ( pass2 == 1) || ( pass3 == 1))                  // если верно - выполнить пункт меню
-        {
-          myGLCD.clrScr();                                    // Очистить экран
-          strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
-		  myGLCD.print(bufmessage, RIGHT, 208);
-          delay (500);
-          reset_klav();
-        }
-        else                                                  // Пароль не верный - сообщить и закончить
-        {
-          txt_pass_no_all();
-        }
-
-bailout45:
+//        pass_test_start();                                    // Нарисовать цифровую клавиатуру
+//        klav123();                                            // Считать информацию с клавиатуры
+//        if (ret == 1)                                         // Если "Возврат" - закончить
+//        {
+//          goto bailout45;                                     // Перейти на окончание выполнения пункта меню
+//        }
+//        else                                                  // Иначе выполнить пункт меню
+//        {
+//          pass_test();                                        // Проверить пароль
+//        }
+//        if ( ( pass2 == 1) || ( pass3 == 1))                  // если верно - выполнить пункт меню
+//        {
+//          myGLCD.clrScr();                                    // Очистить экран
+//          strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
+//		  myGLCD.print(bufmessage, RIGHT, 208);
+//          delay (500);
+//          reset_klav();
+//        }
+//        else                                                  // Пароль не верный - сообщить и закончить
+//        {
+//          txt_pass_no_all();
+//        }
+//
+//bailout45:
+		myGLCD.clrScr();
         myButtons.drawButtons();
         print_up();
       }
@@ -1021,12 +1024,7 @@ bailout45:
   }
 }
 
-void all_alarm()
-{
-  time_flag_start();
-  //warm_temp();                    // Проверить температуру
-  // warm_gaz();                    // Проверить уровень Газ
-}
+
 
 void reset_klav()
 {
@@ -2259,7 +2257,6 @@ void radiotraffic()
 	 if(file_open && command == 18)            // Если файл открыт записать данные
 		{
 
-
     String uptime = "";
 
 	DateTime now = RTC.now();                               // Получить время 
@@ -3234,7 +3231,7 @@ void AnalogClock()
 
   while (true)
   {
-    all_alarm();
+//   all_alarm();
     if (oldsec != sec)
     {
       if ((sec == 0) and (min == 0) and (hour == 0))
