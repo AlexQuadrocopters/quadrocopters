@@ -310,9 +310,15 @@ char  txt_menu2_2[] = "BBO""\x82"" B""\x91""COT""\x91";                  // ВВ
 char  txt_menu2_3[] = "\x89""OPO""\x81"" PA""\x82\x86""A""\x8C\x86\x86"; // ПОРОГ РАДИАЦИИ
 char  txt_menu2_4[] = "\x89""OPO""\x81"" ""\x81""A""\x85";               // ПОРОГ ГАЗ
 char  txt_menu3_1[] = "Pa""\x96""o""\xA4""a c SD";                       // Работа с SD
-char  txt_menu3_2[] = "BBO""\x82"" KO""\x93\x8B\x8B"".PA""\x82"".";      // ВВОД КОЭФФ. РАД.
-char  txt_menu3_3[] = "\x89""EPE""\x82""A""\x8D""A"" ""\x97"" ""\x89""K";// ПЕРЕДАЧА в ПК
-char  txt_menu3_4[] = "\x86""H""\x8B""O ""\x8A""CTAHOBK""\x86";          // ИНФО УСТАНОВКИ
+
+char  txt_menu3_2[] = "==============";      // ВВОД КОЭФФ. РАД.
+char  txt_menu3_3[] = "==============";// ПЕРЕДАЧА в ПК
+char  txt_menu3_4[] = "==============";          // ИНФО УСТАНОВКИ
+
+//char  txt_menu3_2[] = "BBO""\x82"" KO""\x93\x8B\x8B"".PA""\x82"".";      // ВВОД КОЭФФ. РАД.
+//char  txt_menu3_3[] = "\x89""EPE""\x82""A""\x8D""A"" ""\x97"" ""\x89""K";// ПЕРЕДАЧА в ПК
+//char  txt_menu3_4[] = "\x86""H""\x8B""O ""\x8A""CTAHOBK""\x86";          // ИНФО УСТАНОВКИ
+
 char  txt_menu4_1[] = "C\x96poc \x99""a""\xA2\xA2\xABx";                 // Сброс данных
 char  txt_menu4_2[] = "\x8A""c\xA4.N \xA3o\xA0\xAC\x9C.";                // Уст. № польз
 char  txt_menu4_3[] = "\x89""apo\xA0\xAC \xA3o\xA0\xAC\x9C.";            // Пароль польз.
@@ -746,7 +752,7 @@ void swichMenu() // Тексты меню в строках "txt....."
           myGLCD.clrScr();
        	  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[1])));
 		  myGLCD.print(bufmessage, RIGHT, 208);
-          set_n_telef();
+//         set_n_telef();
           delay (500);
         }
         else
@@ -1019,7 +1025,7 @@ void all_alarm()
 {
   time_flag_start();
   //warm_temp();                    // Проверить температуру
-  // warm_gaz();                      // Проверить уровень Газ
+  // warm_gaz();                    // Проверить уровень Газ
 }
 
 void reset_klav()
@@ -1611,75 +1617,74 @@ void set_n_user_start()
   }
 
 }
-void set_n_telef()      // Переделать на ввод уровня порога газа
-{
-  myGLCD.setFont(BigFont);
-  myGLCD.setBackColor(0, 0, 255);
-  myGLCD.clrScr();
-  drawButtons1();
-  // Вывод строки "Введите N телефона."
-  myGLCD.setColor(255, 0, 0);
-//  myGLCD.print(txt_info_n_device1, CENTER, 192);// Введите N телефона.
-  delay(300);
-  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));  
-  myGLCD.print(bufmessage, CENTER, 192);
-  delay(300);
-//  myGLCD.print(txt_info_n_device1, CENTER, 192);// Введите N телефона.
-  klav123();
-  if (ret == 1)
-  {
-    ret = 0;
-    return;
-  }
-
-  strcpy(temp_stLast, stLast);
-  myGLCD.setColor(255, 0, 0);
-  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));
-  myGLCD.print(bufmessage, CENTER, 192);
-//  myGLCD.print(txt_info_n_device2, CENTER, 192);// Введите N телефона.
-  delay(300);
-  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));
-  myGLCD.print(bufmessage, CENTER, 192);
-  delay(300);
-//  myGLCD.print(txt_info_n_device2, CENTER, 192);// Введите N телефона.
-
-  klav123();
-  if (ret == 1)
-  {
-    ret = 0;
-    return;
-  }
-
-  if (strcmp(temp_stLast, stLast) == 0)
-  {
-    // stCurrentLen1 = i2c_eeprom_read_byte( deviceaddress,adr_stCurrentLen1);// Чтение номера пользователя
-
-    for (x = 0; x < 20; x++)
-    {
-      i2c_eeprom_write_byte(deviceaddress, adr_n_telef + x, 0);
-    }
-
-    for (x = 0; x < stCurrentLen1 + 1; x++)
-    {
-      i2c_eeprom_write_byte(deviceaddress, adr_n_telef + x, stLast[x]);
-    }
-
-    i2c_eeprom_write_byte(deviceaddress, adr_n_telef - 2, stCurrentLen1);
-
-  }
-
-  if (strcmp(temp_stLast, stLast) != 0 )
-  {
-    strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));
-    myGLCD.print(bufmessage, CENTER, 192);
-    strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[13])));
-	myGLCD.print(bufmessage, CENTER, 192);// Ошибка ввода!
-    delay(1500);
-  }
-
-
-}
-
+//void set_n_telef()      // Переделать на ввод уровня порога газа
+//{
+//  myGLCD.setFont(BigFont);
+//  myGLCD.setBackColor(0, 0, 255);
+//  myGLCD.clrScr();
+//  drawButtons1();
+//  // Вывод строки "Введите N телефона."
+//  myGLCD.setColor(255, 0, 0);
+////  myGLCD.print(txt_info_n_device1, CENTER, 192);// Введите N телефона.
+//  delay(300);
+//  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));  
+//  myGLCD.print(bufmessage, CENTER, 192);
+//  delay(300);
+////  myGLCD.print(txt_info_n_device1, CENTER, 192);// Введите N телефона.
+//  klav123();
+//  if (ret == 1)
+//  {
+//    ret = 0;
+//    return;
+//  }
+//
+//  strcpy(temp_stLast, stLast);
+//  myGLCD.setColor(255, 0, 0);
+//  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));
+//  myGLCD.print(bufmessage, CENTER, 192);
+////  myGLCD.print(txt_info_n_device2, CENTER, 192);// Введите N телефона.
+//  delay(300);
+//  strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));
+//  myGLCD.print(bufmessage, CENTER, 192);
+//  delay(300);
+////  myGLCD.print(txt_info_n_device2, CENTER, 192);// Введите N телефона.
+//
+//  klav123();
+//  if (ret == 1)
+//  {
+//    ret = 0;
+//    return;
+//  }
+//
+//  if (strcmp(temp_stLast, stLast) == 0)
+//  {
+//    // stCurrentLen1 = i2c_eeprom_read_byte( deviceaddress,adr_stCurrentLen1);// Чтение номера пользователя
+//
+//    for (x = 0; x < 20; x++)
+//    {
+//      i2c_eeprom_write_byte(deviceaddress, adr_n_telef + x, 0);
+//    }
+//
+//    for (x = 0; x < stCurrentLen1 + 1; x++)
+//    {
+//      i2c_eeprom_write_byte(deviceaddress, adr_n_telef + x, stLast[x]);
+//    }
+//
+//    i2c_eeprom_write_byte(deviceaddress, adr_n_telef - 2, stCurrentLen1);
+//
+//  }
+//
+//  if (strcmp(temp_stLast, stLast) != 0 )
+//  {
+//    strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[48])));
+//    myGLCD.print(bufmessage, CENTER, 192);
+//    strcpy_P(bufmessage, (char*)pgm_read_word(&(table_message[13])));
+//	myGLCD.print(bufmessage, CENTER, 192);// Ошибка ввода!
+//    delay(1500);
+//  }
+//
+//
+//}
 
 void warm_gaz()
 {
@@ -2324,7 +2329,6 @@ int gps_hdop_value          = 0;
 
 */
 		}
-
   }
 }
 
