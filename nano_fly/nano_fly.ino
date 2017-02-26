@@ -16,7 +16,7 @@
   +++++++++++++++++++++++++++++++++++++++
  Arduino Nano     NRF24L01
 	GND           1 GND
-  VCC +3,3V       2 VCC +3,3V
+  VCC +3,3V       2 VCC +3,3V 
 	 D8           3 CE
 	 D7		      4 SCN
 SCK  D13	      5 SCK
@@ -44,7 +44,7 @@ Arduino Nano      BMP180(BMO085)
   А0 - аналоговый выход газоанализатора
   А1 - цифровой выход газоанализатора
 
-*/
+ */
 
 #include <SoftwareSerial.h>             // Библиотека серийного порта
 #include <TinyGPS++.h>
