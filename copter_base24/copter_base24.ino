@@ -183,9 +183,14 @@ int adr_level_war_cpm_max = 208;          // Адрес хранения уро�
 
 volatile int state = LOW;
 
-float power60 = 0;                       // Измерение источника питания 6,0 вольт
-float power50 = 0;                       // Измерение источника питания 5,0 вольт
-float power33 = 0;                       // Измерение источника питания 3,3 вольт
+float power60     = 0;                    // Измерение источника питания 6,0 вольт
+float power50     = 0;                    // Измерение источника питания 5,0 вольт
+float power33     = 0;                    // Измерение источника питания 3,3 вольт
+float powerGeiger = 0;                    // Измерение источника питания 5,0 вольт Geiger
+float powerGaz    = 0;                    // Измерение источника питания 5,0 вольт Газ
+
+
+
 unsigned long currentTime;
 unsigned long loopTime;
 int time_power    = 1000;
@@ -2379,17 +2384,16 @@ void waitanswer()
 			myGLCD.printNumF(uSv_h, 4, 120, 70);
 			break;
 		case 4:
-			if (data == 1)
+			powerGeiger = data * (5.0 / 1023.0 * 2);
+			Serial.print("Geiger ");
+			Serial.println(powerGeiger);
+			if (data < 400)
 			{
 				st_PowerGeiger = 1;
 			}
-			else if (data == 2)
-			{
-				st_PowerGeiger = 2;
-			}
 			else
 			{
-				st_PowerGeiger = 0;
+				st_PowerGeiger = 2;
 			}
 			break; 
 		case 5:                                                      // Анализатор Газа
@@ -2402,17 +2406,16 @@ void waitanswer()
 			myGLCD.printNumI(gaz_porog, 200, 87);               // 
 			break;
 		case 6:                                                      // Состоянеи ключа включения питания датчика газа
-			if (data == 1)
+			powerGaz = data * (5.0 / 1023.0 * 2);
+			Serial.print("Gaz ");
+			Serial.println(powerGaz);
+			if (data < 400)
 			{
 				st_Power_gaz = 1;
 			}
-			else if (data == 2)
-			{
-				st_Power_gaz = 2;
-			}
 			else
 			{
-				st_Power_gaz = 0;
+				st_Power_gaz = 2;
 			}
 			break;
 		case 7:                                                       // Паказания температуры от BMP085
@@ -3401,6 +3404,9 @@ void info_power_gaz()
   myGLCD.setColor(0, 0, 0);
   radio_send(6);                                       // Запросить состояние питания датчика газа
   delay(500);
+  myGLCD.setColor(255, 255, 255);
+  myGLCD.print("     ", RIGHT, 40);
+  myGLCD.printNumF(powerGaz, 2, RIGHT, 40);
   if (st_Power_gaz == 2 )                           // Питание включено
   {
     myGLCD.setBackColor(0, 0, 255);
@@ -3509,6 +3515,9 @@ void info_power_geiger()
   myGLCD.setColor(0, 0, 0);
   radio_send(4);                                       // Запросить состояние питания датчика газа
   delay(500);
+  myGLCD.setColor(255, 255, 255);
+  myGLCD.print("     ", RIGHT, 40);
+  myGLCD.printNumF(powerGeiger, 2, RIGHT, 40);
   if (st_PowerGeiger == 2 )                           // Питание включено
   {
     myGLCD.setBackColor(0, 0, 255);
