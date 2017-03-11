@@ -496,27 +496,33 @@ void run_nRF24L01()
 			geiger_ready = 0;                        // Показания Счетчика Гейгера отправлены
 			break;
 		case 4:
-			if(st_PowerGeiger == true)             // Состоянеи ключа включения питания счетчика Гейгера
-				{
-					data = 2;
-				}
-			else
-				{
-					data = 1;
-				}
+			data = analogRead(A7);                    // питания счетчика Гейгера
+	/*		Serial.print("Geiger ");
+			Serial.println(data);*/
+			//if(st_PowerGeiger == true)              // Состоянеи ключа включения питания счетчика Гейгера
+			//	{
+			//		data = 2;
+			//	}
+			//else
+			//	{
+			//		data = 1;
+			//	}
 			break; 
 		case 5:
 			data = analogRead(A0);                    // Анализатор Газа
 			break;
 		case 6:                                       // Состоянеи ключа включения питания датчика газа
-			if(st_Power_gaz == true)
+			data = analogRead(A6);                    // Анализатор Газа
+	/*		Serial.print("Gaz ");
+			Serial.println(data);*/
+		/*	if(st_Power_gaz == true)
 				{
 					data = 2;
 				}
 			else
 				{
 					data = 1;
-				}
+				}*/
 			break;
 		case 7:
 			dps.getTemperature(&Temperature); 

@@ -21,5 +21,8 @@
     <ClInclude Include="Visual Micro\.nano_fly.vsarduino.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="__vm\.nano_fly.vsarduino.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
