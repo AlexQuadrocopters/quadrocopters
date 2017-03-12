@@ -302,7 +302,7 @@ boolean timeout = false;
 #define TIMEOUT 1000
 // Переменная для запоминания времени отправки
 unsigned long timestamp = 0;
-
+ 
 //------------------------------------------------------------------------------------------------------------------
 // Назначение переменных для хранения текстов
 
@@ -334,8 +334,8 @@ char  txt_menu5_3[] = "==============";                                    // В
 char  txt_menu5_4[] = "==============";                                    // РЕЖИМ ПАРОЛЯ
 char  txt_level_warm_gaz[] = "B\x97""e\x99\x9D\xA4""e Level Gaz";        //
 char  txt_level_warm_gaz2[] = "\x89o\x97\xA4op\x9D\xA4""e  Level Gaz";   //
-char  txt_level_warm_cpm[] = "B\x97""e\x99\x9D\xA4""e Level CPM";        //
-char  txt_level_warm_cpm2[] = "\x89o\x97\xA4op\x9D\xA4""e  Level CPM";   //
+char  txt_level_warm_cpm[] = "B\x97""e\x99\x9D\xA4""e Level uSv/h";        //
+char  txt_level_warm_cpm2[] = "\x89o\x97\xA4op\x9D\xA4""e  Level uSv/h";   //
 
 
 

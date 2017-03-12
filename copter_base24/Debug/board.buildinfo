@@ -305,7 +305,7 @@ PreProcessor.HeaderCount=1
 PreProcessor.PrototypeCount=97
 vm.last.preproc.file.0.file=copter_base24.ino
 vm.last.preproc.file.0.offset=1
-vm.last.preproc.file.0.length=178231
+vm.last.preproc.file.0.length=178235
 vm.last.preproc.file.0.linecount=4997
 vm.last.preproc.file.0.linestart=0
 vm.last.preproc.file.0.lineend=4997
@@ -366,7 +366,7 @@ runtime.vm.ide.platforms.path=C:\Program Files (x86)\Microsoft Visual Studio 14.
 build.variant.path=C:\Arduino-1.6.7\hardware\arduino\avr\variants\mega
 archive_file=core.a
 archive_file_path=C:\Users\Александр\AppData\Local\Temp\VMBuilds\copter_base24\mega_atmega2560\Debug\core.a
-extra.time.local=69723324
+extra.time.local=22723097
 tools.ctags.path={runtime.tools.ctags.path}
 tools.ctags.cmd.path={path}/ctags
 tools.ctags.pattern="{cmd.path}" -u --language-force=c++ -f - --c++-kinds=svpf --fields=KSTtzns --line-directives "{source_file}"
